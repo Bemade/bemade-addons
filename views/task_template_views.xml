@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="task_template_form_view" model="ir.ui.view">
+            <field name="name">durpro_fsm.task_template.form</field>
+            <field name="model">project.task.template</field>
+            <field name="arch" type="xml">
+                <form string="Task Template">
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name"/>
+                            <h1>
+                                <field name="name" placeholder="Title"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="project"/>
+                                <field name="assignees" widget="many2many_avatar_user"/>
+                                <field name="parent"/>
+                            </group>
+                            <group>
+                                <field name="customer"/>
+                                <field name="tags" widget="many2many_tags"/>
+                                <field name="company_id" />
+                            </group>
+                        </group>
+                        <notebook>
+                            <page name="description_page" string="Description">
+                                <field name="description" type="html" options="{'collaborative': true}"/>
+                            </page>
+                            <page name="subtasks_page" string="Subtasks">
+                                <field name="subtasks">
+                                    <tree editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="name"/>
+                                        <field name="customer"/>
+                                        <field name="assignees" widget="many2many_avatar_user"/>
+                                        <button name="action_open_task" type="object" title="View Task"
+                                                string="View Task" class="btn btn-link pull-right"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="task_template_tree_view" model="ir.ui.view">
+            <field name="name">project.task_template.tree</field>
+            <field name="model">project.task.template</field>
+            <field name="arch" type="xml">
+                <tree string="Task Template">
+                    <field name="name"/>
+                    <field name="assignees" widget="many2many_avatar_user"/>
+                    <field name="project"/>
+                    <field name="parent"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="task_template_search_view" model="ir.ui.view">
+            <field name="name">project.task_template.search</field>
+            <field name="model">project.task.template</field>
+            <field name="arch" type="xml">
+                <search string="Task Template">
+                    <field name="name"/>
+                    <field name="project"/>
+                    <field name="assignees"/>
+                    <field name="parent"/>
+                    <field name="subtasks"/>
+                    <group expand="1" string="Group By">
+                        <filter string="Project" name="groupby_project" domain="[]"
+                                context="{'group_by':'project'}"/>
+                        <filter string="Parent Task" name="groupby_parent" domain="[]"
+                                context="{'group_by':'parent'}"/>
+                        <filter string="Customer" name="groupby_customer" domain="[]"
+                                context="{'group_by':'customer'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="task_template_act_window" model="ir.actions.act_window">
+            <field name="name">Task Template</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">project.task.template</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    There are no task templates, click above to create one.
+                </p>
+            </field>
+        </record>
+
+        <menuitem name="Task Templates" id="task_template_menu" parent="project.menu_main_pm"
+                  action="task_template_act_window" groups="project.group_project_manager,project.group_project_user"/>
+    </data>
+</odoo>
