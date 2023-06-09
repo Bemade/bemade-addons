@@ -11,21 +11,17 @@ class SaleOrderLine(models.Model):
             Override to add the logic needed to implement task templates."""
 
         def _create_task_from_template(project, template, parent):
-            """ Recursively generates the task and any subtasks from a project.task.template. Subtasks are left without
-            a specific project_id so that only the top-level tasks shows up on the project task list/kanban views.
+            """ Recursively generates the task and any subtasks from a project.task.template.
 
             :param project: project.project record to set on the task's project_id field.
-                Pass the project.project model to leave task project_id blank. DO NOT pass False or None as this will
-                cause an error in _timesheet_create_task_prepare_values(project).
             :param template: project.task.template to use to create the task.
             :param parent: project.task to set as the parent to this task.
             """
             values = _timesheet_create_task_prepare_values_from_template(project, template, parent)
             task = self.env['project.task'].sudo().create(values)
             subtasks = []
-            for subtask in tmpl.subtasks:
-                # Recurse, but pass the Project model so that no project_id gets set on the subtasks
-                subtask = _create_task_from_template(self.env['project.project'], tmpl, task)
+            for t in template.subtasks:
+                subtask = _create_task_from_template(project, t, task)
                 subtasks.append(subtask)
             task.write({'child_ids': [Command.set([t.id for t in subtasks])]})
             return task

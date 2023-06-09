@@ -31,13 +31,14 @@ class TestTaskTemplateCommon(TransactionCase):
             'email': 'mrpm@testco.com',
             'signature': 'Mr. PM',
             'groups_id': [(6, 0, [user_group_employee.id, user_group_project_user.id, user_group_project_manager.id,
-                                  user_group_sales_user.id])]
+                                  user_group_sales_user.id])],
         })
         hours_uom = cls.env['uom.uom'].search([('name', '=', 'Hour')]) or False
         # Test product to use with the various tests
         cls.task1 = cls.env['project.task.template'].create({
             'name': 'Template 1',
         })
+
         cls.project = cls.env['project.project'].create({
             'name': 'Test Project',
         })
@@ -50,11 +51,15 @@ class TestTaskTemplateCommon(TransactionCase):
             'uom_id': hours_uom.id,
             'uom_po_id': hours_uom.id,
         })
+        cls.project_template = cls.env['project.project'].create({
+            'name': 'Test Project Template',
+        })
         cls.product_task_in_project = cls.env['product.product'].create({
             'name': 'Test Product 2',
             'type': 'service',
             'service_tracking': 'task_in_project',
             'task_template_id': cls.task1.id,
+            'project_template_id': cls.project_template.id,
             'uom_po_id': hours_uom.id,
             'uom_id': hours_uom.id,
         })
@@ -93,6 +98,7 @@ class TestTaskTemplateCommon(TransactionCase):
             'type': 'service',
             'service_tracking': 'task_in_project',
             'task_template_id': cls.parent_task.id,
+            'project_template_id': cls.project_template.id,
             'uom_po_id': hours_uom.id,
             'uom_id': hours_uom.id,
         })
