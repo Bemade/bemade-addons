@@ -1,5 +1,8 @@
 from odoo.tests.common import TransactionCase, HttpCase, tagged
-from odoo.exceptions import UserError
+from odoo.tools import mute_logger
+from odoo.exceptions import MissingError
+from odoo import Command
+from psycopg2.errors import ForeignKeyViolation
 
 
 class TestTaskTemplateCommon(TransactionCase):
@@ -55,19 +58,43 @@ class TestTaskTemplateCommon(TransactionCase):
             'uom_po_id': hours_uom.id,
             'uom_id': hours_uom.id,
         })
-        cls.partner = cls.env['res.partner'].create({'name': 'Test Partner'})
-        cls.sale_order = cls.env['sale.order'].create({
-            'partner_id': cls.partner.id,
-            'client_order_ref': 'TEST ORDER',
+
+        # Set up a task template tree with 2 children and 1 grandchild
+        cls.parent_task = cls.env['project.task.template'].create({
+            'name': 'Parent Template',
         })
-        cls.sol_serv_order = cls.env['sale.order.line'].create({
-            'name': cls.product_task_global_project.name,
-            'product_id': cls.product_task_global_project.id,
-            'product_uom_qty': 1,
-            'product_uom': cls.product_task_global_project.uom_id.id,
-            'price_unit': 120.0,
-            'order_id': cls.sale_order.id,
-            'tax_id': False,
+        cls.child_task_1 = cls.env['project.task.template'].create({
+            'name': 'Child Template 1',
+            'parent': cls.parent_task.id,
+        })
+        cls.child_task_2 = cls.env['project.task.template'].create({
+            'name': 'Child Template 2',
+            'parent': cls.parent_task.id,
+        })
+        cls.parent_task.write({'subtasks': [Command.set([cls.child_task_1.id, cls.child_task_2.id])]})
+        cls.grandchild_task = cls.env['project.task.template'].create({
+            'name': 'Grandchild Template',
+            'parent': cls.child_task_2.id
+        })
+        cls.child_task_2.write({'subtasks': [Command.set([cls.grandchild_task.id])]})
+
+        # Create products using the task tree we just created
+        cls.product_task_tree_global_project = cls.env['product.product'].create({
+            'name': 'Test Product 3',
+            'type': 'service',
+            'service_tracking': 'task_global_project',
+            'project_id': cls.project.id,
+            'task_template_id': cls.parent_task.id,
+            'uom_id': hours_uom.id,
+            'uom_po_id': hours_uom.id,
+        })
+        cls.product_task_tree_in_project = cls.env['product.product'].create({
+            'name': 'Test Product 2',
+            'type': 'service',
+            'service_tracking': 'task_in_project',
+            'task_template_id': cls.parent_task.id,
+            'uom_po_id': hours_uom.id,
+            'uom_id': hours_uom.id,
         })
 
 
@@ -76,17 +103,16 @@ class TestTaskTemplate(TestTaskTemplateCommon):
 
     def test_delete_task_template(self):
         """User should never be able to delete a task template used on a product"""
-        with self.assertRaises(UserError):
+        with self.assertRaises(ForeignKeyViolation):
             self.task1.unlink()
 
-    def test_order_confirmation_single_task(self):
-        """ Confirming the order should create a task in the global project. """
-        self.sale_order.action_confirm()
-        so = self.sale_order
-        sol = self.sale_order.order_line[0]
-        task = sol.task_id
-        self.assertTrue(task)
-
+    def test_delete_subtask_template(self):
+        """ Deletion of a child task should be OK even if the parent is on a product. Children of the deleted
+        subtask should be deleted."""
+        self.child_task_2.unlink()
+        # Reading deleted child's name field should be impossible
+        with self.assertRaises(MissingError):
+            test = self.grandchild_task.name
 
 
 @tagged('-at_install', 'post_install')

@@ -14,7 +14,7 @@ class TaskTemplate(models.Model):
     customer = fields.Many2one("res.partner", string="Default Customer", help="Default customer for tasks created from this template.")
     project = fields.Many2one("project.project", string="Default Project", help="Default project for tasks created from this template.")
     tags = fields.Many2many("project.tags", string="Default Tags", help="Default tags for tasks created from this template.")
-    parent = fields.Many2one("project.task.template", string="Parent Task Template")
+    parent = fields.Many2one("project.task.template", string="Parent Task Template", ondelete='cascade')
     subtasks = fields.One2many("project.task.template", inverse_name="parent", string="Subtask Templates")
     sequence = fields.Integer(string="Sequence")
     company_id = fields.Many2one("res.company", string="Company", index=1, default=_current_company)

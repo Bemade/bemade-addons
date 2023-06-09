@@ -14,7 +14,7 @@
              ],
     'assets': {
         'web.assets_tests': [
-            'durpro_fsm/static/tests/tours/task_template_tour.js',
+            'bemade_fsm/static/tests/tours/task_template_tour.js',
         ],
     },
     'installable': True,

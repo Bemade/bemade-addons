@@ -10,7 +10,7 @@ tour.register('task_template_tour', {
         trigger: '.o_app[data-menu-xmlid="project.menu_main_pm"]',
     }, {
         content: 'Open the task templates list view.',
-        trigger: '.o_nav_entry[data-menu-xmlid="durpro_fsm.task_template_menu"]',
+        trigger: '.o_nav_entry[data-menu-xmlid="bemade_fsm.task_template_menu"]',
     }, {
         content: 'Open the existing task template.',
         trigger: '.o_data_cell:contains("Template 1"):parent()',
