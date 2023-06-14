@@ -27,7 +27,7 @@
     'author': 'Bemade Inc.',
     'website': 'http://www.bemade.org',
     'license': 'OPL-1',
-    'depends': ['project', 'stock', 'sale', 'sale_project', 'sale_stock'],
+    'depends': ['project', 'stock', 'sale', 'sale_project', 'sale_stock', 'industry_fsm_sale'],
     'data': ['views/task_template_views.xml',
              'security/ir.model.access.csv',
              'views/product_views.xml',
