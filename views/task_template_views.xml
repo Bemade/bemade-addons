@@ -3,7 +3,7 @@
     <data>
 
         <record id="task_template_form_view" model="ir.ui.view">
-            <field name="name">durpro_fsm.task_template.form</field>
+            <field name="name">bemade_fsm.task_template.form</field>
             <field name="model">project.task.template</field>
             <field name="arch" type="xml">
                 <form string="Task Template">
