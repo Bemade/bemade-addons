@@ -2,8 +2,8 @@
 <odoo>
     <!-- Equipment Form View -->
     <record id="equipment_view_form" model="ir.ui.view">
-        <field name="name">durpro_fso.equipment.form</field>
-        <field name="model">durpro_fso.equipment</field>
+        <field name="name">bemade_fsm.equipment.form</field>
+        <field name="model">bemade_fsm.equipment</field>
         <field name="arch" type="xml">
             <form string="Equipment">
                 <sheet>
@@ -24,18 +24,18 @@
                             <field name="tag_ids" widget="many2many_tags" options="{'no_open': False}"/>
                         </group>
                     </group>
-                    <notebook>
-                        <page string="Interventions">
-                            <field name="intervention_ids" mode="tree">
-                                <tree string="Interventions" create="0" edit="0">
-                                    <field name="name"/>
-                                    <field name="description"/>
-                                    <field name="date_planned"/>
-                                    <field name="state"/>
-                                </tree>
-                            </field>
-                        </page>
-                    </notebook>
+<!--                    <notebook>-->
+<!--                        <page string="Interventions">-->
+<!--                            <field name="intervention_ids" mode="tree">-->
+<!--                                <tree string="Interventions" create="0" edit="0">-->
+<!--                                    <field name="name"/>-->
+<!--                                    <field name="description"/>-->
+<!--                                    <field name="date_planned"/>-->
+<!--                                    <field name="state"/>-->
+<!--                                </tree>-->
+<!--                            </field>-->
+<!--                        </page>-->
+<!--                    </notebook>-->
 
                 </sheet>
                 <div class="oe_chatter">
@@ -48,8 +48,8 @@
     </record>
 
     <record id="equipment_view_tree" model="ir.ui.view">
-        <field name="name">durpro_fso.equipment.tree</field>
-        <field name="model">durpro_fso.equipment</field>
+        <field name="name">bemade_fsm.equipment.tree</field>
+        <field name="model">bemade_fsm.equipment</field>
         <field name="arch" type="xml">
             <tree string="Equipment">
                 <field name="pid_tag"/>
@@ -63,8 +63,8 @@
 
 <!--   BV: AN OTHER SEARCH VIEW TO BRING BACK
     <record id="equipment_view_search" model="ir.ui.view">
-        <field name="name">durpro_fso.equipment.search</field>
-        <field name="model">durpro_fso.equipment</field>
+        <field name="name">bemade_fsm.equipment.search</field>
+        <field name="model">bemade_fsm.equipment</field>
         <field name="arch" type="xml">
             <search string="Equipments">
                 <field name="name"/>
@@ -83,13 +83,13 @@
 
     <record model="ir.actions.act_window" id="action_window_equipment">
         <field name="name">Equipment</field>
-        <field name="res_model">durpro_fso.equipment</field>
+        <field name="res_model">bemade_fsm.equipment</field>
         <field name="view_mode">tree,form</field>
     </record>
 
     <record model="ir.actions.act_window" id="action_window_equipment_tags">
         <field name="name">Equipment Tag</field>
-        <field name="res_model">durpro_fso.equipment.tag</field>
+        <field name="res_model">bemade_fsm.equipment.tag</field>
         <field name="view_mode">tree,form</field>
     </record>
 
