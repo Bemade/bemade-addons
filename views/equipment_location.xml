@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="partner_equipment_location_view_form" model="ir.ui.view">
+        <field name="name">bemade_fsm.partner.equipment.location.form</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='internal_notes']" position="before">
+                <page name="equipment_locations" string="Equipment Locations">
+                    <field name="equipment_location_ids" mode="kanban" context="{'default_partner_id': active_id }">
+                        <kanban>
+                            <field name="name"/>
+                            <field name="more_info"/>
+                            <field name="equipment_count"/>
+                            <templates>
+                                <t t-name="kanban-box">
+                                    <div t-att-class="oe_kanban_global_click">
+                                        <div class="oe_kanban_details">
+                                            <field name="name"/>
+                                            <field name="equipment_count"/>
+                                        </div>
+                                    </div>
+                                </t>
+                            </templates>
+                        </kanban>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+
+    <!-- Equipment Location Form View -->
+    <record id="equipment_location_view_form" model="ir.ui.view">
+        <field name="name">bemade_fsm.equipment.location.form</field>
+        <field name="model">bemade_fsm.equipment.location</field>
+        <field name="arch" type="xml">
+            <form string="Equipment Location">
+                <sheet>
+                    <group>
+                        <group name="left">
+                            <field name="name"/>
+                            <field name="more_info"/>
+                            <field name="partner_id"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Equipments">
+                            <field name="equipment_ids" mode="tree" class="oe_edit_only">
+                                <tree string="Equipments" create="0" edit="0">
+                                    <field name="name"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="equipment_location_view_tree" model="ir.ui.view">
+        <field name="name">bemade_fsm.equipment.location.tree</field>
+        <field name="model">bemade_fsm.equipment.location</field>
+        <field name="arch" type="xml">
+            <tree string="Equipment">
+                <field name="name"/>
+                <field name="more_info"/>
+                <field name="partner_id"/>
+            </tree>
+        </field>
+    </record>
+
+<!--  BV: AGAIN A SEARCH VIEW TO FIX
+
+    <record id="equipment_location_view_search" model="ir.ui.view">
+        <field name="name">bemade_fsm.equipment.location.search</field>
+        <field name="model">bemade_fsm.equipment.location</field>
+        <field name="arch" type="xml">
+            <search string="Equipment Locations">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="more_info"/>
+                <group expand="0" string="Group By">
+                    <filter string="Partner" context="{'group_by':'partner_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+-->
+
+    <record model="ir.actions.act_window" id="action_window_equipment_location">
+        <field name="name">Equipment Location</field>
+        <field name="res_model">bemade_fsm.equipment.location</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+
+
+
+
+</odoo>

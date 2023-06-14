@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Equipment Form View -->
+    <record id="equipment_view_form" model="ir.ui.view">
+        <field name="name">durpro_fso.equipment.form</field>
+        <field name="model">durpro_fso.equipment</field>
+        <field name="arch" type="xml">
+            <form string="Equipment">
+                <sheet>
+                    <group>
+                        <group name="left">
+                            <field name="pid_tag"/>
+                            <field name="name"/>
+                            <field name="description"/>
+                            <field name="location_notes"/>
+                        </group>
+                        <group name="right">
+                            <field name="partner_id"/>
+                            <field name="partner_location_id"
+                                   groups="sale.group_delivery_invoice_address"
+                                   context="{'default_type': 'delivery', 'show_address': 1}"
+                                   options='{"always_reload": True}'/>
+                            <field name="equipment_location_id"/>
+                            <field name="tag_ids" widget="many2many_tags" options="{'no_open': False}"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Interventions">
+                            <field name="intervention_ids" mode="tree">
+                                <tree string="Interventions" create="0" edit="0">
+                                    <field name="name"/>
+                                    <field name="description"/>
+                                    <field name="date_planned"/>
+                                    <field name="state"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="equipment_view_tree" model="ir.ui.view">
+        <field name="name">durpro_fso.equipment.tree</field>
+        <field name="model">durpro_fso.equipment</field>
+        <field name="arch" type="xml">
+            <tree string="Equipment">
+                <field name="pid_tag"/>
+                <field name="name"/>
+                <field name="description"/>
+                <field name="tag_ids" widget="many2many_tags" options="{'no_open': False}"/>
+                <field name="partner_id"/>
+            </tree>
+        </field>
+    </record>
+
+<!--   BV: AN OTHER SEARCH VIEW TO BRING BACK
+    <record id="equipment_view_search" model="ir.ui.view">
+        <field name="name">durpro_fso.equipment.search</field>
+        <field name="model">durpro_fso.equipment</field>
+        <field name="arch" type="xml">
+            <search string="Equipments">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="pid_tag"/>
+                <field name="partner_location_id"/>
+
+                <group expand="0" string="Group By">
+                    <filter string="Partner" context="{'group_by':'partner_id'}"/>
+                    <filter string="Location" context="{'group_by':'partner_location_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+  -->
+
+    <record model="ir.actions.act_window" id="action_window_equipment">
+        <field name="name">Equipment</field>
+        <field name="res_model">durpro_fso.equipment</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="action_window_equipment_tags">
+        <field name="name">Equipment Tag</field>
+        <field name="res_model">durpro_fso.equipment.tag</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+</odoo>

@@ -29,8 +29,11 @@
     'license': 'OPL-1',
     'depends': ['project', 'stock', 'sale', 'sale_project', 'sale_stock', 'industry_fsm_sale'],
     'data': ['views/task_template_views.xml',
+             'views/equipment.xml',
+             'views/equipment_location.xml',
              'security/ir.model.access.csv',
              'views/product_views.xml',
+             'views/res_partner.xml',
              ],
     'assets': {
         'web.assets_tests': [
