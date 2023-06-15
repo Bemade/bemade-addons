@@ -1,8 +1,4 @@
-from odoo.tests.common import TransactionCase, HttpCase, tagged
-from odoo.tools import mute_logger
-from odoo.exceptions import MissingError
-from odoo import Command
-from psycopg2.errors import ForeignKeyViolation
+from odoo.tests.common import TransactionCase
 
 
 class FSMManagerUserTransactionCase(TransactionCase):
