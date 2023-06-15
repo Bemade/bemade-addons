@@ -37,11 +37,11 @@
                 ],
     'data': ['views/task_template_views.xml',
              'views/equipment.xml',
-             'views/equipment_location.xml',
              'security/ir.model.access.csv',
              'views/product_views.xml',
              'views/res_partner.xml',
              'views/menus.xml',
+             'views/task_views.xml',
              ],
     'assets': {
         'web.assets_tests': [
