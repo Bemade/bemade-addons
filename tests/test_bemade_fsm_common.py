@@ -1,5 +1,5 @@
 from odoo.tests.common import TransactionCase
-
+from odoo import Command
 
 class FSMManagerUserTransactionCase(TransactionCase):
 
@@ -15,15 +15,15 @@ class FSMManagerUserTransactionCase(TransactionCase):
         user_group_sales_user = cls.env.ref('sales_team.group_sale_salesman')
         user_product_customer = cls.env.ref('customer_product_code.group_product_customer_code_user')
 
-        group_ids = [user_group_employee,
-                     user_group_project_user,
-                     user_group_project_manager,
-                     user_group_fsm_user,
-                     user_group_fsm_manager,
-                     user_group_sales_user,
-                     user_group_sales_manager, ]
+        group_ids = [user_group_employee.id,
+                     user_group_project_user.id,
+                     user_group_project_manager.id,
+                     user_group_fsm_user.id,
+                     user_group_fsm_manager.id,
+                     user_group_sales_user.id,
+                     user_group_sales_manager.id, ]
         if user_product_customer:
-            group_ids.append(user_product_customer)
+            group_ids.append(user_product_customer.id)
 
         # Test user with project access rights for the various tests
         Users = cls.env['res.users'].with_context({'no_reset_password': True})
@@ -33,6 +33,5 @@ class FSMManagerUserTransactionCase(TransactionCase):
             'password': 'misterpm',
             'email': 'mrpm@testco.com',
             'signature': 'Mr. PM',
-            'groups_id': [(6, 0, [user_group_employee.id, user_group_project_user.id, user_group_project_manager.id,
-                                  user_group_sales_user.id])],
+            'groups_id': [Command.set(group_ids)],
         })

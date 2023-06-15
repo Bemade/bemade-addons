@@ -5,15 +5,16 @@ import tour from 'web_tour.tour';
 tour.register('task_equipment_tour', {
     test: true,
     url: '/web',
-}, [tour.stepUtils.showAppsMenuItem(), {
+}, /* Create a new "Test Equipment" and link it to "Test Partner Company" */
+    [tour.stepUtils.showAppsMenuItem(), {
     content: 'Navigate to the Service menu',
     trigger: '.o_app[data-menu-xmlid="industry_fsm.fsm_menu_root"]',
 }, {
     content: 'Navigate to the Clients submenu',
-    trigger: '.o_app[data-menu-xmlid="bemade_fsm.menu_service_client"]',
+    trigger: 'button.dropdown-toggle[data-menu-xmlid="bemade_fsm.menu_service_client"]',
 }, {
     content: 'Navigate to the Equipment menu',
-    trigger: '.o_app[data-menu-xmlid="bemade_fsm.menu_service_client_equipment"]',
+    trigger: '.dropdown-item[data-menu-xmlid="bemade_fsm.menu_service_client_equipment"]',
 }, {
     content: 'Click the create button',
     trigger: '.o_list_button_add',
@@ -28,11 +29,14 @@ tour.register('task_equipment_tour', {
     run: 'text Test Tag Name',
 }, {
     content: 'Set the partner',
-    trigger: 'input[id="o_field_input_303"]',
+    trigger: 'div[name="partner_location_id"] div div input',
     run: 'text Test Partner Company',
 }, {
     content: 'Click the partner in the dropdown',
     trigger: 'li a.dropdown-item:contains(Test Partner Company)',
+}, {
+    content: 'Save',
+    trigger: 'button.o_form_button_save',
 }
 // Fill in the required fields, including creating a new Client Location and PID Tag
 // Navigate to the client location, then to the client, making sure that the equipment and client location links appear
