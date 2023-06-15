@@ -1,7 +1,39 @@
 /** @odoo-module **/
 
-// Navigate to the Service > Clients > Equipment menu
-// Click the Create button
+import tour from 'web_tour.tour';
+
+tour.register('task_equipment_tour', {
+    test: true,
+    url: '/web',
+}, [tour.stepUtils.showAppsMenuItem(), {
+    content: 'Navigate to the Service menu',
+    trigger: '.o_app[data-menu-xmlid="industry_fsm.fsm_menu_root"]',
+}, {
+    content: 'Navigate to the Clients submenu',
+    trigger: '.o_app[data-menu-xmlid="bemade_fsm.menu_service_client"]',
+}, {
+    content: 'Navigate to the Equipment menu',
+    trigger: '.o_app[data-menu-xmlid="bemade_fsm.menu_service_client_equipment"]',
+}, {
+    content: 'Click the create button',
+    trigger: '.o_list_button_add',
+    extra_trigger: 'li.breadcrumb-item.active:has(span:contains(Equipment))',
+}, {
+    content: 'Add a tag',
+    trigger: 'input[name="pid_tag"]',
+    run: 'text TestPIDTag',
+}, {
+    content: 'Set the name',
+    trigger: 'input[name="name"]',
+    run: 'text Test Tag Name',
+}, {
+    content: 'Set the partner',
+    trigger: 'input[id="o_field_input_303"]',
+    run: 'text Test Partner Company',
+}, {
+    content: 'Click the partner in the dropdown',
+    trigger: 'li a.dropdown-item:contains(Test Partner Company)',
+}
 // Fill in the required fields, including creating a new Client Location and PID Tag
 // Navigate to the client location, then to the client, making sure that the equipment and client location links appear
 
@@ -12,3 +44,4 @@
 // Open the location and add a new Equipment to its equipment list
 
 // Create a task in the test project
+])
