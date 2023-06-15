@@ -18,7 +18,7 @@
                   groups="industry_fsm.group_fsm_user"/>
         <menuitem id="menu_service_client_clients"
                   name="Clients"
-                  action="account.res_partner_action_customer"
+                  action="base.action_partner_customer_form"
                   sequence="20"
                   parent="menu_service_client"
                   groups="industry_fsm.group_fsm_user"/>

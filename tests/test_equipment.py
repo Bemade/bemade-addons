@@ -25,6 +25,7 @@ class TestEquipmentCommon(FSMManagerUserTransactionCase):
 
         cls.equipment = cls.env['bemade_fsm.equipment'].create({
             'name': 'Test Equipment 1',
+            'partner_location_id': cls.partner_company.id,
         })
 
 
