@@ -18,6 +18,7 @@ class TaskTemplate(models.Model):
     subtasks = fields.One2many("project.task.template", inverse_name="parent", string="Subtask Templates")
     sequence = fields.Integer(string="Sequence")
     company_id = fields.Many2one("res.company", string="Company", index=1, default=_current_company)
+    planned_hours = fields.Float("Initially Planned Hours")
 
     def action_open_task(self):
         return {
