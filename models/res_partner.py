@@ -4,13 +4,11 @@ from odoo import models, fields, api, _, Command
 class Partner(models.Model):
     _inherit = 'res.partner'
 
-    def _billing_contacts_domain(self):
-        self.ensure_one()
-        return [('is_company', '=', False), ('root_ancestor', '=', self.root_ancestor)]
-    billing_contacts = fields.Many2many(string='Default Billing Contacts',
-                                        comodel_name='res.partner',
-                                        relation='res_partner_billing_contact_rel',
-                                        column1='billing_contact_id',
-                                        column2='billed_partner_id',
-                                        domain=_billing_contacts_domain,
-                                        tracking=True)
+    root_ancestor = fields.Many2one(comodel_name='res.partner',
+                                    string='Root Ancestor',
+                                    compute='_compute_root_ancestor')
+
+    @api.depends('parent_id')
+    def _compute_root_ancestor(self):
+        for rec in self:
+            rec.root_ancestor = rec.parent_id and rec.parent_id.root_ancestor or rec

@@ -17,17 +17,14 @@
 #    DEALINGS IN THE SOFTWARE.
 #
 {
-    'name': 'bemade_multiple_billing_contacts',
+    'name': 'Partner Root Ancestor',
     'version': '15.0.1.0.0',
-    'summary': 'Send invoices to multiple contacts by default.',
-    'description': """By default, newly created invoices add all invoice addresses for the given partner as
-                      followers on the invoice. If billing contacts are set manually on the sales order, those billing
-                      contacts are added as followers on the invoice instead.""",
-    'category': 'Invoicing Management',
+    'summary': 'Technical module to add the field root_ancestor to res.partner.',
+    'category': 'Generic Modules/Base',
     'author': 'Bemade Inc.',
     'website': 'https://www.bemade.org',
     'license': 'OPL-1',
-    'depends': ['sale', 'account'],
+    'depends': ['base'],
     'data': [],
     'demo': [],
     'installable': True,
