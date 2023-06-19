@@ -67,6 +67,7 @@ class TestTaskTemplateSalesOrder(TestTaskTemplateCommon):
         self.assertTrue(task2)
         self.assertTrue(self.task1.name in task1.name)
         self.assertTrue(self.task1.name in task2.name)
+        self.assertTrue(self.task1.planned_hours == task1.planned_hours)
 
     def test_order_confirmation_tree_template(self):
         def assert_structure(sol):

@@ -11,6 +11,7 @@ class TestTaskTemplateCommon(FSMManagerUserTransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.PLANNED_HOURS = 6
         hours_uom = cls.env['uom.uom'].search([('name', '=', 'Hour')]) or False
         # Test product to use with the various tests
         cls.task1 = cls.env['project.task.template'].create({
@@ -45,6 +46,7 @@ class TestTaskTemplateCommon(FSMManagerUserTransactionCase):
         # Set up a task template tree with 2 children and 1 grandchild
         cls.parent_task = cls.env['project.task.template'].create({
             'name': 'Parent Template',
+            'planned_hours': cls.PLANNED_HOURS,
         })
         cls.child_task_1 = cls.env['project.task.template'].create({
             'name': 'Child Template 1',
