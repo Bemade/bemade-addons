@@ -43,13 +43,3 @@ class Partner(models.Model):
         for rec in self:
             all_equipmemt_ids = self.env['bemade_fsm.equipment'].search([('partner_id', '=', rec.id)])
             rec.equipment_count = len(all_equipmemt_ids)
-
-    def get_root_ancestor(self):
-        """ Returns the partner at the top of the parent-child hierarchy. """
-        self.ensure_one()
-        return self.parent_id and self.parent_id.get_root_ancestor() or self
-
-    def get_first_company_ancestor(self):
-        """ Returns the first ancestor that is a company """
-        self.ensure_one()
-        return self.is_company and self or self.parent_id and self.parent_id.get_first_company_ancestor()
