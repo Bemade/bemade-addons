@@ -56,7 +56,7 @@ class Equipment(models.Model):
     @api.depends('partner_location_id')
     def _compute_partner(self):
         for rec in self:
-            rec.partner_id = rec.partner_location_id and rec.partner_location_id.get_root_ancestor()
+            rec.partner_id = rec.partner_location_id and rec.partner_location_id.root_ancestor
 
     @api.depends('pid_tag', 'name')
     def _compute_complete_name(self):

@@ -1,6 +1,5 @@
 from .test_bemade_fsm_common import FSMManagerUserTransactionCase
 from odoo.tests.common import HttpCase, tagged
-from odoo.tools import mute_logger
 from odoo.exceptions import MissingError
 from odoo import Command
 from psycopg2.errors import ForeignKeyViolation
