@@ -1,5 +1,6 @@
 from odoo import fields, models, api, _, Command
 
+
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
 
@@ -24,6 +25,8 @@ class SaleOrderLine(models.Model):
                 subtask = _create_task_from_template(project, t, task)
                 subtasks.append(subtask)
             task.write({'child_ids': [Command.set([t.id for t in subtasks])]})
+            # We don't want to see the sub-tasks on the SO
+            task.child_ids.write({'sale_order_id': None, 'sale_line_id': None, })
             return task
 
         def _timesheet_create_task_prepare_values_from_template(project, template, parent):
@@ -36,7 +39,7 @@ class SaleOrderLine(models.Model):
             :param parent: project.task to set as the parent to this task.
             """
             vals = self._timesheet_create_task_prepare_values(project)
-            vals.update({'name': f"{vals['name']} ({template.name})"})
+            vals['name'] = f"{vals['name']} ({template.name})" if not parent else template.name
             vals['description'] = template.description or vals['description']
             vals['parent_id'] = parent and parent.id
             vals['user_ids'] = template.assignees.ids
@@ -52,6 +55,6 @@ class SaleOrderLine(models.Model):
             # post message on task
             task_msg = _(
                 "This task has been created from: <a href=# data-oe-model=sale.order data-oe-id=%d>%s</a> (%s)") % (
-                       self.order_id.id, self.order_id.name, self.product_id.name)
+                           self.order_id.id, self.order_id.name, self.product_id.name)
             task.message_post(body=task_msg)
         return task
