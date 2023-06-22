@@ -25,8 +25,8 @@ class AccountMove(models.Model):
     def _post(self, soft=True):
         # Override the original method to subscribe the partner's billing contacts instead of self.partner_id
         initial_subscribers = self.message_partner_ids.ids
-        final_subscribers = initial_subscribers + self.partner_id.billing_contacts.ids
+        final_subscribers = initial_subscribers + self.billing_contacts.ids
         posted = super()._post()
-        self.message_unsubscribe(self.message_partner_ids - initial_subscribers)
+        self.message_unsubscribe([s.id for s in self.message_partner_ids if s not in initial_subscribers])
         self.message_subscribe(final_subscribers)
         return posted
