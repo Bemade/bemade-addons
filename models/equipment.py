@@ -41,13 +41,16 @@ class Equipment(models.Model):
     partner_id = fields.Many2one('res.partner',
                                  string="Owner",
                                  compute="_compute_partner",
-                                 search="_search_partner", )
+                                 search="_search_partner",)
+
     description = fields.Text(string="Description",
                               tracking=True)
 
     partner_location_id = fields.Many2one('res.partner',
                                           string="Physical Address",
-                                          tracking=True, )
+                                          tracking=True,
+                                          required=True,
+                                          ondelete='cascade')
 
     location_notes = fields.Text(string="Physical Location Notes",
                                  tracking=True)

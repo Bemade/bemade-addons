@@ -1,10 +1,11 @@
 /** @odoo-module **/
 
 import tour from 'web_tour.tour';
+
 const TEST_COMPANY = "Test Partner Company";
 const TEST_EQPT1 = "Test Equipment 1";
 const TEST_EQPT2 = "Test Equipment 2";
-tour.register('task_equipment_tour', {
+tour.register('equipment_base_tour', {
         test: true,
         url: '/web',
     }, /* Create a new "Test Equipment" and link it to "Test Partner Company" */
@@ -66,10 +67,40 @@ tour.register('task_equipment_tour', {
         content: 'Make sure we have a first test equipment',
         /*trigger: `div[name="equipment_ids"]:has(td:contains(${TEST_EQPT1}))`,*/
         trigger: `td:contains(${TEST_EQPT1})`,
-        run: function() {},
+        run: function () {
+        },
     }, {
         content: 'Make sure we have a second test equipment',
         trigger: `div[name="equipment_ids"]:has(td:contains(${TEST_EQPT2}))`,
-        run: function() {},
+        run: function () {
+        },
     }
-    ])
+    ]);
+
+tour.register('equipment_sale_order_tour', {
+    test: true,
+    url: '/web',
+}, [tour.stepUtils.showAppsMenuItem(), {
+    content: 'Navigate to the Sales menu',
+    trigger: '.o_app[data-menu-xmlid="sale.sale_menu_root"]',
+}, {
+    content: 'Create an order',
+    trigger: 'button.o_list_button_add',
+}, {
+    content: 'Select the test partner',
+    trigger: 'div[name="partner_id"] input',
+    run: `text ${TEST_COMPANY}`,
+}, {
+    content: 'Click the partner in the dropdown',
+    trigger: `li a.dropdown-item:contains(${TEST_COMPANY})`,
+}, {
+    content: 'Save',
+    trigger: 'button.o_form_button_save',
+}, {
+    content: 'Navigate to the Field Service tab.',
+    trigger: 'a.nav-link[role="tab"]:contains(Field Service)'
+}, {
+    content: 'Check that default equipment shows up.',
+    trigger: `tr:has(label.o_form_label:contains(Site Equipment)) td.o_field_cell:contains(${TEST_EQPT1})`
+},
+]);

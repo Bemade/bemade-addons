@@ -18,6 +18,12 @@ class SaleOrder(models.Model):
                                            string='Work Order Recipients',
                                            store=True)
 
+    equipment_ids = fields.Many2many(comodel_name='bemade_fsm.equipment',
+                                     compute='_compute_equipment',
+                                     inverse='_inverse_equipment',
+                                     string='Equipment to Service',
+                                     store=True)
+
     @api.depends('partner_id')
     def _compute_default_contacts(self):
         for rec in self:
@@ -25,6 +31,14 @@ class SaleOrder(models.Model):
             rec.work_order_contacts = rec.partner_id.work_order_contacts
 
     def _inverse_default_contacts(self):
+        pass
+
+    @api.depends('partner_id')
+    def _compute_equipment(self):
+        for rec in self:
+            rec.equipment_ids = self.partner_id.equipment_ids if len(self.partner_id.equipment_ids) <= 1 else False
+
+    def _inverse_equipment(self):
         pass
 
 

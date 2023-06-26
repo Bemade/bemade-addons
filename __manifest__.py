@@ -44,6 +44,7 @@
              'views/res_partner.xml',
              'views/menus.xml',
              'views/task_views.xml',
+             'views/sale_order_views.xml',
              ],
     'assets': {
         'web.assets_tests': [
