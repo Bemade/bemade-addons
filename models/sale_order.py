@@ -1,6 +1,33 @@
 from odoo import fields, models, api, _, Command
 
 
+class SaleOrder(models.Model):
+    _inherit = 'sale.order'
+
+    site_contacts = fields.Many2many(comodel_name='res.partner',
+                                     relation="sale_order_site_contacts_rel",
+                                     compute="_compute_default_contacts",
+                                     inverse="_inverse_default_contacts",
+                                     string='Site Contacts',
+                                     store=True)
+
+    work_order_contacts = fields.Many2many(comodel_name='res.partner',
+                                           relation='sale_order_work_order_contacts_rel',
+                                           compute='_compute_default_contacts',
+                                           inverse='_inverse_default_contacts',
+                                           string='Work Order Recipients',
+                                           store=True)
+
+    @api.depends('partner_id')
+    def _compute_default_contacts(self):
+        for rec in self:
+            rec.site_contacts = rec.partner_id.site_contacts
+            rec.work_order_contacts = rec.partner_id.work_order_contacts
+
+    def _inverse_default_contacts(self):
+        pass
+
+
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
 

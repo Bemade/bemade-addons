@@ -3,7 +3,7 @@ from odoo import models, fields, api, _
 
 class TaskTemplate(models.Model):
     _name = 'project.task.template'
-
+    _description = "Template for new project tasks"
     @api.model
     def _current_company(self):
         return self.env.company

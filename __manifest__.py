@@ -35,6 +35,7 @@
                 'industry_fsm',
                 'industry_fsm_sale',
                 'bemade_partner_root_ancestor',
+                'mail',
                 ],
     'data': ['views/task_template_views.xml',
              'views/equipment.xml',

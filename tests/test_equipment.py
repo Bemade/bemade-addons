@@ -1,6 +1,8 @@
 from odoo.tests.common import HttpCase, tagged
 from .test_bemade_fsm_common import FSMManagerUserTransactionCase
 
+
+@tagged("-at_install", "post_install")
 class TestEquipmentCommon(FSMManagerUserTransactionCase):
 
     @classmethod

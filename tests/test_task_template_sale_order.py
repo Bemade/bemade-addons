@@ -2,6 +2,7 @@ from .test_task_template import TestTaskTemplateCommon
 from odoo.tests.common import tagged
 
 
+@tagged("-at_install", "post_install")
 class TestTaskTemplateSalesOrder(TestTaskTemplateCommon):
     @classmethod
     def setUpClass(cls):

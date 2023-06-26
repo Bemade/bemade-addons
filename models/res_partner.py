@@ -16,7 +16,8 @@ class Partner(models.Model):
                                     string='Site Equipment')
 
     is_site_contact = fields.Boolean(string='Is a site contact',
-                                     compute="_compute_is_site_contact")
+                                     compute="_compute_is_site_contact",
+                                     search="_search_is_site_contact",)
 
     site_ids = fields.Many2many(string='Work Sites',
                                 comodel_name='res.partner',
@@ -33,6 +34,14 @@ class Partner(models.Model):
                                      domain=[('is_company', '=', False)],
                                      tracking=True)
 
+    work_order_contacts = fields.Many2many(string='Work Order Recipients',
+                                           comodel_name='res.partner',
+                                           relation='res_partner_work_order_contacts_rel',
+                                           column1='res_partner_id',
+                                           column2='work_order_contact_id',
+                                           domain=[('is_company', '=', False)],
+                                           tracking=True)
+
     @api.depends('site_ids')
     def _compute_is_site_contact(self):
         for rec in self:
@@ -41,5 +50,9 @@ class Partner(models.Model):
     @api.depends('equipment_ids')
     def _compute_equipment_count(self):
         for rec in self:
-            all_equipmemt_ids = self.env['bemade_fsm.equipment'].search([('partner_id', '=', rec.id)])
-            rec.equipment_count = len(all_equipmemt_ids)
+            all_equipment_ids = self.env['bemade_fsm.equipment'].search([('partner_id', '=', rec.id)])
+            rec.equipment_count = len(all_equipment_ids)
+
+    @api.model
+    def _search_is_site_contact(self, operator, value):
+        return [('site_contacts', '!=', False)]
