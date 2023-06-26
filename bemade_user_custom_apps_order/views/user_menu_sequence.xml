@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Record to specify the res.users.menu.order form view -->
+    <record id="user_menu_sequence_form" model="ir.ui.view">
+        <field name="name">user.menu.sequence.form</field>
+        <field name="model">res.users.menu.order</field>
+        <field name="arch" type="xml">
+            <form string="User Menu Order">
+                <!-- Include the fields user_id, menu_id and sequence -->
+                <group>
+                    <field name="user_id"/>
+                    <field name="menu_id"/>
+                    <field name="sequence"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Record to specify the res.users.menu.order tree view -->
+    <record id="user_menu_sequence_tree" model="ir.ui.view">
+        <field name="name">user.menu.sequence.tree</field>
+        <field name="model">res.users.menu.order</field>
+        <field name="arch" type="xml">
+            <tree string="User Menu Order">
+                <!-- Include the fields user_id, menu_id and sequence -->
+                <!-- Add a handle widget to the sequence field for easy reordering -->
+                <field name="sequence" widget="handle"/>
+                <field name="user_id"/>
+                <field name="menu_id"/>
+            </tree>
+        </field>
+    </record>
+
+</odoo>

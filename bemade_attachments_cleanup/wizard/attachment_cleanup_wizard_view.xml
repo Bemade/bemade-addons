@@ -1,0 +1,32 @@
+<odoo>
+    <record id="view_attachment_cleanup_wizard" model="ir.ui.view">
+        <field name="name">attachment.cleanup.wizard.view</field>
+        <field name="model">attachment.cleanup.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Cleanup Attachments">
+                <field name="attachment_ids" options="{'no_create': True}">
+                    <tree>
+                        <field name="name"/>
+                        <field name="store_fname"/>
+                        <field name="res_model"/>
+                        <field name="res_id"/>
+                        <field name="mimetype"/>
+                        <field name="write_date"/>
+                        <button name="unlink" type="object" string="Delete"/>
+                    </tree>
+                </field>
+                <button name="action_cleanup_attachments" type="object" string="Delete All"/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_open_attachment_cleanup_wizard" model="ir.actions.act_window">
+        <field name="name">Cleanup Attachments</field>
+        <field name="res_model">attachment.cleanup.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_attachment_cleanup_wizard"/>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_attachment_cleanup" name="Cleanup Attachments" parent="base.menu_administration" action="action_open_attachment_cleanup_wizard"/>
+</odoo>

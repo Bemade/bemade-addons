@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Extend the base view for the user profile -->
+    <record id="view_users_form_profile" model="ir.ui.view">
+        <field name="name">res.users.preferences.form.inherit</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form_simple_modif"/>
+        <field name="arch" type="xml">
+
+            <!-- Add a new page to the notebook on the user profile -->
+            <xpath expr="//notebook" position="inside">
+                <page string="App Order">
+
+                    <!-- Add a list view for the 'app_order_ids' field -->
+                    <field name="app_order_ids" widget="one2many_list" create="false" delete="false">
+
+                        <!-- Use the 'handle' widget for the sequence field -->
+                        <!-- This gives a draggable handle in the list view -->
+                        <!-- The sequence will be updated based on the new order -->
+                        <!-- Set 'readonly' to False for the sequence field so it can be modified -->
+                        <tree editable="bottom" limit="200">
+                            <field name="sequence" widget="handle"/>
+                            <field name="menu_id" readonly="1"/>
+                            <field name="user_id" invisible="1"/>
+                        </tree>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
