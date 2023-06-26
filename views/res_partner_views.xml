@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="partner_default_contacts_view_form" model="ir.ui.view">
+            <field name="name">bemade_multiple_billing_contacts.res_partner.defaults.form</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='contact_addresses']" position="after">
+                    <page name="default_contacts" string="Default Contacts"
+                          help="Settings for default contacts to whom different correspondence should be sent.">
+                        <group>
+                            <field name="billing_contacts" attrs="{'invisible': [('company_type', '=', 'person')]}">
+                                <tree editable="bottom">
+                                    <field name="name" widget="res_partner_many2one" />
+                                    <field name="email" widget="email"/>
+                                    <field name="phone" widget="phone"/>
+                                    <field name="mobile" widget="phone"/>
+                                </tree>
+                            </field>
+                        </group>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
