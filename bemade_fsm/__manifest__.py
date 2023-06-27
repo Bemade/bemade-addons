@@ -35,6 +35,7 @@
                 'industry_fsm',
                 'industry_fsm_sale',
                 'bemade_partner_root_ancestor',
+                'mail',
                 ],
     'data': ['views/task_template_views.xml',
              'views/equipment.xml',
@@ -43,11 +44,12 @@
              'views/res_partner.xml',
              'views/menus.xml',
              'views/task_views.xml',
+             'views/sale_order_views.xml',
              ],
     'assets': {
         'web.assets_tests': [
             'bemade_fsm/static/tests/tours/task_template_tour.js',
-            'bemade_fsm/static/tests/tours/task_equipment_tour.js',
+            'bemade_fsm/static/tests/tours/equipment_tour.js',
         ],
     },
     'installable': True,

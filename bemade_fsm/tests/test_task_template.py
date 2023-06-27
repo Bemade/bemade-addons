@@ -5,6 +5,7 @@ from odoo import Command
 from psycopg2.errors import ForeignKeyViolation
 
 
+@tagged("-at_install", "post_install")
 class TestTaskTemplateCommon(FSMManagerUserTransactionCase):
 
     @classmethod

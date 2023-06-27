@@ -20,6 +20,7 @@ class EquipmentType(models.Model):
 
     name = fields.Char(string='Intervention Name', required=True, translate=True)
 
+
 class Equipment(models.Model):
     _name = 'bemade_fsm.equipment'
     _rec_name = 'complete_name'
@@ -39,13 +40,16 @@ class Equipment(models.Model):
                                     "Waste water, Pure water")
     partner_id = fields.Many2one('res.partner',
                                  string="Owner",
-                                 compute="_compute_partner")
+                                 compute="_compute_partner",
+                                 search="_search_partner",)
+
     description = fields.Text(string="Description",
                               tracking=True)
 
     partner_location_id = fields.Many2one('res.partner',
                                           string="Physical Address",
-                                          tracking=True,)
+                                          tracking=True,
+                                          ondelete='cascade')
 
     location_notes = fields.Text(string="Physical Location Notes",
                                  tracking=True)
@@ -57,6 +61,10 @@ class Equipment(models.Model):
     def _compute_partner(self):
         for rec in self:
             rec.partner_id = rec.partner_location_id and rec.partner_location_id.root_ancestor
+
+    @api.model
+    def _search_partner(self, operator, value):
+        return [('partner_location_id.root_ancestor', operator, value)]
 
     @api.depends('pid_tag', 'name')
     def _compute_complete_name(self):

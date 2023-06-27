@@ -25,10 +25,18 @@
                                 <field name="mobile" widget="phone"/>
                             </tree>
                         </field>
+                        <field name="work_order_contacts" attrs="{'invisible': [('company_type','=','person')]}">
+                            <tree editable="bottom">
+                                <field name="name" widget="res_partner_many2one" />
+                                <field name="email" widget="email"/>
+                                <field name="phone" widget="phone"/>
+                                <field name="mobile" widget="phone"/>
+                            </tree>
+                        </field>
                         <field name="equipment_ids" attrs="{'invisible': [('company_type','=','person')]}">
                             <tree editable="bottom">
                                 <field name="pid_tag"/>
-                                <field name="name" />
+                                <field name="name"/>
                                 <field name="location_notes"/>
                                 <button name="action_view_equipment"
                                         type="object"
@@ -40,7 +48,7 @@
                                name="owned_equipment_ids">
                             <tree editable="False">
                                 <field name="pid_tag"/>
-                                <field name="name" />
+                                <field name="name"/>
                                 <field name="partner_location_id" widget="res_partner_many2one"/>
                                 <field name="location_notes"/>
                             </tree>
@@ -48,7 +56,7 @@
                         <field name="site_ids"
                                attrs="{'invisible': [('company_type','=','company')]}">
                             <tree editable="bottom">
-                                <field name="name" widget="res_partner_many2one" />
+                                <field name="name" widget="res_partner_many2one"/>
                             </tree>
                         </field>
                     </group>

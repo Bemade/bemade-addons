@@ -1,6 +1,8 @@
-from odoo.tests.common import TransactionCase
+from odoo.tests.common import TransactionCase, tagged
 from odoo import Command
 
+
+@tagged("-at_install", "post_install")
 class FSMManagerUserTransactionCase(TransactionCase):
 
     @classmethod
