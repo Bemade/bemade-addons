@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <menuitem id="project_task_template_menu"
+                  name="Task Templates"
+                  parent="project.menu_main_pm"
+                  action="task_template_act_window"
+                  groups="project.group_project_manager,project.group_project_user"/>
+        <menuitem id="service_task_template_meny"
+                  name="Task Templates"
+                  action="task_template_act_window"
+                  parent="industry_fsm.fsm_menu_root"
+                  groups="project.group_project_manager,industry_fsm.group_fsm_manager"/>
+        <menuitem id="menu_service_client"
+                  name="Clients"
+                  sequence="10"
+                  parent="industry_fsm.fsm_menu_root"
+                  groups="industry_fsm.group_fsm_user"/>
+        <menuitem id="menu_service_client_clients"
+                  name="Clients"
+                  action="base.action_partner_customer_form"
+                  sequence="20"
+                  parent="menu_service_client"
+                  groups="industry_fsm.group_fsm_user"/>
+        <menuitem id="menu_service_client_equipment"
+                  name="Client Equipment"
+                  action="action_window_equipment"
+                  sequence="21"
+                  parent="menu_service_client"
+                  groups="industry_fsm.group_fsm_user"/>
+    </data>
+</odoo>
