@@ -101,6 +101,26 @@ tour.register('equipment_sale_order_tour', {
     trigger: 'a.nav-link[role="tab"]:contains(Field Service)'
 }, {
     content: 'Check that default equipment shows up.',
-    trigger: `tr:has(label.o_form_label:contains(Site Equipment)) td.o_field_cell:contains(${TEST_EQPT1})`
-},
+    trigger: `.o_field_cell:contains(${TEST_EQPT1})`,
+}, {
+    content: 'Add test equipment 2',
+    trigger: `div[name="equipment_ids"] a:contains(Add a line)`,
+}, {
+    content: 'Click create',
+    trigger: '.modal-footer > button:has(span:contains(Create))',
+}, {
+    content: 'Name the new equipment',
+    trigger: 'input.o_field_widget[name="name"]',
+    run: `text ${TEST_EQPT2}`,
+}, {
+    content: 'Save & Close',
+    trigger: 'button:has(span:contains(Save & Close))',
+}, {
+    content: 'Save',
+    trigger: 'button.o_form_button_save',
+}, {
+    content: 'Check that the new equipment was added',
+    trigger: `.o_field_cell:contains(${TEST_EQPT2})`,
+    run: function () {},
+}
 ]);

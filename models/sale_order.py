@@ -22,13 +22,14 @@ class SaleOrder(models.Model):
                                      compute='_compute_equipment',
                                      inverse='_inverse_equipment',
                                      string='Equipment to Service',
-                                     store=True)
+                                     store=True,
+                                     ondelete='restrict')
 
     @api.depends('partner_id')
     def _compute_default_contacts(self):
         for rec in self:
-            rec.site_contacts = rec.partner_id.site_contacts
-            rec.work_order_contacts = rec.partner_id.work_order_contacts
+            rec.site_contacts = rec.partner_shipping_id.site_contacts
+            rec.work_order_contacts = rec.partner_shipping_id.work_order_contacts
 
     def _inverse_default_contacts(self):
         pass
@@ -36,7 +37,8 @@ class SaleOrder(models.Model):
     @api.depends('partner_id')
     def _compute_equipment(self):
         for rec in self:
-            rec.equipment_ids = self.partner_id.equipment_ids if len(self.partner_id.equipment_ids) <= 1 else False
+            rec.equipment_ids = self.partner_shipping_id.equipment_ids if len(
+                self.partner_shipping_id.equipment_ids) <= 1 else False
 
     def _inverse_equipment(self):
         pass

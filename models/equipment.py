@@ -49,7 +49,6 @@ class Equipment(models.Model):
     partner_location_id = fields.Many2one('res.partner',
                                           string="Physical Address",
                                           tracking=True,
-                                          required=True,
                                           ondelete='cascade')
 
     location_notes = fields.Text(string="Physical Location Notes",

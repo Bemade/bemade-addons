@@ -49,7 +49,7 @@
     'assets': {
         'web.assets_tests': [
             'bemade_fsm/static/tests/tours/task_template_tour.js',
-            'bemade_fsm/static/tests/tours/task_equipment_tour.js',
+            'bemade_fsm/static/tests/tours/equipment_tour.js',
         ],
     },
     'installable': True,
