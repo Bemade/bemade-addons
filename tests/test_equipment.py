@@ -17,8 +17,8 @@ class TestEquipmentCommon(FSMManagerUserTransactionCase):
             'company_type': 'company',
             'street': '123 Street St.',
             'city': 'Montreal',
-            'state_id': cls.env['res.country.state'].search([('name','ilike','Quebec%')]).id,
-            'country_id': cls.env['res.country'].search([('name','=','Canada')]).id
+            'state_id': cls.env['res.country.state'].search([('name', 'ilike', 'Quebec%')]).id,
+            'country_id': cls.env['res.country'].search([('name', '=', 'Canada')]).id
         })
 
         cls.partner_contact = cls.env['res.partner'].create({
@@ -55,3 +55,5 @@ class TestEquipmentTours(HttpCase, TestEquipmentCommon):
 
     def test_equipment_sale_order_tour(self):
         self.start_tour('/web', 'equipment_sale_order_tour', login=self.user.login)
+        # Make sure the equipment added to the SO in the test tour was added to the partner
+        self.assertEqual(len(self.partner_company.equipment_ids), 2)
