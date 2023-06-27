@@ -84,4 +84,4 @@ class TestTaskTemplateSalesOrder(TestTaskTemplateCommon):
         sol2 = so.order_line[1]
         assert_structure(sol1)
         assert_structure(sol2)
-
+        
