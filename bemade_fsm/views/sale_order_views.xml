@@ -9,35 +9,14 @@
                 <xpath expr="//page[@name='other_information']" position="before">
                     <page name="field_service" string="Field Service">
                         <group name="contacts">
-                            <field name="site_contacts">
-                                <tree editable="bottom">
-                                    <field name="name" widget="res_partner_many2one"/>
-                                    <field name="email" widget="email"/>
-                                    <field name="phone" widget="phone"/>
-                                    <field name="mobile" widget="phone"/>
-                                </tree>
-                            </field>
-                            <field name="work_order_contacts">
-                                <tree editable="bottom">
-                                    <field name="name" widget="res_partner_many2one"/>
-                                    <field name="email" widget="email"/>
-                                    <field name="phone" widget="phone"/>
-                                    <field name="mobile" widget="phone"/>
-                                </tree>
-                            </field>
+                            <field name="site_contacts"
+                                   context="{'tree_view_ref': 'bemade_fsm.fsm_contacts_view_tree'}"/>
+                            <field name="work_order_contacts"
+                                   context="{'tree_view_ref': 'bemade_fsm.fsm_contacts_view_tree'}"/>
                             <field name="equipment_ids"
                                    domain="[('partner_location_id', '=', partner_shipping_id)]"
-                                   context="{'default_partner_location_id': partner_shipping_id}">
-                                <tree editable="bottom">
-                                    <field name="pid_tag"/>
-                                    <field name="name"/>
-                                    <field name="location_notes"/>
-                                    <button name="action_view_equipment"
-                                            type="object"
-                                            string="Details"
-                                            icon="fa-external-link"/>
-                                </tree>
-                            </field>
+                                   context="{'default_partner_location_id': partner_shipping_id,
+                                             'tree_view_ref': 'bemade_fsm.equipment_view_tree'}"/>
                         </group>
                     </page>
                 </xpath>

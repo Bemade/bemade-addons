@@ -10,6 +10,16 @@
                 <xpath expr="//field[@name='partner_id']" position="after">
                     <field name="equipment_id" domain="[('partner_location_id','=',partner_id)]"/>
                 </xpath>
+                <xpath expr="//page[@name='extra_info']" position="after">
+                    <page>
+                        <group name="contacts">
+                            <field name="site_contacts"
+                                   context="{'tree_view_ref': 'bemade_fsm.fsm_contacts_view_tree'}"/>
+                            <field name="work_order_contacts"
+                                   context="{'tree_view_ref': 'bemade_fsm.fsm_contacts_view_tree'}"/>
+                        </group>
+                    </page>
+                </xpath>
             </field>
         </record>
     </data>
