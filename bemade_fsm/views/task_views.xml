@@ -11,7 +11,7 @@
                     <field name="equipment_id" domain="[('partner_location_id','=',partner_id)]"/>
                 </xpath>
                 <xpath expr="//page[@name='extra_info']" position="after">
-                    <page>
+                    <page string="Field Service" name="field_service">
                         <group name="contacts">
                             <field name="site_contacts"
                                    context="{'tree_view_ref': 'bemade_fsm.fsm_contacts_view_tree'}"/>
@@ -20,6 +20,56 @@
                         </group>
                     </page>
                 </xpath>
+            </field>
+        </record>
+        <!-- Add parent_id = false to domain for My Tasks, All Tasks: To Schedule, All Tasks and To Invoice-->
+        <record id="industry_fsm.project_task_action_fsm" model="ir.actions.act_window">
+            <field name="domain">[('is_fsm', '=', True),
+                                  ('display_project_id', '!=', False),
+                                  ('parent_id', '=', False)]
+            </field>
+        </record>
+        <record id="industry_fsm.project_task_action_fsm_map" model="ir.actions.act_window">
+            <field name="domain">[('is_fsm', '=', True),
+                                  ('display_project_id', '!=', False),
+                                  ('parent_id', '=', False)]
+            </field>
+        </record>
+        <record id="industry_fsm.project_task_action_to_schedule_fsm" model="ir.actions.act_window">
+            <field name="domain">[('is_fsm', '=', True),
+                                  ('display_project_id', '!=', False),
+                                  ('parent_id', '=', False)]
+            </field>
+        </record>
+        <record id="industry_fsm.project_task_action_all_fsm" model="ir.actions.act_window">
+            <field name="domain">[('is_fsm', '=', True),
+                                  ('display_project_id', '!=', False),
+                                  ('parent_id', '=', False)]
+            </field>
+        </record>
+        <record id="industry_fsm_sale.project_task_action_to_invoice_fsm" model="ir.actions.act_window">
+            <field name="domain">[('is_fsm', '=', True),
+                                  ('display_project_id', '!=', False),
+                                  ('parent_id', '=', False)]
+            </field>
+        </record>
+        <!-- Add parent_id = false to domain for planning actions as well -->
+        <record id="industry_fsm.project_task_action_fsm_planning_groupby_user" model="ir.actions.act_window">
+            <field name="domain">[('is_fsm', '=', True),
+                                  ('display_project_id', '!=', False),
+                                  ('parent_id', '=', False)]
+            </field>
+        </record>
+        <record id="industry_fsm.project_task_action_fsm_planning_groupby_project" model="ir.actions.act_window">
+            <field name="domain">[('is_fsm', '=', True),
+                                  ('display_project_id', '!=', False),
+                                  ('parent_id', '=', False)]
+            </field>
+        </record>
+        <record id="industry_fsm_report.project_task_action_fsm_planning_groupby_worksheet" model="ir.actions.act_window">
+            <field name="domain">[('is_fsm', '=', True),
+                                  ('display_project_id', '!=', False),
+                                  ('parent_id', '=', False)]
             </field>
         </record>
     </data>

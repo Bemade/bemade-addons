@@ -19,7 +19,7 @@
 #
 ########################################################################################
 {
-    'name': 'Durpro Field Service Management',
+    'name': 'Improved Field Service Management',
     'version': '15.0.1.0.0',
     'summary': 'Adds functionality necessary for managing field service operations at Durpro.',
     'description': 'Adds functionality necessary for managing field service operations at Durpro.',
@@ -34,6 +34,7 @@
                 'sale_stock',
                 'industry_fsm',
                 'industry_fsm_sale',
+                'industry_fsm_report',
                 'bemade_partner_root_ancestor',
                 'mail',
                 ],
