@@ -31,7 +31,9 @@ class TestSaleOrderTaskContacts(TestTaskTemplateSalesOrder):
         self.assertTrue(ga(task) == ga(so))
 
     def test_work_order_contacts_on_task(self):
+        # Make sure work order contacts on the sales order transfer to the task on order confirmation
         self._test_contacts('work_order_contacts')
 
     def test_site_contacts_on_task(self):
+        # Make sure site contacts from the sales order transfer to the task on order confirmation
         self._test_contacts('site_contacts')
