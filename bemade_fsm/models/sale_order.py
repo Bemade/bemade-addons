@@ -4,6 +4,10 @@ from odoo import fields, models, api, _, Command
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
+    equipment_id = fields.Many2one(comodel_name="bemade_fsm.equipment",
+                                   string="Equipment to Service",
+                                   tracking=True)
+
     site_contacts = fields.Many2many(comodel_name='res.partner',
                                      relation="sale_order_site_contacts_rel",
                                      compute="_compute_default_contacts",
@@ -17,13 +21,6 @@ class SaleOrder(models.Model):
                                            inverse='_inverse_default_contacts',
                                            string='Work Order Recipients',
                                            store=True)
-
-    equipment_ids = fields.Many2many(comodel_name='bemade_fsm.equipment',
-                                     compute='_compute_equipment',
-                                     inverse='_inverse_equipment',
-                                     string='Equipment to Service',
-                                     store=True,
-                                     ondelete='restrict')
 
     @api.depends('partner_id')
     def _compute_default_contacts(self):

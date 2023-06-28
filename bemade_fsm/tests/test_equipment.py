@@ -55,5 +55,3 @@ class TestEquipmentTours(HttpCase, TestEquipmentCommon):
 
     def test_equipment_sale_order_tour(self):
         self.start_tour('/web', 'equipment_sale_order_tour', login=self.user.login)
-        # Make sure the equipment added to the SO in the test tour was added to the partner
-        self.assertEqual(len(self.partner_company.equipment_ids), 2)

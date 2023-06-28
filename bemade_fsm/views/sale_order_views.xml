@@ -8,15 +8,14 @@
             <field name="arch" type="xml">
                 <xpath expr="//page[@name='other_information']" position="before">
                     <page name="field_service" string="Field Service">
-                        <group name="contacts">
+                        <group name="field_service_info">
+                            <field name="equipment_id"
+                                   domain="[('partner_location_id', '=', partner_shipping_id)]"
+                                   context="{'default_partner_location_id': partner_shipping_id,}"/>
                             <field name="site_contacts"
                                    context="{'tree_view_ref': 'bemade_fsm.fsm_contacts_view_tree'}"/>
                             <field name="work_order_contacts"
                                    context="{'tree_view_ref': 'bemade_fsm.fsm_contacts_view_tree'}"/>
-                            <field name="equipment_ids"
-                                   domain="[('partner_location_id', '=', partner_shipping_id)]"
-                                   context="{'default_partner_location_id': partner_shipping_id,
-                                             'tree_view_ref': 'bemade_fsm.equipment_view_tree'}"/>
                         </group>
                     </page>
                 </xpath>
