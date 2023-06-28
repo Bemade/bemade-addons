@@ -74,7 +74,6 @@ class TestBillingContacts(TransactionCase):
 
     def test_sale_order_change_contacts(self):
         # Test that changing the billing contacts on an SO doesn't change them on the partner
-        # Validate that changing them manually on the SO transfers to the invoice
         self.sale_order.write({'billing_contacts': [Command.link(self.non_billing_contact.id)]})
         self.assertTrue(all([c in self.sale_order.billing_contacts for c in self.parent_co.billing_contacts]))
         self.assertTrue(self.non_billing_contact not in self.parent_co.billing_contacts)
@@ -87,7 +86,8 @@ class TestBillingContacts(TransactionCase):
         self.sale_order.action_confirm()
 
         wiz = self.env['sale.advance.payment.inv'].create({})
-        invoice = wiz._create_invoice(self.sale_order,self.sale_order.order_line[0],self.sale_order.order_line.price_total)
+        invoice = wiz._create_invoice(self.sale_order, self.sale_order.order_line[0],
+                                      self.sale_order.order_line.price_total)
         self.assertTrue(invoice)
         self.assertTrue(invoice.billing_contacts == self.sale_order.billing_contacts)
 
@@ -101,7 +101,8 @@ class TestBillingContacts(TransactionCase):
     def test_invoice_followers_on_validate(self):
         self.sale_order.action_confirm()
         wiz = self.env['sale.advance.payment.inv'].create({})
-        invoice = wiz._create_invoice(self.sale_order,self.sale_order.order_line[0],self.sale_order.order_line.price_total)
+        invoice = wiz._create_invoice(self.sale_order, self.sale_order.order_line[0],
+                                      self.sale_order.order_line.price_total)
         invoice.write({'date': datetime.date.today()})
         invoice.action_post()
         self.assertTrue(all([r in invoice.message_partner_ids for r in self.parent_co.billing_contacts]))
