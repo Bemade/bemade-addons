@@ -49,7 +49,7 @@ class SaleOrderLine(models.Model):
                     :param project: record of project.project in which the task should be created
                     :return task: record of the created task
 
-            Override to add the logic needed to implement task templates."""
+            Override to add the logic needed to implement task templates and equipment linkages."""
 
         def _create_task_from_template(project, template, parent):
             """ Recursively generates the task and any subtasks from a project.task.template.
@@ -98,4 +98,5 @@ class SaleOrderLine(models.Model):
                 "This task has been created from: <a href=# data-oe-model=sale.order data-oe-id=%d>%s</a> (%s)") % (
                            self.order_id.id, self.order_id.name, self.product_id.name)
             task.message_post(body=task_msg)
+        task.equipment_id = self.order_id.equipment_id
         return task

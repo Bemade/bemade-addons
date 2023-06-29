@@ -1,9 +1,10 @@
 from .test_task_template import TestTaskTemplateCommon
+from .test_equipment import TestEquipmentCommon
 from odoo.tests.common import tagged
 
 
 @tagged("-at_install", "post_install")
-class TestTaskTemplateSalesOrder(TestTaskTemplateCommon):
+class TestSalesOrder(TestTaskTemplateCommon):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -78,10 +79,19 @@ class TestTaskTemplateSalesOrder(TestTaskTemplateCommon):
             self.assertTrue(self.child_task_2.name in sol.task_id.child_ids[1].name)
             self.assertTrue(sol.task_id.child_ids[1].child_ids and len(sol.task_id.child_ids.child_ids) == 1)
             self.assertTrue(self.grandchild_task.name in sol.task_id.child_ids.child_ids[0].name)
+
         so = self.sale_order2
         so.action_confirm()
         sol1 = so.order_line[0]
         sol2 = so.order_line[1]
         assert_structure(sol1)
         assert_structure(sol2)
-        
+
+    def test_order_confirmation_equipment(self):
+        so = self.sale_order1
+        equipment = self.env['bemade_fsm.equipment'].create(
+            {'name': 'test equipment', 'partner_location_id': so.partner_shipping_id.id})
+        so.equipment_id = equipment.id
+        so.action_confirm()
+        task = so.order_line[0].task_id
+        self.assertTrue(task.equipment_id == equipment)

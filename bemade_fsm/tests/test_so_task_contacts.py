@@ -1,9 +1,9 @@
-from .test_task_template_sale_order import TestTaskTemplateSalesOrder
+from .test_sale_order import TestSalesOrder
 from odoo import Command
 from odoo.tests.common import Form
 
 
-class TestSaleOrderTaskContacts(TestTaskTemplateSalesOrder):
+class TestSaleOrderTaskContacts(TestSalesOrder):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
