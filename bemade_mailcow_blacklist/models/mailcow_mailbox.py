@@ -6,7 +6,6 @@ import string
 
 _logger = logging.getLogger(__name__)
 
-
 class MailcowMailbox(models.Model):
     _name = 'mail.mailcow.mailbox'
     _inherit = ['mail.mailcow', 'mail.thread', 'mail.activity.mixin']
@@ -103,7 +102,6 @@ class MailcowMailbox(models.Model):
         _logger.info(f'Mailbox {self.address} has been deleted on Mailcow server')
 
         return super().unlink()
-
 
     def create_mailbox_for_user(self, user):
         """

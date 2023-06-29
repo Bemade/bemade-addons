@@ -10,7 +10,6 @@
                     <page string="Mailcow" name="mailcow">
                         <group>
                             <field name="mailcow_mailbox"/>
-                            <field name="mailcow_mailbox_password"/>
                         </group>
                     </page>
                 </xpath>
