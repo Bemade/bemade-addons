@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="mailcow_alias_view_tree" model="ir.ui.view">
+        <field name="name">mailcow.alias.view.tree</field>
+        <field name="model">mail.mailcow.alias</field>
+        <field name="arch" type="xml">
+            <tree string="Alias" decoration-info="active == False">
+                <field name="active"/>
+                <field name="address"/>
+                <field name="goto"/>
+                <field name="alias_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="mailcow_alias_view_form" model="ir.ui.view">
+        <field name="name">mailcow.alias.view.form</field>
+        <field name="model">mail.mailcow.alias</field>
+        <field name="arch" type="xml">
+            <form string="Alias">
+                <sheet>
+                    <group>
+                        <field name="active"/>
+                        <field name="address"/>
+                        <field name="goto"/>
+                        <field name="alias_id"/>
+                    </group>
+                    <notebook>
+                        <page string="Messages" name="messages">
+                            <field name="message_ids" widget="mail_thread"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="mailcow_alias_action" model="ir.actions.act_window">
+        <field name="name">Aliases</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">mail.mailcow.alias</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new Alias
+            </p>
+            <p>
+                Add the details of the new Alias.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="mailcow_menu_alias"
+              name="Aliases"
+              parent="mailcow_menu"
+              action="mailcow_alias_action"
+              sequence="20"/>
+</odoo>

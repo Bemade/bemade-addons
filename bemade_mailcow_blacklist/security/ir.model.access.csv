@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_mail_mailcow_alias_all,access_mail_mailcow_alias,model_mail_mailcow_alias,base.group_user,1,0,0,0
+access_mail_mailcow_alias_admin,access_mail_mailcow_alias,model_mail_mailcow_alias,base.group_system,1,1,1,1
+access_mail_mailcow_mailbox_all,access_mail_mailcow_mailbox,model_mail_mailcow_mailbox,base.group_user,1,0,0,0
+access_mail_mailcow_mailbox_admin,access_mail_mailcow_mailbox,model_mail_mailcow_mailbox,base.group_system,1,1,1,1
+access_mail_mailcow_blacklist_all,access_mail_mailcow_blacklist,model_mail_mailcow_blacklist,base.group_user,1,0,0,0
+access_mail_mailcow_blacklist_admin,access_mail_mailcow_blacklist,model_mail_mailcow_blacklist,base.group_system,1,1,1,1
