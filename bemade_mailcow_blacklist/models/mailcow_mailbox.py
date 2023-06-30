@@ -27,6 +27,7 @@ class MailcowMailbox(models.Model):
         for record in self:
             record.address = f"{record.local_part}@{record.domain}"
 
+    @api.model
     def sync_mailboxes(self):
         """
         Synchronize Mailcow mailboxes with Odoo

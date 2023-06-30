@@ -4,10 +4,7 @@
         <field name="name">mailcow.mailbox.view.tree</field>
         <field name="model">mail.mailcow.mailbox</field>
         <field name="arch" type="xml">
-            <tree string="Mailbox" decoration-info="active == False">
-                <header>
-                    <button name="sync_mailboxes" string="Sync with Mailcow" type="object"/>
-                </header>
+            <tree string="Mailbox" decoration-info="active == False" js_class="mail_mailcow_mailbox_tree">
                 <field name="active"/>
                 <field name="name"/>
                 <field name="local_part"/>
