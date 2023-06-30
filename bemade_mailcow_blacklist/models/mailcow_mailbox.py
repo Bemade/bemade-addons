@@ -11,13 +11,16 @@ class MailcowMailbox(models.Model):
     _inherit = ['mail.mailcow', 'mail.thread', 'mail.activity.mixin']
     _description = 'Mailcow Mailbox'
 
-    name = fields.Char(track_visibility='onchange')
-    address = fields.Char(compute='_compute_address', store=True, readonly=True, track_visibility='onchange')
-    local_part = fields.Char(required=True, track_visibility='onchange')
-    domain = fields.Char(required=True, track_visibility='onchange')
-    active = fields.Boolean(default=True, track_visibility='onchange')
-    user_id = fields.Many2one('res.users', ondelete='cascade', track_visibility='onchange')
-    password = fields.Char(readonly=True, track_visibility='onchange')
+    def _default_domain(self):
+        return self.env["ir.config_parameter"].sudo().get_param("mail.catchall.domain")
+
+    name = fields.Char(tracking=True)
+    address = fields.Char(compute='_compute_address', store=True, readonly=True, tracking=True)
+    local_part = fields.Char(required=True, tracking=True)
+    domain = fields.Char(required=True, tracking=True, default=_default_domain)
+    active = fields.Boolean(default=True, tracking=True)
+    user_id = fields.Many2one('res.users', ondelete='cascade', tracking=True)
+    password = fields.Char(readonly=True, tracking=True)
 
     @api.depends('local_part', 'domain')
     def _compute_address(self):
@@ -28,7 +31,7 @@ class MailcowMailbox(models.Model):
         """
         Synchronize Mailcow mailboxes with Odoo
         """
-        endpoint = 'api/v1/get/mailbox/all'
+        endpoint = '/api/v1/get/mailbox/all'
         data = self.api_request(endpoint)
         if data:
             for item in data:
@@ -51,12 +54,12 @@ class MailcowMailbox(models.Model):
         vals['password'] = password
 
         # Check if email exists on Mailcow
-        endpoint = f"api/v1/get/mailbox/{vals['address']}"
+        endpoint = f"/api/v1/get/mailbox/{vals['local_part']}@{vals['domain']}"
         response = self.api_request(endpoint)
 
         if not response:
             # If email does not exist on Mailcow, create it
-            endpoint = 'api/v1/add/mailbox'
+            endpoint = '/api/v1/add/mailbox'
             data = {
                 'local_part': vals['local_part'],
                 'domain': vals['domain'],
@@ -70,7 +73,7 @@ class MailcowMailbox(models.Model):
                 'tls_enforce_out': "0",
             }
             self.api_request(endpoint, method='POST', data=data)
-            _logger.info(f'Mailbox {vals["address"]} has been created on Mailcow server')
+            _logger.info(f"Mailbox {vals['local_part']}@{vals['domain']} has been created on Mailcow server")
 
         return super().create(vals)
 
@@ -79,7 +82,7 @@ class MailcowMailbox(models.Model):
         Override the write function to update a Mailcow mailbox whenever a user is updated in Odoo.
         """
         if 'active' in vals or 'local_part' in vals or 'domain' in vals:
-            endpoint = f'api/v1/edit/mailbox/{self.address}'
+            endpoint = f'/api/v1/edit/mailbox/{self.address}'
             data = {
                 'items': [self.address],
                 'attr': {
@@ -97,7 +100,7 @@ class MailcowMailbox(models.Model):
         """
         Override the unlink function to delete a Mailcow mailbox whenever a user is deleted in Odoo.
         """
-        endpoint = f'api/v1/delete/mailbox/{self.address}'
+        endpoint = f'/api/v1/delete/mailbox/{self.address}'
         self.api_request(endpoint, method='POST')
         _logger.info(f'Mailbox {self.address} has been deleted on Mailcow server')
 
@@ -119,7 +122,7 @@ class MailcowMailbox(models.Model):
             'name': user.name,
             'password': user.password,
         }
-        endpoint = 'api/v1/add/mailbox'
+        endpoint = '/api/v1/add/mailbox'
         self.api_request(endpoint, method='POST', data=data)
         _logger.info(f'Mailbox for user {user.login} has been created on Mailcow server')
 

@@ -33,9 +33,10 @@ class MailcowAlias(models.Model):
                 "private_comment": f"Created by {self.env.user.name} on {fields.Datetime.now()}",
                 "public_comment": "Alias created in Odoo"
             }
-            result = self.env['mail.mailcow'].api_request('api/v1/add/alias', 'POST', data)
+            result = self.env['mail.mailcow'].api_request('/api/v1/add/alias', 'POST', data)
             if not result:
-                raise ValidationError(_("Failed to create alias on Mailcow server."))
+                #pass
+                raise ValidationError("Failed to create alias on Mailcow server.")
 
         return alias
 
@@ -59,7 +60,7 @@ class MailcowAlias(models.Model):
                 },
                 "items": [record.mc_id]
             }
-            result = self.env['mail.mailcow'].api_request('api/v1/edit/alias', 'POST', data)
+            result = self.env['mail.mailcow'].api_request('/api/v1/edit/alias', 'POST', data)
             if not result:
                 raise ValidationError(_("Failed to update alias on Mailcow server."))
 
@@ -72,7 +73,7 @@ class MailcowAlias(models.Model):
         For each alias fetched from Mailcow server, it tries to find a matching record
         in Odoo. If it doesn't exist, it creates a new record.
         """
-        endpoint = 'api/v1/get/alias/all'
+        endpoint = '/api/v1/get/alias/all'
         mailcow_aliases = self.api_request(endpoint)
 
         if not mailcow_aliases:
@@ -80,6 +81,7 @@ class MailcowAlias(models.Model):
 
         for mc_alias in mailcow_aliases:
             domain = mc_alias['domain']
+
             alias_domain = self.env['ir.config_parameter'].sudo().get_param('mail.catchall.domain')
             if domain == alias_domain:
                 alias = self.search([('address', '=', mc_alias['address'])], limit=1)

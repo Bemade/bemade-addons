@@ -10,8 +10,8 @@ class MailcowBlacklist(models.Model):
     _description = 'Mailcow Blacklist'
     _inherit = ['mail.mailcow', 'mail.thread', 'mail.activity.mixin']
 
-    email = fields.Char(string='Email', required=True, track_visibility='onchange')
-    prefid = fields.Integer(string='Mailcow ID', required=True, track_visibility='onchange')
+    email = fields.Char(string='Email', required=True, tracking=True)
+    prefid = fields.Integer(string='Mailcow ID', required=True, tracking=True)
 
     @api.model
     def create(self, vals):
@@ -19,10 +19,10 @@ class MailcowBlacklist(models.Model):
         Overridden create method to add the new blacklist entry to the Mailcow server.
         """
         res = super().create(vals)
-        domain = self.env['res.config.settings'].get_values()['mail.catchall.domain']
+        domain = self.env['ir.config_parameter'].sudo().get_param('mail.catchall.domain')
 
-        endpoint_add = 'api/v1/add/domain-policy'
-        endpoint_get_bl = f"api/v1/get/policy_bl_domain/{domain}"
+        endpoint_add = '/api/v1/add/domain-policy'
+        endpoint_get_bl = f"/api/v1/get/policy_bl_domain/{domain}"
         data = {
             'domain': domain,
             'object_from': res.email,
@@ -42,8 +42,8 @@ class MailcowBlacklist(models.Model):
         old_email = self.email
         res = super().write(vals)
         if 'email' in vals:
-            delete_endpoint = 'api/v1/delete/domain-policy'
-            add_endpoint = 'api/v1/add/domain-policy'
+            delete_endpoint = '/api/v1/delete/domain-policy'
+            add_endpoint = '/api/v1/add/domain-policy'
             delete_data = {
                 'items': [old_email]
             }
@@ -60,7 +60,7 @@ class MailcowBlacklist(models.Model):
         Overridden unlink method to remove the blacklist entry from the Mailcow server.
         """
         for record in self:
-            endpoint = 'api/v1/delete/blacklist'
+            endpoint = '/api/v1/delete/blacklist'
             data = {
                 'items': [record.email]
             }

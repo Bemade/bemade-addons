@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="mailcow_mailbox_view_tree" model="ir.ui.view">
+    <record id="view_mailcow_mailbox_tree" model="ir.ui.view">
         <field name="name">mailcow.mailbox.view.tree</field>
         <field name="model">mail.mailcow.mailbox</field>
         <field name="arch" type="xml">
             <tree string="Mailbox" decoration-info="active == False">
+                <header>
+                    <button name="sync_mailboxes" string="Sync with Mailcow" type="object"/>
+                </header>
                 <field name="active"/>
                 <field name="name"/>
                 <field name="local_part"/>
@@ -39,7 +42,7 @@
         </field>
     </record>
 
-    <record id="mailcow_mailbox_action" model="ir.actions.act_window">
+    <record id="action_mailcow_mailbox" model="ir.actions.act_window">
         <field name="name">Mailboxes</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">mail.mailcow.mailbox</field>
@@ -62,6 +65,21 @@
     <menuitem id="mailcow_menu_mailbox"
               name="Mailboxes"
               parent="mailcow_menu"
-              action="mailcow_mailbox_action"
+              action="action_mailcow_mailbox"
               sequence="10"/>
+
+    <record id="action_server_sync_mailboxes" model="ir.actions.server">
+        <field name="name">Sync Mailboxes</field>
+        <field name="model_id" ref="model_mail_mailcow_mailbox"/>
+        <field name="state">code</field>
+        <field name="code">model.sync_mailboxes()</field>
+    </record>
+
+    <record id="action_sync_mailboxes" model="ir.actions.act_window.view">
+        <field name="sequence" eval="10"/>
+        <field name="view_mode">tree</field>
+        <field name="act_window_id" ref="action_mailcow_mailbox"/>
+        <field name="view_id" ref="view_mailcow_mailbox_tree"/>
+    </record>
+
 </odoo>

@@ -21,7 +21,7 @@ Main Features:
     'license': 'OPL-1',
     'author': 'BeMade',
     'website': 'https://www.bemade.org',
-    'depends': ['mail', 'bemade_user_password_bundle'],
+    'depends': ['hr', 'mail', 'bemade_user_password_bundle'],
     'data': [
         'security/ir.model.access.csv',
         'views/res_config_settings_views.xml',
@@ -31,6 +31,11 @@ Main Features:
         'views/res_users_views.xml',
 
     ],
+    "assets": {
+        "web.assets_backend": [
+            "bemade_mailcow_blacklist/static/src/js/mailcow_mailbox.js"
+        ]
+    },
     'demo': [],
     'installable': True,
     'application': False,
