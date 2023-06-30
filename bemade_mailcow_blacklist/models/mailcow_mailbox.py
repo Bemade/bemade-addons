@@ -34,17 +34,18 @@ class MailcowMailbox(models.Model):
         """
         endpoint = '/api/v1/get/mailbox/all'
         data = self.api_request(endpoint)
+        domain = self.env['ir.config_parameter'].sudo().get_param('mail.catchall.domain')
         if data:
             for item in data:
-                domain = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
                 if item['domain'] == domain:
-                    self.create({
-                        'name': item['name'],
-                        'local_part': item['local_part'],
-                        'domain': item['domain'],
-                        'active': item['active'],
-                        'password': item['password'],
-                    })
+                    mailbox = self.env['mail.mailcow.mailbox'].search([('address', '=', f"{item['local_part']}@{item['domain']}")])
+                    if not mailbox:
+                        self.create({
+                            'name': item['name'],
+                            'local_part': item['local_part'],
+                            'domain': item['domain'],
+                            'active': item['active'],
+                        })
 
     @api.model
     def create(self, vals):
@@ -101,9 +102,15 @@ class MailcowMailbox(models.Model):
         """
         Override the unlink function to delete a Mailcow mailbox whenever a user is deleted in Odoo.
         """
-        endpoint = f'/api/v1/delete/mailbox/{self.address}'
-        self.api_request(endpoint, method='POST')
-        _logger.info(f'Mailbox {self.address} has been deleted on Mailcow server')
+
+        for mailbox in self:
+            data = {
+                'username': mailbox.address
+            }
+
+            endpoint = f'/api/v1/delete/mailbox'
+            mailbox.api_request(endpoint, method='POST', data=data)
+            _logger.info(f'Mailbox {mailbox.address} has been deleted on Mailcow server')
 
         return super().unlink()
 

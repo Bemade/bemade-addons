@@ -34,9 +34,13 @@ Main Features:
     "assets": {
         "web.assets_backend": [
             "bemade_mailcow_blacklist/static/src/js/mailcow_mailbox.js",
+            "bemade_mailcow_blacklist/static/src/js/mailcow_alias.js",
+            "bemade_mailcow_blacklist/static/src/js/mailcow_blacklist.js",
         ],
         "web.assets_qweb": [
             "bemade_mailcow_blacklist/static/src/xml/mailcow_mailbox.xml",
+            "bemade_mailcow_blacklist/static/src/xml/mailcow_alias.xml",
+            "bemade_mailcow_blacklist/static/src/xml/mailcow_blacklist.xml",
         ],
     },
     'demo': [],

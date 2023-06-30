@@ -29,7 +29,7 @@
         </field>
     </record>
 
-    <record id="mailcow_blacklist_action" model="ir.actions.act_window">
+    <record id="action_mailcow_blacklist" model="ir.actions.act_window">
         <field name="name">Blacklist</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">mail.mailcow.blacklist</field>
@@ -47,6 +47,20 @@
     <menuitem id="mailcow_menu_blacklist"
               name="Blacklist"
               parent="mailcow_menu"
-              action="mailcow_blacklist_action"
+              action="action_mailcow_blacklist"
               sequence="30"/>
+
+    <record id="action_server_sync_blacklist" model="ir.actions.server">
+        <field name="name">Sync Blacklist</field>
+        <field name="model_id" ref="model_mail_mailcow_blacklist"/>
+        <field name="state">code</field>
+        <field name="code">model.sync_blacklist()</field>
+    </record>
+
+    <record id="action_sync_blacklist" model="ir.actions.act_window.view">
+        <field name="sequence" eval="10"/>
+        <field name="view_mode">tree</field>
+        <field name="act_window_id" ref="action_mailcow_blacklist"/>
+        <field name="view_id" ref="mailcow_blacklist_view_form"/>
+    </record>
 </odoo>

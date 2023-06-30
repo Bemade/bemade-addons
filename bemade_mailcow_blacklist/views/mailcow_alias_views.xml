@@ -35,7 +35,7 @@
         </field>
     </record>
 
-    <record id="mailcow_alias_action" model="ir.actions.act_window">
+    <record id="action_mailcow_alias" model="ir.actions.act_window">
         <field name="name">Aliases</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">mail.mailcow.alias</field>
@@ -53,6 +53,21 @@
     <menuitem id="mailcow_menu_alias"
               name="Aliases"
               parent="mailcow_menu"
-              action="mailcow_alias_action"
+              action="action_mailcow_alias"
               sequence="20"/>
+
+    <record id="action_server_sync_aliases" model="ir.actions.server">
+        <field name="name">Sync Aliases</field>
+        <field name="model_id" ref="model_mail_mailcow_alias"/>
+        <field name="state">code</field>
+        <field name="code">model.sync_aliases()</field>
+    </record>
+
+    <record id="action_sync_aliases" model="ir.actions.act_window.view">
+        <field name="sequence" eval="10"/>
+        <field name="view_mode">tree</field>
+        <field name="act_window_id" ref="action_mailcow_alias"/>
+        <field name="view_id" ref="mailcow_alias_view_tree"/>
+    </record>
+
 </odoo>
