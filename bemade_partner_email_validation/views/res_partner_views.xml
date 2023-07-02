@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_form" model="ir.ui.view">
+        <field name="name">res.partner.form.email.validated</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='email']" position="after">
+                <field name="email_validated"/>
+                <button name="send_validation_email" type="object" string="Resend Validation Email" attrs="{'invisible': [('email_validated', '=', True)]}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_send_validation_emails" model="ir.actions.server">
+        <field name="name">Send Validation Emails</field>
+        <field name="model_id" ref="base.model_res_partner"/>
+        <field name="state">code</field>
+        <field name="code">model.send_validation_email()</field>
+    </record>
+
+    <record id="res_partner_view_tree" model="ir.ui.view">
+        <field name="name">res.partner.tree</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree"/>
+        <field name="arch" type="xml">
+            <tree position="attributes">
+                <attribute name="decoration-muted">email_validated == True</attribute>
+            </tree>
+            <xpath expr="//field[@name='email']" position="after">
+                <field name="email_validated"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+```

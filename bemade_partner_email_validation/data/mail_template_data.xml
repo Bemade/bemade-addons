@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Email template for the email validation -->
+        <record id="email_template_validation" model="mail.template">
+            <field name="name">Email Validation</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="subject">Please validate your email address</field>
+            <field name="body_html">
+                <![CDATA[
+                    <p>Dear ${object.name},</p>
+                    <p>
+                        We have recently received a request to validate your email address
+                        for our records. Please click on the link below to confirm that
+                        this is your email address.
+                    </p>
+                    <p>
+                        <a href="/validate_email/${object.id}/${object.email_validation_token}">Click here to validate your email</a>
+                    </p>
+                    <p>
+                        If you have received this email in error, no action is required.
+                        Your email address will not be validated if you do not click the link.
+                    </p>
+                    <p>
+                        Thank you!
+                    </p>
+                ]]>
+            </field>
+            <field name="email_from">${object.company_id.email}</field>
+            <field name="email_to">${object.email}</field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+    </data>
+</odoo>
