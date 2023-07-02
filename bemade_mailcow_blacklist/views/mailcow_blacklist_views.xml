@@ -4,7 +4,7 @@
         <field name="name">mailcow.blacklist.view.tree</field>
         <field name="model">mail.mailcow.blacklist</field>
         <field name="arch" type="xml">
-            <tree string="Blacklist">
+            <tree string="Blacklist" js_class="mail_mailcow_blacklist_tree">
                 <field name="email"/>
             </tree>
         </field>
@@ -61,6 +61,6 @@
         <field name="sequence" eval="10"/>
         <field name="view_mode">tree</field>
         <field name="act_window_id" ref="action_mailcow_blacklist"/>
-        <field name="view_id" ref="mailcow_blacklist_view_form"/>
+        <field name="view_id" ref="mailcow_blacklist_view_tree"/>
     </record>
 </odoo>

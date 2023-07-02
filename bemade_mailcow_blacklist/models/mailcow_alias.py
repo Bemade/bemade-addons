@@ -8,7 +8,7 @@ _logger = logging.getLogger(__name__)
 class MailcowAlias(models.Model):
     _name = 'mail.mailcow.alias'
     _description = 'Mailcow Alias'
-    _inherit = ['mail.thread', 'mail.activity.mixin']
+    _inherit = ['mail.mailcow', 'mail.thread', 'mail.activity.mixin']
     _rec_name = 'address'
 
     address = fields.Char(string='Alias Address', required=True, tracking=True)
@@ -16,6 +16,9 @@ class MailcowAlias(models.Model):
     active = fields.Boolean(string='Active', default=True, tracking=True)
     catchall = fields.Boolean(string='Catchall', default=False, tracking=True)
     alias_id = fields.Many2one(comodel_name='mail.alias', string='Alias')
+    create_date_mailcow = fields.Datetime(string='Created on Mailcow', readonly=True)
+    modify_date_mailcow = fields.Datetime(string='Modified on Mailcow', readonly=True)
+    mc_id = fields.Integer(string='Mailcow ID', readonly=True)
 
     _sql_constraints = [
         ('address_unique', 'UNIQUE(address)', 'The alias address must be unique!'),
@@ -27,8 +30,9 @@ class MailcowAlias(models.Model):
 
         if 'mc_id' not in vals:
             data = {
-                "active": str(int(alias.active)),
+                "active": bool(alias.active),
                 "address": alias.address,
+                "catchall": bool(alias.catchall),
                 "goto": alias.goto,
                 "private_comment": f"Created by {self.env.user.name} on {fields.Datetime.now()}",
                 "public_comment": "Alias created in Odoo"
@@ -84,16 +88,21 @@ class MailcowAlias(models.Model):
 
             alias_domain = self.env['ir.config_parameter'].sudo().get_param('mail.catchall.domain')
             if domain == alias_domain:
-                alias = self.search([('address', '=', mc_alias['address'])], limit=1)
+                alias = self.search([('mc_id', '=', mc_alias['id'])], limit=1)
                 if not alias:
                     self.create({
                         'address': mc_alias['address'],
-                        'active': mc_alias['active'] == '1',
+                        'active': bool(mc_alias['active']),
                         'goto': mc_alias['goto'],
-                        'domain': mc_alias['domain']
+                        'mc_id': mc_alias['id'],
+                        'create_date_mailcow': mc_alias['created'],
+                        'modify_date_mailcow': mc_alias['modified'],
                     })
                 else:
                     alias.write({
-                        'active': mc_alias['active'] == '1',
-                        'goto': mc_alias['goto']
+                        'address': mc_alias['address'],
+                        'active': bool(mc_alias['active']),
+                        'goto': mc_alias['goto'],
+                        'create_date_mailcow': mc_alias['created'],
+                        'modify_date_mailcow': mc_alias['modified'],
                     })

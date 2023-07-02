@@ -4,11 +4,14 @@
         <field name="name">mailcow.alias.view.tree</field>
         <field name="model">mail.mailcow.alias</field>
         <field name="arch" type="xml">
-            <tree string="Alias" decoration-info="active == False">
-                <field name="active"/>
+            <tree string="Alias" decoration-info="active == False" js_class="mail_mailcow_aliases_tree">
                 <field name="address"/>
-                <field name="goto"/>
                 <field name="alias_id"/>
+                <field name="goto"/>
+                <field name="create_date_mailcow"/>
+                <field name="modify_date_mailcow"/>
+                <field name="mc_id"/>
+                <field name="active"/>
             </tree>
         </field>
     </record>

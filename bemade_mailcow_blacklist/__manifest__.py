@@ -19,7 +19,7 @@ Main Features:
 """,
     'sequence': 10,
     'license': 'OPL-1',
-    'author': 'BeMade',
+    'author': 'Bemade',
     'website': 'https://www.bemade.org',
     'depends': ['hr', 'mail', 'bemade_user_password_bundle'],
     'data': [
@@ -33,14 +33,10 @@ Main Features:
     ],
     "assets": {
         "web.assets_backend": [
-            "bemade_mailcow_blacklist/static/src/js/mailcow_mailbox.js",
-            "bemade_mailcow_blacklist/static/src/js/mailcow_alias.js",
-            "bemade_mailcow_blacklist/static/src/js/mailcow_blacklist.js",
+            "bemade_mailcow_blacklist/static/src/js/mailcow.js",
         ],
         "web.assets_qweb": [
-            "bemade_mailcow_blacklist/static/src/xml/mailcow_mailbox.xml",
-            "bemade_mailcow_blacklist/static/src/xml/mailcow_alias.xml",
-            "bemade_mailcow_blacklist/static/src/xml/mailcow_blacklist.xml",
+            "bemade_mailcow_blacklist/static/src/xml/mailcow_templates.xml",
         ],
     },
     'demo': [],
