@@ -11,7 +11,7 @@ class MailcowBlacklist(models.Model):
     _inherit = ['mail.mailcow', 'mail.thread', 'mail.activity.mixin']
 
     email = fields.Char(string='Email', required=True, tracking=True)
-    prefid = fields.Integer(string='Mailcow ID', required=True, tracking=True)
+    mc_id = fields.Integer(string='Mailcow ID', required=True, tracking=True)
 
     @api.model
     def create(self, vals):
@@ -67,3 +67,33 @@ class MailcowBlacklist(models.Model):
             record.api_request(endpoint, 'POST', data)
             _logger.info(f'Removed {record.email} from Mailcow blacklist')
         return super().unlink()
+
+    @api.model
+    def sync_blacklist(self):
+        """
+        Function to sync Mailcow blacklist with Odoo's blacklist. It fetches the list from Mailcow
+        and updates Odoo's blacklist accordingly.
+
+        Returns:
+            bool: True if the sync is successful, False otherwise
+        """
+        params = self.env['ir.config_parameter'].sudo()
+        domain = params.get_param('mail.catchall.domain')
+        endpoint = f'/api/v1/get/policy_bl_domain/{domain}'
+        try:
+            response = self.api_request(endpoint, 'GET')
+            if response:
+                for item in response:
+                    existing = self.search([('mc_id', '=', item['prefid'])], limit=1)
+                    if existing:
+                        if existing.email != item['value']:
+                            existing.write({'email': item['valuw']})
+                    else:
+                        self.create({
+                            'email': item['value'],
+                            'mc_id': item['prefid'],
+                        })
+            return True
+        except Exception as e:
+            _logger.error('An error occurred while syncing blacklist: %s', str(e))
+            return False
