@@ -4,7 +4,7 @@
         <record id="bemade_fsm_project_task_form_inherit" model="ir.ui.view">
             <field name="name">bemade_fsm.project_task.form</field>
             <field name="model">project.task</field>
-            <field name="inherit_id" ref="project.view_task_form2"/>
+            <field name="inherit_id" ref="industry_fsm.view_task_form2_inherit"/>
             <field name="priority" eval="8"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='partner_id']" position="after">
@@ -20,6 +20,14 @@
                         </group>
                     </page>
                 </xpath>
+                <button name="action_fsm_validate" class='btn-primary' position="attributes">
+                    <attribute name="string">Mark as Delivered</attribute>
+                    <attribute name="groups">industry_fsm.group_fsm_manager</attribute>
+                </button>
+                <button name="action_fsm_validate" class='btn-secondary' position="attributes">
+                    <attribute name="string">Mark as Delivered</attribute>
+                    <attribute name="groups">industry_fsm.group_fsm_manager</attribute>
+                </button>
             </field>
         </record>
         <!-- Add parent_id = false to domain for My Tasks, All Tasks: To Schedule, All Tasks and To Invoice-->

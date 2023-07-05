@@ -18,15 +18,9 @@ class TestTaskTemplateCommon(FSMManagerUserTransactionCase):
             'name': 'Template 1',
         })
 
-        cls.project = cls.env['project.project'].create({
-            'name': 'Test Project',
-            'allow_material': True,
-            'allow_timesheets': True,
-            'allow_subtasks': True,
-            'allow_quotations': True,
-            'allow_worksheets': True,
-            'is_fsm': True,
-        })
+        cls.project = cls.env.ref('industry_fsm.fsm_project')
+        cls.project.write({'allow_subtasks': True,})
+
         cls.product_task_global_project = cls.env['product.product'].create({
             'name': 'Test Product 1',
             'type': 'service',
