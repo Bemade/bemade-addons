@@ -14,6 +14,7 @@ class TestSalesOrder(TestTaskTemplateCommon):
         cls.sale_order1 = cls.env['sale.order'].create({
             'partner_id': cls.partner.id,
             'client_order_ref': 'TEST ORDER',
+            'state': 'draft',
         })
         cls.sol_serv_order = cls.env['sale.order.line'].create({
             'name': cls.product_task_global_project.name,
@@ -36,6 +37,7 @@ class TestSalesOrder(TestTaskTemplateCommon):
         cls.sale_order2 = cls.env['sale.order'].create({
             'partner_id': cls.partner.id,
             'client_order_ref': 'TEST ORDER',
+            'state': 'draft',
         })
         cls.sol_tree_order = cls.env['sale.order.line'].create({
             'name': cls.product_task_tree_global_project.name,
@@ -95,3 +97,17 @@ class TestSalesOrder(TestTaskTemplateCommon):
         so.action_confirm()
         task = so.order_line[0].task_id
         self.assertTrue(task.equipment_id == equipment)
+
+    def test_task_mark_done(self):
+        so = self.sale_order2
+        so.action_confirm()
+        sol = so.order_line[0]
+        parent_task = sol.task_id
+        child_task =  parent_task.child_ids[0]
+        # Marking the top-level tasks done should set the delivered quantity to some non-zero value based on the UOM
+        parent_task.action_fsm_validate()
+        sol._compute_qty_delivered()
+        self.assertTrue(sol.qty_delivered != 0)
+        # Marking a child task done should not create a sale order
+        child_task.action_fsm_validate()
+        self.assertFalse(child_task.sale_order_id)
