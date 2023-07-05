@@ -1,8 +1,9 @@
 from .test_sale_order import TestSalesOrder
 from odoo import Command
-from odoo.tests.common import Form
+from odoo.tests.common import Form, tagged
 
 
+@tagged("-at_install", "post_install")
 class TestSaleOrderTaskContacts(TestSalesOrder):
     @classmethod
     def setUpClass(cls):
