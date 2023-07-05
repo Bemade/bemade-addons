@@ -23,6 +23,10 @@ class Task(models.Model):
                                      inverse="_inverse_contacts",
                                      store=True)
 
+    # Override related field to make it return false if this is an FSM subtask
+    allow_billable = fields.Boolean(string="Can be billed",
+                                    related=False,
+                                    compute="_compute_allow_billable",)
     @api.depends('sale_line_id.order_id.site_contacts', 'sale_line_id.order_id.work_order_contacts')
     def _compute_contacts(self):
         """ The work order contacts and site contacts for a given task are taken from the sale order if the task
@@ -45,3 +49,11 @@ class Task(models.Model):
                     'work_order_contacts': [Command.set(rec.work_order_contacts.ids)],
                     'site_contacts': [Command.set(rec.site_contacts.ids)],
                 })
+
+    @api.depends('parent_id', 'project_id')
+    def _compute_allow_billable(self):
+        for rec in self:
+            if rec.parent_id and rec.project_id and rec.project_id.is_fsm:
+                rec.allow_billable = False
+            else:
+                rec.allow_billable = rec.project_id.allow_billable
