@@ -37,3 +37,13 @@ class FSMManagerUserTransactionCase(TransactionCase):
             'signature': 'Mr. PM',
             'groups_id': [Command.set(group_ids)],
         })
+        group_ids.remove(user_group_fsm_manager.id)
+        group_ids.remove(user_group_project_manager.id)
+        cls.user_limited = Users.create({
+            'name': 'Project User',
+            'login': 'mruser',
+            'password': 'mruser',
+            'email': 'mruser@testco.com',
+            'signature': 'Mr. User',
+            'groups_id': [Command.set(group_ids)]
+        })

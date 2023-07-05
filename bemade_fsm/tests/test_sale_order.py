@@ -1,6 +1,5 @@
 from .test_task_template import TestTaskTemplateCommon
-from .test_equipment import TestEquipmentCommon
-from odoo.tests.common import tagged
+from odoo.tests.common import tagged, HttpCase
 
 
 @tagged("-at_install", "post_install")
@@ -13,7 +12,7 @@ class TestSalesOrder(TestTaskTemplateCommon):
         })
         cls.sale_order1 = cls.env['sale.order'].create({
             'partner_id': cls.partner.id,
-            'client_order_ref': 'TEST ORDER',
+            'client_order_ref': 'TEST ORDER 1',
             'state': 'draft',
         })
         cls.sol_serv_order = cls.env['sale.order.line'].create({
@@ -36,7 +35,7 @@ class TestSalesOrder(TestTaskTemplateCommon):
         })
         cls.sale_order2 = cls.env['sale.order'].create({
             'partner_id': cls.partner.id,
-            'client_order_ref': 'TEST ORDER',
+            'client_order_ref': 'TEST ORDER 2',
             'state': 'draft',
         })
         cls.sol_tree_order = cls.env['sale.order.line'].create({
@@ -103,11 +102,31 @@ class TestSalesOrder(TestTaskTemplateCommon):
         so.action_confirm()
         sol = so.order_line[0]
         parent_task = sol.task_id
-        child_task =  parent_task.child_ids[0]
+        child_task = parent_task.child_ids[0]
         # Marking the top-level tasks done should set the delivered quantity to some non-zero value based on the UOM
         parent_task.action_fsm_validate()
-        sol._compute_qty_delivered()
+        # sol._compute_qty_delivered()
         self.assertTrue(sol.qty_delivered != 0)
         # Marking a child task done should not create a sale order
         child_task.action_fsm_validate()
         self.assertFalse(child_task.sale_order_id)
+
+
+@tagged("-at_install", "post_install", 'focus')
+class TestSaleOrderTour(HttpCase, TestSalesOrder):
+    def test_sale_order_tour_no_invoice_button_for_non_manager(self):
+        # Make sure a non-manager cannot mark a task as ready to invoice
+        so = self.sale_order2
+        so.action_confirm()
+        with self.assertRaises(AssertionError) as e:
+            self.start_tour('/web', 'sale_order_tour',
+                            login='mruser', )
+        self.assertTrue("Click on the ready to invoice button" in str(e.exception))
+
+    def test_task_mark_to_invoice(self):
+        # Make sure that when a manager clicks the ready to invoice button, the qty delivered is updated on the SO
+        so = self.sale_order2
+        so.action_confirm()
+        sol = so.order_line.filtered(lambda l: 'Test Product 3' in l.name)
+        self.start_tour('/web', 'sale_order_tour', login='misterpm')
+        self.assertTrue(sol.qty_delivered != 0)
