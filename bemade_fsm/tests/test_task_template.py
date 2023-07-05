@@ -20,6 +20,12 @@ class TestTaskTemplateCommon(FSMManagerUserTransactionCase):
 
         cls.project = cls.env['project.project'].create({
             'name': 'Test Project',
+            'allow_material': True,
+            'allow_timesheets': True,
+            'allow_subtasks': True,
+            'allow_quotations': True,
+            'allow_worksheets': True,
+            'is_fsm': True,
         })
         cls.product_task_global_project = cls.env['product.product'].create({
             'name': 'Test Product 1',
@@ -29,9 +35,16 @@ class TestTaskTemplateCommon(FSMManagerUserTransactionCase):
             'task_template_id': cls.task1.id,
             'uom_id': hours_uom.id,
             'uom_po_id': hours_uom.id,
+            'service_policy': 'delivered_manual',
         })
         cls.project_template = cls.env['project.project'].create({
             'name': 'Test Project Template',
+            'allow_material': True,
+            'allow_timesheets': True,
+            'allow_subtasks': True,
+            'allow_quotations': True,
+            'allow_worksheets': True,
+            'is_fsm': True,
         })
         cls.product_task_in_project = cls.env['product.product'].create({
             'name': 'Test Product 2',
@@ -41,6 +54,7 @@ class TestTaskTemplateCommon(FSMManagerUserTransactionCase):
             'project_template_id': cls.project_template.id,
             'uom_po_id': hours_uom.id,
             'uom_id': hours_uom.id,
+            'service_policy': 'delivered_manual',
         })
 
         # Set up a task template tree with 2 children and 1 grandchild
@@ -70,6 +84,7 @@ class TestTaskTemplateCommon(FSMManagerUserTransactionCase):
             'service_tracking': 'task_global_project',
             'project_id': cls.project.id,
             'task_template_id': cls.parent_task.id,
+            'service_policy': 'delivered_manual',
             'uom_id': hours_uom.id,
             'uom_po_id': hours_uom.id,
         })
@@ -81,6 +96,7 @@ class TestTaskTemplateCommon(FSMManagerUserTransactionCase):
             'project_template_id': cls.project_template.id,
             'uom_po_id': hours_uom.id,
             'uom_id': hours_uom.id,
+            'service_policy': 'delivered_manual',
         })
 
 
