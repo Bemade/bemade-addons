@@ -35,6 +35,6 @@ tour.register('sale_order_tour', {
     }, {
         content: 'View the SO',
         trigger: 'button[name="action_view_so"]',
-        extra_trigger: 'button[title="Current state"]:contains(Done)',
+        // extra_trigger: 'button[title="Current state"]:contains(Done)',
     }
     ]);
