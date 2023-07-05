@@ -69,6 +69,10 @@ class SaleOrderLine(models.Model):
             task.child_ids.write({'sale_order_id': None, 'sale_line_id': None, })
             return task
 
+        def _generate_task_name(template = None):
+            template_name = template and template.name
+            return f"{self.order_id.name}: {self.order_id.partner_shipping_id.name} - {self.name} ({template_name})"
+
         def _timesheet_create_task_prepare_values_from_template(project, template, parent):
             """ Copies the values from a project.task.template over to the set of values used to create a project.task.
 
@@ -79,7 +83,7 @@ class SaleOrderLine(models.Model):
             :param parent: project.task to set as the parent to this task.
             """
             vals = self._timesheet_create_task_prepare_values(project)
-            vals['name'] = f"{vals['name']} ({template.name})" if not parent else template.name
+            vals['name'] = _generate_task_name(template) if not parent else template.name
             vals['description'] = template.description or vals['description']
             vals['parent_id'] = parent and parent.id
             vals['user_ids'] = template.assignees.ids
@@ -99,4 +103,5 @@ class SaleOrderLine(models.Model):
                            self.order_id.id, self.order_id.name, self.product_id.name)
             task.message_post(body=task_msg)
         task.equipment_id = self.order_id.equipment_id
+        task.name = _generate_task_name(tmpl)
         return task
