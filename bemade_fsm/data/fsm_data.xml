@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="planning_project_stage_work_completed" model="project.task.type">
+            <field name="sequence">15</field>
+            <field name="name">Work Executed</field>
+            <field name="legend_blocked">Blocked</field>
+            <field name="fold" eval="False"/>
+            <field name="is_closed" eval="False"/>
+        </record>
+        <!-- Since the Field Service project has no_update="1" we use a workaround here -->
+        <function model="ir.model.data" name="write">
+            <function name="search" model="ir.model.data">
+                <value eval="[('name', '=', 'fsm_project'), ('module', '=', 'industry_fsm'), ('model', '=', 'project.project')]"/>
+            </function>
+            <value eval="{'noupdate': False}"/>
+        </function>
+        <record id="industry_fsm.fsm_project" model="project.project">
+            <field name="type_ids"
+                   eval="[(4, ref('industry_fsm.planning_project_stage_0')), (4, ref('industry_fsm.planning_project_stage_1')), (4, ref('industry_fsm.planning_project_stage_2')), (4, ref('planning_project_stage_work_completed')), (4, ref('industry_fsm.planning_project_stage_3')), (4, ref('industry_fsm.planning_project_stage_4'))]"/>
+            <field name="allow_subtasks"
+                   eval="True"/>
+        </record>
+        <function model="ir.model.data" name="write">
+            <function name="search" model="ir.model.data">
+                <value eval="[('name', '=', 'fsm_project'), ('module', '=', 'industry_fsm'), ('model', '=', 'project.project')]"/>
+            </function>
+            <value eval="{'noupdate': True}"/>
+        </function>
+    </data>
+</odoo>
