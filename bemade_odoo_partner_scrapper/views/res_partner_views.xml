@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_partner_tree_inherit" model="ir.ui.view">
+        <field name="name">res.partner.tree.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//tree" position="attributes">
+                <attribute name="js_class">res_partner_odoo_scrapper_tree</attribute>
+            </xpath>
+            <xpath expr="//tree" position="inside">
+                <field name="is_odoo_partner"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
