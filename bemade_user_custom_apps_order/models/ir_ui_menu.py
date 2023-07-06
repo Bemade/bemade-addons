@@ -40,7 +40,6 @@ class IrUiMenu(models.Model):
 
         menus = self.env['ir.ui.menu'].search([('parent_id', '=', False)])
 
-
         for self_record in self:
             if 'parent_id' in vals:
                 if vals.get('parent_id') == False and self_record in menus:
@@ -62,7 +61,6 @@ class IrUiMenu(models.Model):
                     self.env['res.users.menu.order'].search([('menu_id', '=', self_record.id)]).unlink()
         return res
 
-    @api.model
     def load_menus(self, debug):
         menus = super().load_menus(debug)
 
