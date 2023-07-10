@@ -6,7 +6,10 @@ class SaleOrder(models.Model):
 
     equipment_id = fields.Many2one(comodel_name="bemade_fsm.equipment",
                                    string="Equipment to Service",
-                                   tracking=True)
+                                   tracking=True,
+                                   compute="_compute_equipment",
+                                   inverse="_inverse_equipment",
+                                   store=True)
 
     site_contacts = fields.Many2many(comodel_name='res.partner',
                                      relation="sale_order_site_contacts_rel",
@@ -22,7 +25,13 @@ class SaleOrder(models.Model):
                                            string='Work Order Recipients',
                                            store=True)
 
-    @api.depends('partner_id')
+    @api.onchange('partner_shipping_id')
+    def _onchange_partner_shipping_id(self):
+        super()._onchange_partner_shipping_id()
+        self._compute_equipment()
+        self._compute_default_contacts()
+
+    @api.depends('partner_shipping_id')
     def _compute_default_contacts(self):
         for rec in self:
             rec.site_contacts = rec.partner_shipping_id.site_contacts
@@ -31,10 +40,10 @@ class SaleOrder(models.Model):
     def _inverse_default_contacts(self):
         pass
 
-    @api.depends('partner_id')
+    @api.depends('partner_shipping_id')
     def _compute_equipment(self):
         for rec in self:
-            rec.equipment_ids = self.partner_shipping_id.equipment_ids if len(
+            rec.equipment_id = self.partner_shipping_id.equipment_ids if len(
                 self.partner_shipping_id.equipment_ids) <= 1 else False
 
     def _inverse_equipment(self):
