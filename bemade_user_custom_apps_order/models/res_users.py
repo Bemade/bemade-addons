@@ -18,11 +18,12 @@ class ResUsers(models.Model):
     def SELF_WRITEABLE_FIELDS(self):
         return super().SELF_WRITEABLE_FIELDS + ['app_order_ids']
 
-    @api.model
+    @api.model_create_multi
     def create(self, vals):
         """
         Overridden to create a new app order record for each top-level menu for the new user when a new user is created.
         """
+
         # Create the user
         new_user = super().create(vals)
 
