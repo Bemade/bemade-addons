@@ -46,7 +46,7 @@ class TestEquipmentBase(TestEquipmentCommon):
             self.equipment.name
 
 
-@tagged('-at_install', 'post_install')
+@tagged('-at_install', 'post_install', 'slow')
 class TestEquipmentTours(HttpCase, TestEquipmentCommon):
 
     def test_equipment_base_tour(self):
