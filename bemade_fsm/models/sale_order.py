@@ -1,4 +1,5 @@
 from odoo import fields, models, api, _, Command
+from odoo.exceptions import ValidationError
 
 
 class SaleOrder(models.Model):
@@ -24,6 +25,9 @@ class SaleOrder(models.Model):
                                            inverse='_inverse_default_contacts',
                                            string='Work Order Recipients',
                                            store=True)
+    visit_ids = fields.One2many(comodel_name='bemade_fsm.visit',
+                                inverse_name="sale_order_id",
+                                readonly=False)
 
     @api.onchange('partner_shipping_id')
     def _onchange_partner_shipping_id(self):
@@ -53,6 +57,12 @@ class SaleOrder(models.Model):
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
 
+    visit_id = fields.One2many(comodel_name="bemade_fsm.visit",
+                               inverse_name="so_section_id",
+                               string="Visit")
+    is_fully_delivered = fields.Boolean(string="Fully Delivered",
+                                        compute="_compute_is_fully_delivered")
+
     def _timesheet_create_task(self, project):
         """ Generate task for the given so line, and link it.
                     :param project: record of project.project in which the task should be created
@@ -78,7 +88,7 @@ class SaleOrderLine(models.Model):
             task.child_ids.write({'sale_order_id': None, 'sale_line_id': None, })
             return task
 
-        def _generate_task_name(template = None):
+        def _generate_task_name(template=None):
             template_name = template and template.name
             return f"{self.order_id.name}: {self.order_id.partner_shipping_id.name} - {self.name} ({template_name})"
 
@@ -116,3 +126,27 @@ class SaleOrderLine(models.Model):
             task.equipment_id = self.order_id.equipment_id
         task.name = _generate_task_name(tmpl)
         return task
+
+    @api.depends('order_id.order_line', 'display_type', 'qty_to_deliver', 'order_id.order_line.qty_to_deliver',
+                 'order_id.order_line.display_type')
+    def _compute_is_fully_delivered(self):
+        if not self.display_type:
+            self.is_fully_delivered = self.qty_to_deliver == 0
+        elif self.display_type == 'line_note':
+            self.is_fully_delivered = True
+        else:
+            for line in self.order_id.order_line:
+                # Iterate through the lines on the SO in order until we find this one in the list
+                found = False
+                if line == self:
+                    found = True
+                if not found:
+                    continue
+                # If we've hit the next section without returning False, all lines in this section were delivered
+                if found and line.display_type == 'line_section':
+                    self.is_fully_delivered = True
+                    return
+                if line.qty_to_deliver > 0:
+                    self.is_fully_delivered = False
+                    return
+            self.is_fully_delivered = True
