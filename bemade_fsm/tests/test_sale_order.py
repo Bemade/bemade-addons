@@ -110,8 +110,7 @@ class TestSalesOrder(TestTaskTemplateCommon):
         # Marking a child task done should not create a sale order
         child_task.action_fsm_validate()
         self.assertFalse(child_task.sale_order_id)
-# TODO: Add a test for updating equipment, site contacts and work order contacts on the
-#       sale order when modifying the partner_shipping_id field on the SO.
+
 
 @tagged("-at_install", "post_install", 'focus')
 class TestSaleOrderTour(HttpCase, TestSalesOrder):
