@@ -111,7 +111,7 @@ class TestTaskTemplate(TestTaskTemplateCommon):
             test = self.grandchild_task.name
 
 
-@tagged('-at_install', 'post_install')
+@tagged('-at_install', 'post_install', 'slow')
 class TestTaskTemplateTour(HttpCase, TestTaskTemplateCommon):
 
     def test_task_template_tour(self):
