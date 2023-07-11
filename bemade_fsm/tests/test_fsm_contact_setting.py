@@ -54,3 +54,39 @@ class SaleOrderFSMContactsCase(FSMManagerUserTransactionCase):
         self.assertTrue(self.contact_2 not in so.work_order_contacts)
         self.assertTrue(
             so.work_order_contacts != so.partner_id.work_order_contacts and len(so.partner_id.work_order_contacts) == 2)
+
+
+class SaleOrderMultiLocationContactsTest(SaleOrderFSMContactsCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.shipping_location = cls.env['res.partner'].create({
+            'name': 'Shipping location',
+            'company_type': 'company',
+            'type': 'delivery',
+            'parent_id': cls.parent_co.id,
+        })
+        cls.site_contact1 = cls.env['res.partner'].create({
+            'name': 'Site Contact One',
+            'company_type': 'person',
+            'type': 'contact',
+            'parent_id': cls.shipping_location.id,
+        })
+        cls.site_contact2 = cls.env['res.partner'].create({
+            'name': 'Site Contact Two',
+            'company_type': 'person',
+            'type': 'contact',
+            'parent_id': cls.shipping_location.id,
+        })
+        cls.shipping_location.write({
+            'work_order_contacts': [Command.set([cls.contact_1.id, cls.contact_2.id])],
+            'site_contacts': [Command.set([cls.site_contact1.id, cls.site_contact2.id])],
+        })
+
+    def test_multilayer_site_contacts(self):
+        so = self.env['sale.order'].create({
+            'partner_id': self.parent_co.id,
+            'partner_shipping_id': self.shipping_location.id})
+        self.assertEqual(so.partner_shipping_id, self.shipping_location)
+        self.assertEqual(so.site_contacts, self.shipping_location.site_contacts)
+        self.assertEqual(so.work_order_contacts, self.shipping_location.work_order_contacts)
