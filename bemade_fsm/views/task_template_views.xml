@@ -23,6 +23,7 @@
                             </group>
                             <group>
                                 <field name="customer"/>
+                                <field name="equipment_id" domain="[('partner_location_id', '=', customer)]"/>
                                 <field name="tags" widget="many2many_tags"/>
                                 <field name="company_id" />
                             </group>
