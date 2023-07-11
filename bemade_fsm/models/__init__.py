@@ -4,3 +4,4 @@ from . import sale_order
 from . import equipment
 from . import task
 from . import res_partner
+from . import fsm_visit

@@ -1,6 +1,24 @@
-from odoo.tests import TransactionCase, HttpCase, tagged
+from odoo.tests import TransactionCase, HttpCase, tagged, Form
 from odoo import Command
 from .test_bemade_fsm_common import FSMManagerUserTransactionCase
+
+
+def create_base_contacts(cls):
+    Partner = cls.env['res.partner']
+    cls.parent_co = Partner.create({
+        'name': 'Parent Co',
+        'company_type': 'company',
+    })
+    cls.contact_1 = Partner.create({
+        'name': 'Contact 1',
+        'company_type': 'person',
+        'parent_id': cls.parent_co.id,
+    })
+    cls.contact_2 = Partner.create({
+        'name': 'Contact 2',
+        'company_type': 'person',
+        'parent_id': cls.parent_co.id,
+    })
 
 
 @tagged("-at_install", "post_install")
@@ -9,21 +27,7 @@ class SaleOrderFSMContactsCase(FSMManagerUserTransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        Partner = cls.env['res.partner']
-        cls.parent_co = Partner.create({
-            'name': 'Parent Co',
-            'company_type': 'company',
-        })
-        cls.contact_1 = Partner.create({
-            'name': 'Contact 1',
-            'company_type': 'person',
-            'parent_id': cls.parent_co.id,
-        })
-        cls.contact_2 = Partner.create({
-            'name': 'Contact 2',
-            'company_type': 'person',
-            'parent_id': cls.parent_co.id,
-        })
+        create_base_contacts(cls)
 
     def test_site_contacts(self):
         # Make sure the SO pulls the defaults from the partner correctly
@@ -56,10 +60,11 @@ class SaleOrderFSMContactsCase(FSMManagerUserTransactionCase):
             so.work_order_contacts != so.partner_id.work_order_contacts and len(so.partner_id.work_order_contacts) == 2)
 
 
-class SaleOrderMultiLocationContactsTest(SaleOrderFSMContactsCase):
+class SaleOrderMultiLocationContactsTest(FSMManagerUserTransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        create_base_contacts(cls)
         cls.shipping_location = cls.env['res.partner'].create({
             'name': 'Shipping location',
             'company_type': 'company',
@@ -90,3 +95,18 @@ class SaleOrderMultiLocationContactsTest(SaleOrderFSMContactsCase):
         self.assertEqual(so.partner_shipping_id, self.shipping_location)
         self.assertEqual(so.site_contacts, self.shipping_location.site_contacts)
         self.assertEqual(so.work_order_contacts, self.shipping_location.work_order_contacts)
+
+    def test_onchange_shipping_address(self):
+        so = self.env['sale.order'].create({
+            'partner_id': self.parent_co.id,
+            'partner_shipping_id': self.parent_co.id,
+        })
+        self.assertFalse(so.work_order_contacts)
+        self.assertFalse(so.site_contacts)
+
+        form = Form(so)
+        form.partner_shipping_id = self.shipping_location
+        form.save()
+
+        self.assertEqual(so.work_order_contacts, self.shipping_location.work_order_contacts)
+        self.assertEqual(so.site_contacts, self.shipping_location.site_contacts)
