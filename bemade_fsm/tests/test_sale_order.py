@@ -10,10 +10,19 @@ class TestSalesOrder(TestTaskTemplateCommon):
         cls.partner = cls.env['res.partner'].create({
             'name': 'Test Partner',
         })
+        cls.equipment =cls.env['bemade_fsm.equipment'].create({
+            'name': 'test equipment',
+            'partner_location_id': cls.partner.id,
+        })
+        cls.so_equipment = cls.env['bemade_fsm.equipment'].create({
+            'name': 'test equipment 2',
+            'partner_location_id': cls.partner.id,
+        })
         cls.sale_order1 = cls.env['sale.order'].create({
             'partner_id': cls.partner.id,
             'client_order_ref': 'TEST ORDER 1',
             'state': 'draft',
+            'equipment_id': cls.so_equipment.id,
         })
         cls.sol_serv_order = cls.env['sale.order.line'].create({
             'name': cls.product_task_global_project.name,
@@ -90,12 +99,18 @@ class TestSalesOrder(TestTaskTemplateCommon):
 
     def test_order_confirmation_equipment(self):
         so = self.sale_order1
-        equipment = self.env['bemade_fsm.equipment'].create(
-            {'name': 'test equipment', 'partner_location_id': so.partner_shipping_id.id})
-        so.equipment_id = equipment.id
+        self.assertEqual(so.equipment_id, so.equipment_id)
+        self.assertFalse(so.order_line[0].product_id.task_template_id.equipment_id)
         so.action_confirm()
-        task = so.order_line[0].task_id
-        self.assertTrue(task.equipment_id == equipment)
+        task = so.order_line.filtered(lambda l: not l.product_id.task_template_id.equipment_id).task_id
+        self.assertEqual(task.equipment_id, self.so_equipment)
+
+    def test_task_template_with_equipment_flow(self):
+        so = self.sale_order1
+        self.product_task_global_project.task_template_id.equipment_id = self.equipment
+        so.action_confirm()
+        task = so.order_line.filtered(lambda l: l.product_id.task_template_id.equipment_id).task_id
+        self.assertEqual(task.equipment_id, self.equipment)
 
     def test_task_mark_done(self):
         so = self.sale_order2
@@ -112,7 +127,7 @@ class TestSalesOrder(TestTaskTemplateCommon):
         self.assertFalse(child_task.sale_order_id)
 
 
-@tagged("-at_install", "post_install", 'focus')
+@tagged("-at_install", "post_install", "slow")
 class TestSaleOrderTour(HttpCase, TestSalesOrder):
     def test_sale_order_tour_no_invoice_button_for_non_manager(self):
         # Make sure a non-manager cannot mark a task as ready to invoice
