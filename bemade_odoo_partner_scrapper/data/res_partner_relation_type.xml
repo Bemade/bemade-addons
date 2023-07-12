@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Added partner categories and partners to this file, because it
+            turned out to be a bad idea to rely on demo data in base module,
+            that can change from release to release. Only dependency on
+            countries remain. They are less likely to change/disappear.
+    -->
+    <!-- Partner relation types -->
+    <record id="rel_type_odoo_partner" model="res.partner.relation.type">
+        <field name="name">Is Odoo Partner Of</field>
+        <field name="name_inverse">Is Odoo Client Of</field>
+        <field name="contact_type_left">c</field>
+        <field name="contact_type_right">c</field>
+    </record>
+
+    <!-- Categories -->
+    <record id="res_partner_category_odoo_partner" model="res.partner.category">
+        <field name="name">Odoo Partner</field>
+    </record>
+    <record id="res_partner_category_odoo_partner_learning" model="res.partner.category">
+        <field name="name">Learning Partner</field>
+        <field name="parent_id" ref="res_partner_category_odoo_partner" />
+    </record>
+    <record id="res_partner_category_odoo_partner_ready" model="res.partner.category">
+        <field name="name">Ready Partner</field>
+        <field name="parent_id" ref="res_partner_category_odoo_partner" />
+    </record>
+    <record id="res_partner_category_odoo_partner_silver" model="res.partner.category">
+        <field name="name">Silver Partner</field>
+        <field name="parent_id" ref="res_partner_category_odoo_partner" />
+    </record>
+    <record id="res_partner_category_odoo_partner_gold" model="res.partner.category">
+        <field name="name">Gold Partner</field>
+        <field name="parent_id" ref="res_partner_category_odoo_partner" />
+    </record>
+</odoo>
