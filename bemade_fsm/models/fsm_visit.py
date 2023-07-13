@@ -20,7 +20,7 @@ class FSMVisit(models.Model):
     is_completed = fields.Boolean(string="Completed",
                                   related="so_section_id.is_fully_delivered")
     is_invoiced = fields.Boolean(string="Invoiced",
-                                 compute="_compute_is_invoiced")
+                                 related="so_section_id.is_fully_delivered_and_invoiced")
 
     def _compute_is_invoiced(self):
         self.is_invoiced = False

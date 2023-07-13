@@ -61,7 +61,13 @@ class SaleOrderLine(models.Model):
                                inverse_name="so_section_id",
                                string="Visit")
     is_fully_delivered = fields.Boolean(string="Fully Delivered",
-                                        compute="_compute_is_fully_delivered")
+                                        compute="_compute_is_fully_delivered",
+                                        help="Indicates whether a line or all the lines in a section have been"
+                                             "entirely delivered.")
+    is_fully_delivered_and_invoiced = fields.Boolean(string="Fully Invoiced",
+                                       compute="_compute_is_fully_invoiced",
+                                       help="Indicates whether a line or all the lines in a section have been"
+                                            "entirely delivered and invoiced.")
 
     def _timesheet_create_task(self, project):
         """ Generate task for the given so line, and link it.
@@ -130,23 +136,30 @@ class SaleOrderLine(models.Model):
     @api.depends('order_id.order_line', 'display_type', 'qty_to_deliver', 'order_id.order_line.qty_to_deliver',
                  'order_id.order_line.display_type')
     def _compute_is_fully_delivered(self):
+        self.is_fully_delivered = self._iterate_items_compute_bool(lambda l: l.qty_to_deliver == 0)
+
+    @api.depends('is_fully_delivered')
+    def _compute_is_fully_invoiced(self):
+        if not self.is_fully_delivered:
+            self.is_fully_delivered_and_invoiced = False
+            return
+        self.is_fully_delivered_and_invoiced = self._iterate_items_compute_bool(lambda l: l.qty_to_invoice == 0)
+
+    def _iterate_items_compute_bool(self, single_line_func):
         if not self.display_type:
-            self.is_fully_delivered = self.qty_to_deliver == 0
+            return single_line_func(self)
         elif self.display_type == 'line_note':
-            self.is_fully_delivered = True
+            return True
         else:
             for line in self.order_id.order_line:
-                # Iterate through the lines on the SO in order until we find this one in the list
                 found = False
                 if line == self:
                     found = True
                 if not found:
                     continue
-                # If we've hit the next section without returning False, all lines in this section were delivered
                 if found and line.display_type == 'line_section':
-                    self.is_fully_delivered = True
-                    return
-                if line.qty_to_deliver > 0:
-                    self.is_fully_delivered = False
-                    return
-            self.is_fully_delivered = True
+                    return True
+                val = single_line_func(self)
+                if not val:
+                    return val
+            return True
