@@ -45,6 +45,25 @@ class FSMVisitTest(TransactionCase):
 
         self.assertTrue(visit.is_completed)
 
+    def test_visit_shows_invoiced_when_invoiced(self):
+        so = self.generate_sale_order()
+        visit = self.generate_visit(so)
+        self.add_service_so_line(so, task=True)
+        so.action_confirm()
+        task = so.order_line.filtered(lambda l: l.task_id).task_id
+        task.action_fsm_validate()
+
+        self.invoice_sale_order(so)
+
+        self.assertTrue(visit.is_invoiced)
+
+    def invoice_sale_order(self, so):
+        wiz = self.env['sale.advance.payment.inv'].with_context({'active_ids': [so.id]}).create({})
+        wiz.create_invoices()
+        inv = so.invoice_ids[-1]
+        inv.action_post()
+        return inv
+
     def generate_visit(self, sale_order, label="Test Label"):
         return self.env['bemade_fsm.visit'].create([{
             'sale_order_id': sale_order.id,
