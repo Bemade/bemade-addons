@@ -50,7 +50,7 @@
         <field name="name">bemade_fsm.equipment.tree</field>
         <field name="model">bemade_fsm.equipment</field>
         <field name="arch" type="xml">
-            <tree string="Equipment">
+            <tree string="Equipment" editable="bottom">
                 <field name="pid_tag"/>
                 <field name="name"/>
                 <field name="description"/>
