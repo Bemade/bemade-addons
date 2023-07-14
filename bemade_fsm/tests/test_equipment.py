@@ -29,6 +29,7 @@ class TestEquipmentTours(HttpCase, BemadeFSMBaseTest):
         cls._generate_partner()
         cls._generate_partner('Site Contact', 'person', cls.partner_company)
         cls._generate_equipment('Test Equipment 1', cls.partner_company)
+        cls.user = cls._generate_project_manager_user()
 
     def test_equipment_base_tour(self):
         self.start_tour('/web', 'equipment_base_tour',
