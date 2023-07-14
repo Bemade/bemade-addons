@@ -114,7 +114,7 @@ class SaleOrderLine(models.Model):
             vals['user_ids'] = template.assignees.ids
             vals['tag_ids'] = template.tags.ids
             vals['planned_hours'] = template.planned_hours
-            vals['equipment_id'] = template.equipment_id.id
+            vals['equipment_ids'] = [Command.set([template.equipment_id.id])]
             return vals
 
         tmpl = self.product_id.task_template_id
@@ -128,8 +128,8 @@ class SaleOrderLine(models.Model):
                 "This task has been created from: <a href=# data-oe-model=sale.order data-oe-id=%d>%s</a> (%s)") % (
                            self.order_id.id, self.order_id.name, self.product_id.name)
             task.message_post(body=task_msg)
-        if not task.equipment_id:
-            task.equipment_id = self.order_id.equipment_id
+        if not task.equipment_ids:
+            task.write({'equipment_ids': [Command.set(self.order_id.equipment_id)]})
         task.name = _generate_task_name(tmpl)
         return task
 

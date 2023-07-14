@@ -1,4 +1,4 @@
-from .test_bemade_fsm_common import FSMManagerUserTransactionCase
+from .test_bemade_fsm_common import BemadeFSMBaseTest
 from odoo.tests.common import HttpCase, tagged
 from odoo.exceptions import MissingError
 from odoo import Command
@@ -6,7 +6,7 @@ from psycopg2.errors import ForeignKeyViolation
 
 
 @tagged("-at_install", "post_install")
-class TestTaskTemplateCommon(FSMManagerUserTransactionCase):
+class TestTaskTemplateCommon(BemadeFSMBaseTest):
 
     @classmethod
     def setUpClass(cls):
@@ -19,79 +19,26 @@ class TestTaskTemplateCommon(FSMManagerUserTransactionCase):
         })
 
         cls.project = cls.env.ref('industry_fsm.fsm_project')
-        cls.project.write({'allow_subtasks': True,})
 
-        cls.product_task_global_project = cls.env['product.product'].create({
-            'name': 'Test Product 1',
-            'type': 'service',
-            'service_tracking': 'task_global_project',
-            'project_id': cls.project.id,
-            'task_template_id': cls.task1.id,
-            'uom_id': hours_uom.id,
-            'uom_po_id': hours_uom.id,
-            'service_policy': 'delivered_manual',
-        })
-        cls.project_template = cls.env['project.project'].create({
-            'name': 'Test Project Template',
-            'allow_material': True,
-            'allow_timesheets': True,
-            'allow_subtasks': True,
-            'allow_quotations': True,
-            'allow_worksheets': True,
-            'is_fsm': True,
-        })
-        cls.product_task_in_project = cls.env['product.product'].create({
-            'name': 'Test Product 2',
-            'type': 'service',
-            'service_tracking': 'task_in_project',
-            'task_template_id': cls.task1.id,
-            'project_template_id': cls.project_template.id,
-            'uom_po_id': hours_uom.id,
-            'uom_id': hours_uom.id,
-            'service_policy': 'delivered_manual',
-        })
+        cls.product_task_global_project = cls._generate_product(name='Test Product 1', task_template=cls.task1)
+        cls.project_template = cls._generate_fsm_project('Test Project Template')
+        cls.product_task_in_project = cls._generate_product(name='Test Product 2', project=cls.project_template,
+                                                            service_tracking='task_in_project', task_template=cls.task1)
 
         # Set up a task template tree with 2 children and 1 grandchild
-        cls.parent_task = cls.env['project.task.template'].create({
-            'name': 'Parent Template',
-            'planned_hours': cls.PLANNED_HOURS,
-        })
-        cls.child_task_1 = cls.env['project.task.template'].create({
-            'name': 'Child Template 1',
-            'parent': cls.parent_task.id,
-        })
-        cls.child_task_2 = cls.env['project.task.template'].create({
-            'name': 'Child Template 2',
-            'parent': cls.parent_task.id,
-        })
-        cls.parent_task.write({'subtasks': [Command.set([cls.child_task_1.id, cls.child_task_2.id])]})
-        cls.grandchild_task = cls.env['project.task.template'].create({
-            'name': 'Grandchild Template',
-            'parent': cls.child_task_2.id
-        })
-        cls.child_task_2.write({'subtasks': [Command.set([cls.grandchild_task.id])]})
+        cls.parent_task = cls._generate_task_template(structure=[2, 1],
+                                                      names=['Parent Template', 'Child Template',
+                                                             'Grandchild Template'])
+        cls.child_task_1 = cls.parent_task.subtasks[0]
+        cls.child_task_2 = cls.parent_task.subtasks[1]
+        cls.grandchild_task = cls.child_task_1.subtasks[0]
 
         # Create products using the task tree we just created
-        cls.product_task_tree_global_project = cls.env['product.product'].create({
-            'name': 'Test Product 3',
-            'type': 'service',
-            'service_tracking': 'task_global_project',
-            'project_id': cls.project.id,
-            'task_template_id': cls.parent_task.id,
-            'service_policy': 'delivered_manual',
-            'uom_id': hours_uom.id,
-            'uom_po_id': hours_uom.id,
-        })
-        cls.product_task_tree_in_project = cls.env['product.product'].create({
-            'name': 'Test Product 2',
-            'type': 'service',
-            'service_tracking': 'task_in_project',
-            'task_template_id': cls.parent_task.id,
-            'project_template_id': cls.project_template.id,
-            'uom_po_id': hours_uom.id,
-            'uom_id': hours_uom.id,
-            'service_policy': 'delivered_manual',
-        })
+        cls.product_task_tree_global_project = cls._generate_product(name='Test Product 3',
+                                                                     task_template=cls.parent_task)
+        cls.product_task_tree_in_project = cls._generate_product(name="Test Product 2", project=cls.project_template,
+                                                                 service_tracking='task_in_project',
+                                                                 task_template=cls.parent_task)
 
 
 @tagged('-at_install', 'post_install')
@@ -105,7 +52,7 @@ class TestTaskTemplate(TestTaskTemplateCommon):
     def test_delete_subtask_template(self):
         """ Deletion of a child task should be OK even if the parent is on a product. Children of the deleted
         subtask should be deleted."""
-        self.child_task_2.unlink()
+        self.child_task_1.unlink()
         # Reading deleted child's name field should be impossible
         with self.assertRaises(MissingError):
             test = self.grandchild_task.name

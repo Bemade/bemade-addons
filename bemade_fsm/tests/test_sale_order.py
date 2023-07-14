@@ -10,20 +10,12 @@ class TestSalesOrder(TestTaskTemplateCommon):
         cls.partner = cls.env['res.partner'].create({
             'name': 'Test Partner',
         })
-        cls.equipment =cls.env['bemade_fsm.equipment'].create({
-            'name': 'test equipment',
-            'partner_location_id': cls.partner.id,
-        })
-        cls.so_equipment = cls.env['bemade_fsm.equipment'].create({
-            'name': 'test equipment 2',
-            'partner_location_id': cls.partner.id,
-        })
-        cls.sale_order1 = cls.env['sale.order'].create({
-            'partner_id': cls.partner.id,
-            'client_order_ref': 'TEST ORDER 1',
-            'state': 'draft',
-            'equipment_id': cls.so_equipment.id,
-        })
+        cls.equipment = TestSalesOrder._generate_equipment()
+        cls.so_equipment = TestSalesOrder._generate_equipment('test equipment 2')
+
+        cls.sale_order1 = TestSalesOrder._generate_equipment(partner=cls.partner, client_order_ref='TEST ORDER 1',
+                                                             equipment=cls.so_equipment)
+        cls.sol_serv_order = TestSalesOrder._generate_sale_order_line(product, project, )
         cls.sol_serv_order = cls.env['sale.order.line'].create({
             'name': cls.product_task_global_project.name,
             'product_id': cls.product_task_global_project.id,
@@ -65,6 +57,7 @@ class TestSalesOrder(TestTaskTemplateCommon):
             'order_id': cls.sale_order2.id,
             'tax_id': False,
         })
+
 
     @tagged('-at_install', 'post_install')
     def test_order_confirmation_simple_template(self):

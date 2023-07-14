@@ -41,7 +41,7 @@ class Equipment(models.Model):
     partner_id = fields.Many2one('res.partner',
                                  string="Owner",
                                  compute="_compute_partner",
-                                 search="_search_partner",)
+                                 search="_search_partner", )
 
     description = fields.Text(string="Description",
                               tracking=True)
@@ -53,9 +53,11 @@ class Equipment(models.Model):
 
     location_notes = fields.Text(string="Physical Location Notes",
                                  tracking=True)
-    task_ids = fields.One2many(comodel_name='project.task',
-                               inverse_name='equipment_id',
-                               string='Interventions')
+    task_ids = fields.Many2many(comodel_name='project.task',
+                                relation="bemade_fsm_task_equipment_rel",
+                                column1="equipment_id",
+                                column2="task_id",
+                                string='Interventions')
 
     @api.depends('partner_location_id')
     def _compute_partner(self):
