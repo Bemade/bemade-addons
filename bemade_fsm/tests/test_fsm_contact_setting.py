@@ -1,6 +1,6 @@
 from odoo.tests import TransactionCase, HttpCase, tagged, Form
 from odoo import Command
-from .test_bemade_fsm_common import FSMManagerUserTransactionCase
+from .test_bemade_fsm_common import BemadeFSMBaseTest
 
 
 def create_base_contacts(cls):
@@ -22,7 +22,7 @@ def create_base_contacts(cls):
 
 
 @tagged("-at_install", "post_install")
-class SaleOrderFSMContactsCase(FSMManagerUserTransactionCase):
+class SaleOrderFSMContactsCase(BemadeFSMBaseTest):
 
     @classmethod
     def setUpClass(cls):
@@ -60,7 +60,7 @@ class SaleOrderFSMContactsCase(FSMManagerUserTransactionCase):
             so.work_order_contacts != so.partner_id.work_order_contacts and len(so.partner_id.work_order_contacts) == 2)
 
 
-class SaleOrderMultiLocationContactsTest(FSMManagerUserTransactionCase):
+class SaleOrderMultiLocationContactsTest(BemadeFSMBaseTest):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
