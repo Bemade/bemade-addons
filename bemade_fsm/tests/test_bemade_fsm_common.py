@@ -6,13 +6,6 @@ from odoo import Command
 class BemadeFSMBaseTest(TransactionCase):
 
     @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.user = cls._generate_project_manager_user('Project Manager', 'misterpm')
-        cls.user_limited = cls._generate_project_user('Project User', 'mruser')
-        cls.env.ref("industry_fsm.fsm_project").write({'allow_subtasks': True})
-
-    @classmethod
     def _generate_project_manager_user(cls, name, login):
         user_group_employee = cls.env.ref('base.group_user')
         user_group_project_user = cls.env.ref('project.group_project_user')
@@ -47,7 +40,8 @@ class BemadeFSMBaseTest(TransactionCase):
         user.write({'groups_id': [Command.unlink(cls.env.ref('industry_fsm.group_fsm_manager'))]})
 
     @classmethod
-    def _generate_partner(cls, name: str = 'Test Company', company_type: str = 'company', parent=None):
+    def _generate_partner(cls, name: str = 'Test Company', company_type: str = 'company', parent=None,
+                          location_type='other'):
         """ Generates a partner with basic address filled in.
 
         :param name: The partner's name.
@@ -59,24 +53,26 @@ class BemadeFSMBaseTest(TransactionCase):
             'city': 'Montreal',
             'state_id': cls.env.ref('base.state_ca_qc').id,
             'country_id': cls.env.ref('base.ca').id,
-            'parent_id': parent and parent.id,
+            'parent_id': parent and parent.id or False,
+            'type': location_type,
         })
 
     @classmethod
-    def _generate_sale_order(cls, partner, client_order_ref='Test Order', equipment=None):
+    def _generate_sale_order(cls, partner=None, client_order_ref='Test Order', equipment=None):
+        partner = partner or cls._generate_partner()
         return cls.env['sale.order'].create({
             'partner_id': partner.id,
             'client_order_ref': client_order_ref,
-            'equipment_id': equipment.id,
+            'equipment_id': equipment and equipment.id or False,
         })
 
     @classmethod
-    def _generate_sale_order_line(cls, sale_order, product, project, qty=1.0, uom=None, price=100.0, tax_id=False):
+    def _generate_sale_order_line(cls, sale_order, product, qty=1.0, uom=None, price=100.0, tax_id=False):
         return cls.env['sale.order.line'].create({
             'order_id': sale_order.id,
             'product_id': product.id,
             'product_uom_qty': qty,
-            'product_uom': uom or cls.env.ref("uom.product_uom_hour"),
+            'product_uom': uom and uom.id or cls.env.ref("uom.product_uom_hour").id,
             'price_unit': price,
             'tax_id': tax_id,
         })
@@ -85,7 +81,7 @@ class BemadeFSMBaseTest(TransactionCase):
     def _generate_equipment(cls, name='test equipment', partner=None):
         return cls.env['bemade_fsm.equipment'].create({
             'name': name,
-            'partner_location_id': partner and partner.id,
+            'partner_location_id': partner and partner.id or False,
         })
 
     @classmethod
@@ -93,14 +89,14 @@ class BemadeFSMBaseTest(TransactionCase):
                           project=None, task_template=None, service_policy='delivered_manual', uom=None):
         if 'project' in service_tracking and not project:
             project = cls.env.ref("industry_fsm.fsm_project")
-        uom_id = uom and uom.id or cls.env.ref("uom.product_uom_hour").id
+        uom_id = uom and uom.id or cls.env.ref("uom.product_uom_hour").id or False
         return cls.env['product.product'].create({
             'name': name,
             'type': product_type,
             'service_tracking': service_tracking,
-            'project_id': service_tracking in ('task_global_project', 'project_only') and project.id,
-            'project_template_id': service_tracking == 'task_in_project' and project.id,
-            'task_template_id': task_template and task_template.id,
+            'project_id': service_tracking in ('task_global_project', 'project_only') and project.id or False,
+            'project_template_id': service_tracking == 'task_in_project' and project.id or False,
+            'task_template_id': task_template and task_template.id or False,
             'service_policy': service_policy,
             'uom_id': uom_id,
             'uom_po_id': uom_id,
@@ -119,20 +115,32 @@ class BemadeFSMBaseTest(TransactionCase):
         })
 
     @classmethod
-    def _generate_task_template(cls, parent=None, structure=[], names=['Test Task Template']):
+    def _generate_task_template(cls, parent=None, structure=None, names=None, planned_hours=1,
+                                equipment=None):
         """ Generates a task template with the specified structure and naming.
 
+        :param parent: The parent task template for the top-level task template being generated
         :param structure: A list of integers describing the number of tasks for each level of descendants. An empty
-                          list represents only one top-level task template.
+                          list represents only one top-level task template. If no structure is given, an empty list
+                          will be used in its place.
         :param names: The name prefixes to be given to the task templates at each level. Each prefix will be followed
-                      by a sequential integer for its level. Child 1, Child 2, Grandchild 1, etc."""
+                      by a sequential integer for its level. Child 1, Child 2, Grandchild 1, etc. If no names argument
+                      is passed, a default ['Task Template'] argument will be used.
+        :param planned_hours: The number of planned hours for the top-level task template being generated.
+        :param equipment: The equipment to add as linked equipment to the task template."""
+        if not names:
+            names = ['Task Template']
+        if not structure:
+            structure = []
         if len(structure) != len(names) - 1:
             raise ValueError("The length of the structure argument must contain exactly one element less than the "
                              "names argument.")
         name = names.pop(0)
         template = cls.env['project.task.template'].create({
             'name': name,
-            'parent': parent and parent.id,
+            'parent': parent and parent.id or False,
+            'planned_hours': planned_hours,
+            'equipment_id': equipment and equipment.id or False,
         })
         parent = template
         while structure:
