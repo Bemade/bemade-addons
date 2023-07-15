@@ -7,24 +7,21 @@ class BemadeFSMBaseTest(TransactionCase):
 
     @classmethod
     def _generate_project_manager_user(cls, name, login):
-        user_group_employee = cls.env.ref('base.group_user')
-        user_group_project_user = cls.env.ref('project.group_project_user')
+        group_ids = cls.__get_user_groups()
         user_group_project_manager = cls.env.ref('project.group_project_manager')
-        user_group_fsm_user = cls.env.ref('industry_fsm.group_fsm_user')
         user_group_fsm_manager = cls.env.ref('industry_fsm.group_fsm_manager')
-        user_group_sales_manager = cls.env.ref('sales_team.group_sale_manager')
-        user_group_sales_user = cls.env.ref('sales_team.group_sale_salesman')
-        user_product_customer = cls.env.ref('customer_product_code.group_product_customer_code_user')
+        group_ids.append(user_group_fsm_manager.id)
+        group_ids.append(user_group_project_manager.id)
 
-        group_ids = [user_group_employee.id,
-                     user_group_project_user.id,
-                     user_group_project_manager.id,
-                     user_group_fsm_user.id,
-                     user_group_fsm_manager.id,
-                     user_group_sales_user.id,
-                     user_group_sales_manager.id, ]
-        if user_product_customer:
-            group_ids.append(user_product_customer.id)
+        return cls.__generate_user(name, login, group_ids)
+
+    @classmethod
+    def _generate_project_user(cls, name, login):
+        group_ids = cls.__get_user_groups()
+        return cls.__generate_user(name, login, group_ids)
+
+    @classmethod
+    def __generate_user(cls, name, login, group_ids):
         return cls.env['res.users'].with_context({'no_reset_password': True}).create({
             'name': name,
             'login': login,
@@ -34,10 +31,22 @@ class BemadeFSMBaseTest(TransactionCase):
         })
 
     @classmethod
-    def _generate_project_user(cls, name, login):
-        user = cls._generate_project_manager_user(name, login)
-        user.write({'groups_id': [Command.unlink(cls.env.ref('project.group_project_manager'))]})
-        user.write({'groups_id': [Command.unlink(cls.env.ref('industry_fsm.group_fsm_manager'))]})
+    def __get_user_groups(cls):
+        user_group_employee = cls.env.ref('base.group_user')
+        user_group_project_user = cls.env.ref('project.group_project_user')
+        user_group_fsm_user = cls.env.ref('industry_fsm.group_fsm_user')
+        user_group_sales_user = cls.env.ref('sales_team.group_sale_salesman')
+        user_group_sales_manager = cls.env.ref('sales_team.group_sale_manager')
+        user_product_customer = cls.env.ref('customer_product_code.group_product_customer_code_user')
+
+        group_ids = [user_group_employee.id,
+                     user_group_project_user.id,
+                     user_group_fsm_user.id,
+                     user_group_sales_manager.id,
+                     user_group_sales_user.id, ]
+        if user_product_customer:
+            group_ids.append(user_product_customer.id)
+        return group_ids
 
     @classmethod
     def _generate_partner(cls, name: str = 'Test Company', company_type: str = 'company', parent=None,

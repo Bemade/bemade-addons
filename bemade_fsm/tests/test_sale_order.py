@@ -89,26 +89,6 @@ class TestSalesOrder(TestTaskTemplateCommon):
         parent_task.action_fsm_validate()
         self.assertTrue(sol.qty_delivered != 0)
 
-
-@tagged("-at_install", "post_install", "slow")
-class TestSaleOrderTour(HttpCase, TestSalesOrder):
-    def test_sale_order_tour_no_invoice_button_for_non_manager(self):
-        # Make sure a non-manager cannot mark a task as ready to invoice
-        so = self.sale_order2
-        so.action_confirm()
-        with self.assertRaises(AssertionError) as e:
-            self.start_tour('/web', 'sale_order_tour',
-                            login='mruser', )
-        self.assertTrue("Click on the ready to invoice button" in str(e.exception))
-
-    def test_task_mark_to_invoice(self):
-        # Make sure that when a manager clicks the ready to invoice button, the qty delivered is updated on the SO
-        so = self.sale_order2
-        so.action_confirm()
-        sol = so.order_line.filtered(lambda l: 'Test Product 3' in l.name)
-        self.start_tour('/web', 'sale_order_tour', login='misterpm')
-        self.assertTrue(sol.qty_delivered != 0)
-
     def test_task_contacts_through_sale_order(self):
         """ Make sure the site contacts and work order contacts transfer correctly from the SO to the task."""
 
@@ -121,7 +101,7 @@ class TestSaleOrderTour(HttpCase, TestSalesOrder):
         })
         so = self._generate_sale_order(partner)
         product = self._generate_product()
-        sol = self._generate_sale_order_line(product=product)
+        sol = self._generate_sale_order_line(sale_order=so, product=product)
 
         so.action_confirm()
 
@@ -156,3 +136,26 @@ class TestSaleOrderTour(HttpCase, TestSalesOrder):
 
         self.assertEqual(task.site_contacts, so.site_contacts)
         self.assertEqual(task.work_order_contacts, so.work_order_contacts)
+
+
+@tagged("-at_install", "post_install", "slow")
+class TestSaleOrderTour(HttpCase, TestSalesOrder):
+    def test_sale_order_tour_no_invoice_button_for_non_manager(self):
+        so = self._generate_sale_order(client_order_ref='TEST ORDER 2')
+        self._generate_sale_order_line(so, self._generate_product(name='Test Product 3'))
+        self._generate_project_user('Mr. User', 'mruser')
+        so.action_confirm()
+        # Make sure a non-manager cannot mark a task as ready to invoice
+        with self.assertRaises(AssertionError) as e:
+            self.start_tour('/web', 'sale_order_tour',
+                            login='mruser', )
+        self.assertTrue("Click on the ready to invoice button" in str(e.exception))
+
+    def test_task_mark_to_invoice(self):
+        # Make sure that when a manager clicks the ready to invoice button, the qty delivered is updated on the SO
+        so = self._generate_sale_order(client_order_ref='TEST ORDER 2')
+        sol = self._generate_sale_order_line(so, self._generate_product(name='Test Product 3'))
+        so.action_confirm()
+        user = self._generate_project_manager_user('Mr. User', 'mruser')
+        self.start_tour('/web', 'sale_order_tour', login=user.login)
+        self.assertTrue(sol.qty_delivered != 0)
