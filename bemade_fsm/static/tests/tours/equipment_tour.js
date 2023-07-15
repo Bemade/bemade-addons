@@ -2,7 +2,7 @@
 
 import tour from 'web_tour.tour';
 
-const TEST_COMPANY = "Test Partner Company";
+const TEST_COMPANY = "Test Partner";
 const TEST_EQPT1 = "Test Equipment 1";
 const TEST_EQPT2 = "Test Equipment 2";
 tour.register('equipment_base_tour', {
@@ -21,7 +21,6 @@ tour.register('equipment_base_tour', {
     }, {
         content: 'Click the create button',
         trigger: '.o_list_button_add',
-        extra_trigger: 'li.breadcrumb-item.active:has(span:contains(Equipment))',
     }, {
         content: 'Add a tag',
         trigger: 'input[name="pid_tag"]',
@@ -33,13 +32,13 @@ tour.register('equipment_base_tour', {
     }, {
         content: 'Set the partner',
         trigger: 'div[name="partner_location_id"] div div input',
-        run: 'text Test Partner Company',
+        run: `text ${TEST_COMPANY}`,
     }, {
         content: 'Click the partner in the dropdown',
         trigger: `li a.dropdown-item:contains(${TEST_COMPANY})`,
     }, {
         content: 'Save equipment',
-        trigger: 'button.o_form_button_save',
+        trigger: 'button.o_list_button_save',
     }, {
         /* Navigate to the client and make sure that there are two equipments saved (one from the Python test case) */
         content: 'Navigate to the Clients submenu',
@@ -65,7 +64,6 @@ tour.register('equipment_base_tour', {
         extra_trigger: `h1 span.o_field_partner_autocomplete[name="name"]:contains(${TEST_COMPANY})`,
     }, {
         content: 'Make sure we have a first test equipment',
-        /*trigger: `div[name="equipment_ids"]:has(td:contains(${TEST_EQPT1}))`,*/
         trigger: `td:contains(${TEST_EQPT1})`,
         run: function () {
         },
