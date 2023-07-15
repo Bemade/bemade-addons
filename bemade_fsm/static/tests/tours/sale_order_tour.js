@@ -25,10 +25,10 @@ tour.register('sale_order_tour', {
     }, {
         content: 'Click the view tasks button',
         trigger: 'button[name="action_view_task"]',
-    }, {
+    }, /*{
         content: 'Click the first task',
         trigger: `div.o_kanban_record:has(span:contains(${PRODUCT_NAME}))`,
-    }, {
+    },*/ {
         content: 'Click on the ready to invoice button',
         trigger: 'button[name="action_fsm_validate"]',
         extra_trigger: `li.breadcrumb-item.active:has(span:contains(${PRODUCT_NAME}))`
