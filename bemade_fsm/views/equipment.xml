@@ -55,7 +55,7 @@
                 <field name="name"/>
                 <field name="description"/>
                 <field name="tag_ids" widget="many2many_tags" options="{'no_open': False}"/>
-                <field name="partner_id"/>
+                <field name="partner_location_id"/>
             </tree>
         </field>
     </record>

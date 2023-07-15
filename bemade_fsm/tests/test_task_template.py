@@ -60,6 +60,10 @@ class TestTaskTemplate(TestTaskTemplateCommon):
 
 @tagged('-at_install', 'post_install', 'slow')
 class TestTaskTemplateTour(HttpCase, TestTaskTemplateCommon):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls._generate_project_manager_user('Mister PM', 'misterpm')
 
     def test_task_template_tour(self):
         self.start_tour('/web', 'task_template_tour',
