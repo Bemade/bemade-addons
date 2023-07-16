@@ -15,4 +15,27 @@
         </field>
     </record>
 
+    <record id="view_partner_kanban_inherit" model="ir.ui.view">
+        <field name="name">res.partner.kanban.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.res_partner_kanban_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//kanban" position="attributes">
+                <attribute name="js_class">res_partner_odoo_scrapper_kanban</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="view_res_partner_odoo_search">
+        <field name="name">res.partner.odoo.search</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="arch" type="xml">
+            <filter name="type_company" position="after">
+                <filter domain="[('is_odoo_partner','=','True')]" string="Odoo Partners" name="res_partner_odoo_partner_filter"/>
+                <filter domain="[('is_odoo_user','=','True')]" string="Odoo Users" name="res_partner_odoo_user_filter"/>
+            </filter>
+        </field>
+    </record>
+
 </odoo>

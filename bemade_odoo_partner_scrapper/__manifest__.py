@@ -16,10 +16,11 @@
     'license': 'GPL-3',
     'author': 'Bemade',
     'website': 'https://www.bemade.org',
-    'depends': [],
+    'depends': ['base', 'contacts', 'sale_management', 'sale' , 'partner_multi_relation'],
     'data': [
         # No security
         'views/res_partner_views.xml',
+        'data/res_partner_relation_type.xml'
     ],
     "assets": {
         "web.assets_backend": [
