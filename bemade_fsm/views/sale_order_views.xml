@@ -13,15 +13,27 @@
                                    context="{'tree_view_ref': 'bemade_fsm.bemade_fsm_visit_tree'}"/>
                         </group>
                         <group name="field_service_info" string="Contacts and Equipment">
-                            <field name="equipment_id"
-                                   domain="[('partner_location_id', '=', partner_shipping_id)]"
-                                   context="{'default_partner_location_id': partner_shipping_id,}"/>
+                            <field name="valid_equipment_ids" invisible="1"/>
+                            <field name="summary_equipment_ids"
+                                   context="{'default_partner_location_id': partner_shipping_id,}"
+                                   widget="many2many_tags"/>
                             <field name="site_contacts"
                                    context="{'tree_view_ref': 'bemade_fsm.fsm_contacts_view_tree'}"/>
                             <field name="work_order_contacts"
                                    context="{'tree_view_ref': 'bemade_fsm.fsm_contacts_view_tree'}"/>
+
+                            <field name="default_equipment_ids"
+                                   context="{'default_partner_location_id': partner_shipping_id,}"
+                                   widget="many2many_tags"
+                                   domain="[('id', 'in', valid_equipment_ids)]"/>
                         </group>
                     </page>
+                </xpath>
+                <xpath expr="//tree//field[@name='name']" position="after">
+                    <field name="valid_equipment_ids" invisible="1"/>
+                    <field name="equipment_ids"
+                           widget="many2many_tags"
+                           domain="[('id', 'in', valid_equipment_ids)]"/>
                 </xpath>
             </field>
         </record>
