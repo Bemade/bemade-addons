@@ -125,7 +125,7 @@ class BemadeFSMBaseTest(TransactionCase):
 
     @classmethod
     def _generate_task_template(cls, parent=None, structure=None, names=None, planned_hours=1,
-                                equipment=None):
+                                equipment=None, customer=None):
         """ Generates a task template with the specified structure and naming.
 
         :param parent: The parent task template for the top-level task template being generated
@@ -150,6 +150,7 @@ class BemadeFSMBaseTest(TransactionCase):
             'parent': parent and parent.id or False,
             'planned_hours': planned_hours,
             'equipment_ids': [Command.set(equipment and [equipment.id] or [])],
+            'customer': customer and customer.id or False,
         })
         parent = template
         while structure:
