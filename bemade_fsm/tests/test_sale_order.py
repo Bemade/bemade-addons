@@ -1,10 +1,10 @@
-from .test_task_template import TestTaskTemplateCommon
+from .test_task_template import BemadeFSMBaseTest
 from odoo.tests.common import tagged, HttpCase, Form
 from odoo import Command
 
 
 @tagged("-at_install", "post_install")
-class TestSalesOrder(TestTaskTemplateCommon):
+class TestSalesOrder(BemadeFSMBaseTest):
     @tagged('-at_install', 'post_install')
     def test_order_confirmation_simple_template(self):
         """ Confirming the order should create a task in the global project based on the task template. """
@@ -24,20 +24,23 @@ class TestSalesOrder(TestTaskTemplateCommon):
     def test_order_confirmation_tree_template(self):
         partner = self._generate_partner()
         so = self._generate_sale_order(partner=partner)
-        task_template = self._generate_task_template(structure=[2, 1],
-                                                     names=['Parent Template', 'Child Template',
-                                                            'Grandchild Template'])
-        product = self._generate_product(task_template=task_template)
+        parent_task = self._generate_task_template(structure=[2, 1],
+                                                   names=['Parent Template', 'Child Template',
+                                                          'Grandchild Template'])
+        child_task_1 = parent_task.subtasks[0]
+        child_task_2 = parent_task.subtasks[1]
+        grandchild_task = parent_task.subtasks[0].subtasks[0]
+        product = self._generate_product(task_template=parent_task)
         sol = self._generate_sale_order_line(so, product=product)
 
         so.action_confirm()
 
         self.assertTrue(sol.task_id.child_ids and len(sol.task_id.child_ids) == 2)
-        self.assertTrue(self.parent_task.name in sol.task_id.name)
-        self.assertTrue(self.child_task_1.name in sol.task_id.child_ids[0].name)
-        self.assertTrue(self.child_task_2.name in sol.task_id.child_ids[1].name)
+        self.assertTrue(parent_task.name in sol.task_id.name)
+        self.assertTrue(child_task_1.name in sol.task_id.child_ids[0].name)
+        self.assertTrue(child_task_2.name in sol.task_id.child_ids[1].name)
         self.assertTrue(sol.task_id.child_ids[0].child_ids and len(sol.task_id.child_ids[0].child_ids) == 1)
-        self.assertTrue(self.grandchild_task.name in sol.task_id.child_ids.child_ids[0].name)
+        self.assertTrue(grandchild_task.name in sol.task_id.child_ids.child_ids[0].name)
 
     def test_order_confirmation_equipment(self):
         """ The equipment selected on the SO should transfer to the task."""

@@ -1,5 +1,5 @@
 from .test_bemade_fsm_common import BemadeFSMBaseTest
-from odoo.tests.common import HttpCase, tagged
+from odoo.tests.common import HttpCase, tagged, Form
 from odoo.exceptions import MissingError
 from odoo import Command
 from psycopg2.errors import ForeignKeyViolation
@@ -56,6 +56,19 @@ class TestTaskTemplate(TestTaskTemplateCommon):
         # Reading deleted child's name field should be impossible
         with self.assertRaises(MissingError):
             test = self.grandchild_task.name
+
+    def test_dissociating_customer_resets_equipment_appropriately(self):
+        partner1 = self._generate_partner()
+        partner2 = self._generate_partner()
+        equipment1 = self._generate_equipment(partner=partner1)
+        form = Form(self.task1)
+        form.customer = partner1
+        form.equipment_ids.add(equipment1)
+
+        # Switching the partner should trigger on_change that makes sure equipments are linked to the new partner
+        form.customer = partner2
+
+        self.assertFalse(equipment1 in self.task1.equipment_ids)
 
 
 @tagged('-at_install', 'post_install', 'slow')
