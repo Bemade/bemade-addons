@@ -7,18 +7,18 @@ from odoo.exceptions import MissingError
 @tagged("-at_install", "post_install")
 class TestEquipment(BemadeFSMBaseTest):
     def test_crud(self):
-        self.partner_company = self._generate_partner()
-        self.partner_contact = self._generate_partner('Site Contact', 'person', self.partner_company)
-        self.equipment = self._generate_equipment('Test Equipment 1', self.partner_company)
+        partner_company = self._generate_partner()
+        partner_contact = self._generate_partner('Site Contact', 'person', partner_company)
+        equipment = self._generate_equipment('Test Equipment 1', partner_company)
 
         # Just make sure the basic ORM stuff is OK
-        self.assertTrue(self.equipment in self.partner_company.equipment_ids)
-        self.assertTrue(len(self.partner_company.equipment_ids) == 1)
+        self.assertTrue(equipment in partner_company.equipment_ids)
+        self.assertTrue(len(partner_company.equipment_ids) == 1)
 
         # Delete should cascade
-        self.partner_company.write({'equipment_ids': [Command.set([])]})
+        partner_company.write({'equipment_ids': [Command.set([])]})
         with self.assertRaises(MissingError):
-            self.equipment.name
+            equipment.name
 
 
 @tagged('-at_install', 'post_install', 'slow')
