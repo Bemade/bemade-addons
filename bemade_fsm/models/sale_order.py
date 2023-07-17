@@ -114,8 +114,8 @@ class SaleOrderLine(models.Model):
             vals['user_ids'] = template.assignees.ids
             vals['tag_ids'] = template.tags.ids
             vals['planned_hours'] = template.planned_hours
-            if template.equipment_id:
-                vals['equipment_ids'] = [Command.set([template.equipment_id.id])]
+            if template.equipment_ids:
+                vals['equipment_ids'] = [Command.set(template.equipment_ids.ids)]
             return vals
 
         tmpl = self.product_id.task_template_id

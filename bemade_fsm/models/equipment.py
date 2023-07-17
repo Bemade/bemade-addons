@@ -35,7 +35,6 @@ class Equipment(models.Model):
 
     tag_ids = fields.Many2many('bemade_fsm.equipment.tag',
                                string='Application',
-                               tracking=True,
                                help="Classify and analyze your equipment categories like: Boiler, Laboratory, "
                                     "Waste water, Pure water")
     partner_id = fields.Many2one('res.partner',

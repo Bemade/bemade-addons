@@ -1,4 +1,4 @@
-from odoo import models, fields, api, _
+from odoo import models, fields, api, _, Command
 
 
 class TaskTemplate(models.Model):
@@ -24,7 +24,11 @@ class TaskTemplate(models.Model):
     sequence = fields.Integer(string="Sequence")
     company_id = fields.Many2one("res.company", string="Company", index=1, default=_current_company)
     planned_hours = fields.Float("Initially Planned Hours")
-    equipment_id = fields.Many2one(comodel_name="bemade_fsm.equipment", string="Equipment", )
+    equipment_ids = fields.Many2many(comodel_name="bemade_fsm.equipment",
+                                     relation="bemade_fsm_task_template_equipment_rel",
+                                     column1="task_template_id",
+                                     column2="equipment_id",
+                                     string="Equipment to Service",)
 
     def action_open_task(self):
         return {
@@ -34,3 +38,9 @@ class TaskTemplate(models.Model):
             'type': 'ir.actions.act_window',
             'context': self._context
         }
+
+    @api.onchange('customer')
+    def _onchange_customer(self):
+        for rec in self:
+            new_equipment_ids = [eq.id for eq in rec.equipment_ids if eq.partner_location_id == rec.customer]
+            rec.write({'equipment_ids': [Command.set(new_equipment_ids)]})
