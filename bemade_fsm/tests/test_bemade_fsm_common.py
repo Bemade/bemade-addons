@@ -149,7 +149,7 @@ class BemadeFSMBaseTest(TransactionCase):
             'name': name,
             'parent': parent and parent.id or False,
             'planned_hours': planned_hours,
-            'equipment_id': equipment and equipment.id or False,
+            'equipment_ids': [Command.set(equipment and [equipment.id] or [])],
         })
         parent = template
         while structure:
