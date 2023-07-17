@@ -21,9 +21,19 @@ class FSMVisit(models.Model):
                                   related="so_section_id.is_fully_delivered")
     is_invoiced = fields.Boolean(string="Invoiced",
                                  related="so_section_id.is_fully_delivered_and_invoiced")
+    summarized_equipment_ids = fields.Many2many(comodel_name="bemade_fsm.equipment",
+                                                string="Equipment to Service",
+                                                compute="_compute_summarized_equipment_ids")
 
-    def _compute_is_invoiced(self):
-        self.is_invoiced = False
+    @api.depends('so_section_id', 'sale_order_id.summary_equipment_ids')
+    def _compute_summarized_equipment_ids(self):
+        for rec in self:
+            lines = rec.so_section_id.get_section_lines()
+            equipment_ids = []
+            for line in lines:
+                for equipment in line.equipment_ids:
+                    equipment_ids.append(equipment)
+            rec.summarized_equipment_ids = equipment_ids
 
     @api.model_create_multi
     def create(self, vals_list):
