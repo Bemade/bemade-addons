@@ -5,12 +5,18 @@ from odoo.exceptions import ValidationError
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
-    equipment_id = fields.Many2one(comodel_name="bemade_fsm.equipment",
-                                   string="Equipment to Service",
-                                   tracking=True,
-                                   compute="_compute_equipment",
-                                   inverse="_inverse_equipment",
-                                   store=True)
+    valid_equipment_ids = fields.One2many(comodel_name="bemade_fsm.equipment",
+                                          related="partner_id.owned_equipment_ids")
+    default_equipment_ids = fields.Many2many(comodel_name="bemade_fsm.equipment",
+                                             string="Default Equipment to Service",
+                                             help="The default equipment to service for new sale order lines.",
+                                             compute="_compute_default_equipment",
+                                             inverse="_inverse_default_equipment",
+                                             store=True, )
+
+    summary_equipment_ids = fields.Many2many(comodel_name="bemade_fsm.equipment",
+                                             string="Equipment Being Serviced",
+                                             compute="_compute_summary_equipment_ids")
 
     site_contacts = fields.Many2many(comodel_name='res.partner',
                                      relation="sale_order_site_contacts_rel",
@@ -29,10 +35,15 @@ class SaleOrder(models.Model):
                                 inverse_name="sale_order_id",
                                 readonly=False)
 
+    @api.depends('order_line.equipment_ids')
+    def _compute_summary_equipment_ids(self):
+        for rec in self:
+            rec.summary_equipment_ids = rec.order_line.mapped('equipment_ids')
+
     @api.onchange('partner_shipping_id')
     def _onchange_partner_shipping_id(self):
         super()._onchange_partner_shipping_id()
-        self._compute_equipment()
+        self._compute_default_equipment()
         self._compute_default_contacts()
 
     @api.depends('partner_shipping_id')
@@ -45,18 +56,19 @@ class SaleOrder(models.Model):
         pass
 
     @api.depends('partner_shipping_id')
-    def _compute_equipment(self):
+    def _compute_default_equipment(self):
+        ids = self.partner_shipping_id.equipment_ids
         for rec in self:
-            rec.equipment_id = self.partner_shipping_id.equipment_ids if len(
-                self.partner_shipping_id.equipment_ids) <= 1 else False
+            rec.default_equipment_ids = ids if len(ids) < 4 else False
 
-    def _inverse_equipment(self):
+    def _inverse_default_equipment(self):
         pass
 
 
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
-
+    valid_equipment_ids = fields.One2many(comodel_name="bemade_fsm.equipment",
+                                          related="order_id.partner_id.owned_equipment_ids")
     visit_id = fields.One2many(comodel_name="bemade_fsm.visit",
                                inverse_name="so_section_id",
                                string="Visit")
@@ -65,9 +77,14 @@ class SaleOrderLine(models.Model):
                                         help="Indicates whether a line or all the lines in a section have been"
                                              "entirely delivered.")
     is_fully_delivered_and_invoiced = fields.Boolean(string="Fully Invoiced",
-                                       compute="_compute_is_fully_invoiced",
-                                       help="Indicates whether a line or all the lines in a section have been"
-                                            "entirely delivered and invoiced.")
+                                                     compute="_compute_is_fully_invoiced",
+                                                     help="Indicates whether a line or all the lines in a section have been"
+                                                          "entirely delivered and invoiced.")
+    equipment_ids = fields.Many2many(string="Equipment to Service",
+                                     comodel_name="bemade_fsm.equipment",
+                                     relation="bemade_fsm_equipment_sale_order_line_rel",
+                                     column1="sale_order_line_id",
+                                     column2="equipment_id")
 
     def _timesheet_create_task(self, project):
         """ Generate task for the given so line, and link it.
@@ -129,8 +146,8 @@ class SaleOrderLine(models.Model):
                 "This task has been created from: <a href=# data-oe-model=sale.order data-oe-id=%d>%s</a> (%s)") % (
                            self.order_id.id, self.order_id.name, self.product_id.name)
             task.message_post(body=task_msg)
-        if not task.equipment_ids and self.order_id.equipment_id:
-            task.write({'equipment_ids': [Command.set([self.order_id.equipment_id.id])]})
+        if not task.equipment_ids and self.equipment_ids:
+            task.write({'equipment_ids': [Command.set([self.equipment_ids.ids])]})
         task.name = _generate_task_name(tmpl)
         return task
 
@@ -145,6 +162,24 @@ class SaleOrderLine(models.Model):
             self.is_fully_delivered_and_invoiced = False
             return
         self.is_fully_delivered_and_invoiced = self._iterate_items_compute_bool(lambda l: l.qty_to_invoice == 0)
+
+    def get_section_lines(self):
+        """ Returns a list containing the sale order lines that fall under this section. """
+        self.ensure_one()
+        assert self.display_type == 'line_section', 'Method called incorrectly on non-section order line.'
+        found = False
+        lines = []
+        for line in self.order_id:
+            if line == self:
+                found = True
+                continue
+            if not found:
+                continue
+            if line.display_type == 'line_section':  # Stop when we hit the next section
+                return lines
+            else:
+                lines.add(line)
+        return lines
 
     def _iterate_items_compute_bool(self, single_line_func):
         if not self.display_type:
