@@ -55,10 +55,13 @@ class SaleOrder(models.Model):
     def _inverse_default_contacts(self):
         pass
 
-    @api.depends('partner_shipping_id')
+    @api.depends('partner_id', 'partner_shipping_id', 'partner_shipping_id.equipment_ids', 'partner_id.owned_equipment_ids')
     def _compute_default_equipment(self):
-        ids = self.partner_shipping_id.equipment_ids
         for rec in self:
+            if rec.partner_shipping_id.equipment_ids:
+                ids = rec.partner_shipping_id.equipment_ids
+            else:
+                ids = rec.partner_id.owned_equipment_ids
             rec.default_equipment_ids = ids if len(ids) < 4 else False
 
     def _inverse_default_equipment(self):
@@ -85,6 +88,14 @@ class SaleOrderLine(models.Model):
                                      relation="bemade_fsm_equipment_sale_order_line_rel",
                                      column1="sale_order_line_id",
                                      column2="equipment_id")
+
+    @api.model_create_multi
+    def create(self, vals):
+        recs = super().create(vals)
+        for rec in recs:
+            if rec.order_id.default_equipment_ids and not rec.equipment_ids:
+                rec.equipment_ids = rec.order_id.default_equipment_ids
+        return recs
 
     def _timesheet_create_task(self, project):
         """ Generate task for the given so line, and link it.
@@ -132,7 +143,7 @@ class SaleOrderLine(models.Model):
             vals['tag_ids'] = template.tags.ids
             vals['planned_hours'] = template.planned_hours
             if template.equipment_ids:
-                vals['equipment_ids'] = [Command.set(template.equipment_ids.ids)]
+                vals['equipment_ids'] = template.equipment_ids.ids
             return vals
 
         tmpl = self.product_id.task_template_id
@@ -147,7 +158,7 @@ class SaleOrderLine(models.Model):
                            self.order_id.id, self.order_id.name, self.product_id.name)
             task.message_post(body=task_msg)
         if not task.equipment_ids and self.equipment_ids:
-            task.write({'equipment_ids': [Command.set([self.equipment_ids.ids])]})
+            task.equipment_ids = self.equipment_ids.ids
         task.name = _generate_task_name(tmpl)
         return task
 

@@ -42,7 +42,7 @@ class TestSalesOrder(BemadeFSMBaseTest):
         self.assertTrue(sol.task_id.child_ids[0].child_ids and len(sol.task_id.child_ids[0].child_ids) == 1)
         self.assertTrue(grandchild_task.name in sol.task_id.child_ids.child_ids[0].name)
 
-    def test_order_confirmation_equipment(self):
+    def test_order_confirmation_single_equipment(self):
         """ The equipment selected on the SO should transfer to the task."""
         partner = self._generate_partner()
         equipment = self._generate_equipment(partner=partner)
@@ -60,6 +60,23 @@ class TestSalesOrder(BemadeFSMBaseTest):
         self.assertEqual(task1.equipment_ids[0], equipment)
         self.assertEqual(task2.equipment_ids[0], equipment)
 
+    def test_order_confirmation_multiple_equipment(self):
+        """ All equipment items should flow from the sale order line to the final task """
+        partner = self._generate_partner()
+        for i in range(5):
+            self._generate_equipment(partner=partner)
+        sale_order = self._generate_sale_order(partner=partner) # No default equipment since more than 3 on partner
+        sol1, sol2, sol3 = [self._generate_sale_order_line(sale_order=sale_order) for i in range(3)]
+        sol1.equipment_ids = [Command.set([partner.equipment_ids[i].id for i in range(2)])]
+        sol3.equipment_ids = [Command.set([partner.equipment_ids[i].id for i in range(2, 5)])]
+
+        sale_order.action_confirm()
+
+        self.assertEqual(sol1.equipment_ids, sol1.task_id.equipment_ids)
+        self.assertEqual(sol2.equipment_ids, sol2.task_id.equipment_ids)
+        self.assertEqual(sol3.equipment_ids, sol3.task_id.equipment_ids)
+
+
     def test_task_template_with_equipment_flow(self):
         """ The equipment selected on a task template should flow down to the task created on SO confirmation."""
         partner = self._generate_partner()
@@ -72,6 +89,79 @@ class TestSalesOrder(BemadeFSMBaseTest):
         so.action_confirm()
 
         self.assertEqual(sol.task_id.equipment_ids[0], equipment)
+
+    def test_sale_order_line_gets_default_equipment(self):
+        """ Sale order lines created on an SO with default equipment set should inherit that default equipment. """
+        partner = self._generate_partner()
+        self._generate_equipment(partner=partner)
+        sale_order = self._generate_sale_order(partner=partner)
+
+        sol = self._generate_sale_order_line(sale_order=sale_order)
+
+        self.assertEqual(sol.equipment_ids, partner.equipment_ids)
+
+    def test_sale_order_gets_correct_default_equipment_from_partner(self):
+        """ Should pick up equipment from the partner."""
+        partner = self._generate_partner()
+        self._generate_equipment(partner=partner)
+
+        sale_order = self._generate_sale_order(partner=partner)
+
+        self.assertEqual(sale_order.default_equipment_ids, partner.owned_equipment_ids)
+
+    def test_sale_order_default_equipment_maximum_number(self):
+        parent = self._generate_partner()
+        child = self._generate_partner(parent=parent)
+        for i in range(3):
+            self._generate_equipment(child)
+
+        sale_order = self._generate_sale_order(partner=parent)
+
+        self.assertEqual(sale_order.default_equipment_ids, parent.owned_equipment_ids)
+
+    def test_sale_order_no_default_equipment_with_more_than_three_owned_on_partner(self):
+        parent = self._generate_partner()
+        child = self._generate_partner(parent=parent)
+        for i in range(4):
+            self._generate_equipment(child)
+
+        sale_order = self._generate_sale_order(partner=parent)
+
+        self.assertEqual(sale_order.default_equipment_ids, parent.owned_equipment_ids)
+
+    def test_sale_order_resets_default_equipment_on_partner_change(self):
+        partner_1 = self._generate_partner()
+        partner_2 = self._generate_partner()
+        self._generate_equipment(partner=partner_1)
+        sale_order = self._generate_sale_order(partner_1)
+        form = Form(sale_order)
+
+        form.partner_id = partner_2
+        form.save()
+
+        self.assertFalse(sale_order.default_equipment_ids)
+
+    def test_sale_order_prioritize_shipping_location_equipments(self):
+        parent = self._generate_partner()
+        child = self._generate_partner(parent=parent, location_type='delivery')
+        self._generate_equipment(partner=parent)
+        self._generate_equipment(partner=child)
+
+        sale_order = self._generate_sale_order(partner=parent, shipping_location=child)
+
+        self.assertEqual(sale_order.default_equipment_ids, child.equipment_ids)
+
+    def test_default_equipment_transfers_to_sale_order_line(self):
+        partner = self._generate_partner()
+        for i in range(3):
+            self._generate_equipment(partner=partner)
+        sale_order = self._generate_sale_order(partner=partner)
+
+        for i in range(3):
+            self._generate_sale_order_line(sale_order=sale_order)
+
+        for line in sale_order.order_line:
+            self.assertEqual(line.equipment_ids, partner.equipment_ids)
 
     def test_task_mark_done(self):
         """ Marking the task linked to an SO line should mark the line delivered. Marking sub-tasks done should not."""
