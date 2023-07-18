@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_res_config_settings_form_inherit_mailcow" model="ir.ui.view">
+        <field name="name">res.config.settings.form.inherit.mailcow</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base_setup.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <div id="emails" position='after'>
+                <div id="mailcow">
+                    <h2>Mailcow Settings</h2>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <label for="mailcow_base_url" string="Mailcow URL"/>
+                            <div class="text-muted">
+                                Base URL for Mailcow server
+                            </div>
+                            <div class="content-group">
+                                <field name="mailcow_base_url"/>
+                            </div>
+                            <label for="mailcow_api_key" string="API Key"/>
+                            <div class="text-muted">
+                                Mailcow API Key
+                            </div>
+                            <div class="content-group">
+                                <field name="mailcow_api_key"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </field>
+    </record>
+</odoo>
