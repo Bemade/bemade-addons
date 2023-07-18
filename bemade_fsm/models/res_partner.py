@@ -1,5 +1,6 @@
 from odoo import api, fields, models, Command
 
+
 class Partner(models.Model):
     _inherit = 'res.partner'
 
@@ -7,9 +8,8 @@ class Partner(models.Model):
                                      string='Equipment Count')
 
     owned_equipment_ids = fields.One2many(comodel_name="bemade_fsm.equipment",
-                                          inverse_name="partner_id",
+                                          compute="_compute_owned_equipment_ids",
                                           string="Owned Equipments")
-
 
     equipment_ids = fields.One2many(comodel_name='bemade_fsm.equipment',
                                     inverse_name='partner_location_id',
@@ -17,7 +17,7 @@ class Partner(models.Model):
 
     is_site_contact = fields.Boolean(string='Is a site contact',
                                      compute="_compute_is_site_contact",
-                                     search="_search_is_site_contact",)
+                                     search="_search_is_site_contact", )
 
     site_ids = fields.Many2many(string='Work Sites',
                                 comodel_name='res.partner',
@@ -41,6 +41,13 @@ class Partner(models.Model):
                                            column2='work_order_contact_id',
                                            domain=[('is_company', '=', False)],
                                            tracking=True)
+
+    @api.depends('equipment_ids', 'child_ids.company_type', 'child_ids.equipment_ids')
+    def _compute_owned_equipment_ids(self):
+        for rec in self:
+            ids = rec.equipment_ids | rec.child_ids.filtered(lambda l: l.company_type == 'company').mapped(
+                'equipment_ids')
+            rec.owned_equipment_ids = ids or False
 
     @api.depends('site_ids')
     def _compute_is_site_contact(self):
