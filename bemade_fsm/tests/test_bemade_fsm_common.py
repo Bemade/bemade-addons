@@ -67,16 +67,20 @@ class BemadeFSMBaseTest(TransactionCase):
         })
 
     @classmethod
-    def _generate_sale_order(cls, partner=None, client_order_ref='Test Order', equipment=None):
+    def _generate_sale_order(cls, partner=None, client_order_ref='Test Order', equipment=None, shipping_location=None):
         partner = partner or cls._generate_partner()
-        return cls.env['sale.order'].create({
-            'partner_id': partner.id,
-            'client_order_ref': client_order_ref,
-            'equipment_id': equipment and equipment.id or False,
-        })
+        vals = {'partner_id': partner.id,
+                'client_order_ref': client_order_ref}
+        if equipment:
+            vals.update({'default_equipment_ids': [Command.set([equipment.id])]})
+        if shipping_location:
+            vals.update({'partner_shipping_id': shipping_location.id})
+        return cls.env['sale.order'].create(vals)
 
     @classmethod
-    def _generate_sale_order_line(cls, sale_order, product, qty=1.0, uom=None, price=100.0, tax_id=False):
+    def _generate_sale_order_line(cls, sale_order, product=None, qty=1.0, uom=None, price=100.0, tax_id=False):
+        if not product:
+            product = cls._generate_product()
         return cls.env['sale.order.line'].create({
             'order_id': sale_order.id,
             'product_id': product.id,

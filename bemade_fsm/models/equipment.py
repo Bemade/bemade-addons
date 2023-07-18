@@ -37,10 +37,6 @@ class Equipment(models.Model):
                                string='Application',
                                help="Classify and analyze your equipment categories like: Boiler, Laboratory, "
                                     "Waste water, Pure water")
-    partner_id = fields.Many2one('res.partner',
-                                 string="Owner",
-                                 compute="_compute_partner",
-                                 search="_search_partner", )
 
     description = fields.Text(string="Description",
                               tracking=True)
@@ -62,15 +58,6 @@ class Equipment(models.Model):
     def _compute_partner(self):
         for rec in self:
             rec.partner_id = rec.partner_location_id and rec.partner_location_id.root_ancestor
-
-    @api.model
-    def _search_partner(self, operator, value):
-        return [('partner_location_id.root_ancestor', operator, value)]
-
-    @api.depends('pid_tag', 'name')
-    def _compute_complete_name(self):
-        for rec in self:
-            rec.complete_name = "[%s] %s" % (rec.pid_tag or ' ', rec.name)
 
     @api.model
     def name_search(self, name='', args=None, operator='ilike', limit=100):
