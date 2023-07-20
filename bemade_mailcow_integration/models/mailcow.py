@@ -16,10 +16,8 @@ class MailMailcow(models.AbstractModel):
     def get_credentials(self):
         params = self.env['ir.config_parameter'].sudo()
 
-        base_url =  params.get_param('mailcow.base_url'),
-        base_url = base_url[0]
-        api_key = params.get_param('mailcow.api_key'),
-        api_key = api_key[0]
+        base_url = params.get_param('mailcow.base_url')[0],
+        api_key = params.get_param('mailcow.api_key')[0],
 
         if not base_url or not api_key:
             _logger.error('No API key or base URL is set in the system parameters')

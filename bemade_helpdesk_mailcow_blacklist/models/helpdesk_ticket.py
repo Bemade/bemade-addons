@@ -1,16 +1,19 @@
 from odoo import api, fields, models
 from odoo.exceptions import UserError
-
+import re
 
 class HelpdeskTicket(models.Model):
     _inherit = 'helpdesk.ticket'
 
-    def add_blacklist(self):
+    def action_add_blacklist(self):
         self.ensure_one()
+        email_regex = r'<([^<>]+)>'
+
+        email_to_blacklist = re.findall(email_regex, self.email)[0]
 
         # Create a new blacklist record
-        blacklist = self.env['mailcow.blacklist'].create({
-            'email': self.email,
+        blacklist = self.env['mail.mailcow.blacklist'].create({
+            'email': email_to_blacklist,
         })
 
         # Assign 'spam' as a closed stage

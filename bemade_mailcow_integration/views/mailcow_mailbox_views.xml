@@ -57,7 +57,7 @@
     <menuitem id="mailcow_menu"
               name="Mailcow"
               sequence="10"
-              web_icon="bemade_mailcow_blacklist,static/description/icon.png"/>
+              web_icon="bemade_mailcow_integration,static/description/icon.png"/>
 
     <menuitem id="mailcow_menu_mailbox"
               name="Mailboxes"

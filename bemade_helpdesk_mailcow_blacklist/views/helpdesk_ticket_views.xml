@@ -6,7 +6,7 @@
         <field name="inherit_id" ref="helpdesk.helpdesk_ticket_view_form"/>
         <field name="arch" type="xml">
             <header position="inside">
-                <button name="action_add_blacklist" type="object" string="Add to Blacklist" class="oe_highlight" attrs="{'invisible': [('email_from', '=', False)]}"/>
+                <button name="action_add_blacklist" type="object" string="Add to Blacklist" class="oe_highlight" attrs="{'invisible': [('partner_email', '=', False)]}"/>
             </header>
         </field>
     </record>

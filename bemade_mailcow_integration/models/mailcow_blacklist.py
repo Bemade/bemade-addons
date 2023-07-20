@@ -18,20 +18,26 @@ class MailcowBlacklist(models.Model):
         """
         Overridden create method to add the new blacklist entry to the Mailcow server.
         """
-        res = super().create(vals)
         domain = self.env['ir.config_parameter'].sudo().get_param('mail.catchall.domain')
 
         endpoint_add = '/api/v1/add/domain-policy'
         endpoint_get_bl = f"/api/v1/get/policy_bl_domain/{domain}"
         data = {
             'domain': domain,
-            'object_from': res.email,
+            'object_from': vals['email'],
             'object_list': 'bl'
         }
-        res.api_request(endpoint_add, 'POST', data)
+
+
+
+        self.api_request(endpoint_add, 'POST', data)
         _logger.info(f'Added {vals["email"]} to Mailcow blacklist')
 
-        res.api_request(endpoint_get_bl, 'GET', None)
+        allblemail = self.api_request(endpoint_get_bl, 'GET', None)
+
+        mc_id = [d['prefid'] for d in allblemail if d['value'] == vals['email']]
+        vals['mc_id'] = mc_id[0]
+        res = super().create(vals)
 
         return res
 
@@ -60,11 +66,12 @@ class MailcowBlacklist(models.Model):
         Overridden unlink method to remove the blacklist entry from the Mailcow server.
         """
         for record in self:
-            endpoint = '/api/v1/delete/blacklist'
+            endpoint = '/api/v1/delete/domain-policy'
             data = {
-                'items': [record.email]
+                'items': [record.mc_id]
             }
-            record.api_request(endpoint, 'POST', data)
+            result  = record.api_request(endpoint, 'POST', data)
+            print(result)
             _logger.info(f'Removed {record.email} from Mailcow blacklist')
         return super().unlink()
 
