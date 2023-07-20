@@ -24,6 +24,16 @@ class FSMVisit(models.Model):
     summarized_equipment_ids = fields.Many2many(comodel_name="bemade_fsm.equipment",
                                                 string="Equipment to Service",
                                                 compute="_compute_summarized_equipment_ids")
+    task_id = fields.Many2one(comodel_name="project.task",
+                              compute="_compute_task_id",
+                              string="Service Visit",)
+    task_ids = fields.One2many(comodel_name="project.task",
+                               inverse_name="visit_id")
+
+    @api.depends('task_ids')
+    def _compute_task_id(self):
+        for rec in self:
+            rec.task_id = rec.task_ids and rec.task_ids[0]
 
     @api.depends('so_section_id', 'sale_order_id.summary_equipment_ids')
     def _compute_summarized_equipment_ids(self):
