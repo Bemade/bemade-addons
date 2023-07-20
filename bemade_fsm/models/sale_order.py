@@ -89,6 +89,7 @@ class SaleOrderLine(models.Model):
                                      column1="sale_order_line_id",
                                      column2="equipment_id")
 
+
     @api.model_create_multi
     def create(self, vals):
         recs = super().create(vals)
@@ -162,6 +163,33 @@ class SaleOrderLine(models.Model):
         task.name = _generate_task_name(tmpl)
         return task
 
+    def _timesheet_service_generation(self):
+        super()._timesheet_service_generation()
+        visit_lines = self.filtered(lambda l: l.visit_id)
+        for line in visit_lines:
+            task_ids = line.get_section_lines().mapped('task_id')
+            if not task_ids:
+                continue
+            if len(set([task.project_id for task in task_ids])) > 1:
+                # Can't group up the tasks if they're part of different projects
+                return
+            project_id = task_ids[0].project_id
+            line.visit_id.task_id = line._generate_task_for_visit_line(project_id)
+            task_ids.write({'parent_id': line.visit_id.task_id.id})
+
+    def _generate_task_for_visit_line(self, project):
+        self.ensure_one()
+        task = self.env['project.task'].create({
+            'name': self.order_id.name + ": " + self.name,
+            'description': f"Parent task for {self.order_id.name}, visit {self.name}",
+            'project_id': project.id,
+            'equipment_ids': self.get_section_lines().mapped('equipment_ids').ids,
+            'sale_order_id': self.order_id.id,
+            'partner_id': self.order_id.partner_shipping_id.id,
+            'visit_id': self.visit_id.id,
+        })
+        return task
+
     @api.depends('order_id.order_line', 'display_type', 'qty_to_deliver', 'order_id.order_line.qty_to_deliver',
                  'order_id.order_line.display_type')
     def _compute_is_fully_delivered(self):
@@ -175,22 +203,22 @@ class SaleOrderLine(models.Model):
         self.is_fully_delivered_and_invoiced = self._iterate_items_compute_bool(lambda l: l.qty_to_invoice == 0)
 
     def get_section_lines(self):
-        """ Returns a list containing the sale order lines that fall under this section. """
+        """ Returns a RecordSet containing the sale order lines that fall under this section. """
         self.ensure_one()
         assert self.display_type == 'line_section', 'Method called incorrectly on non-section order line.'
         found = False
         lines = []
-        for line in self.order_id:
+        for line in self.order_id.order_line:
             if line == self:
                 found = True
                 continue
             if not found:
                 continue
             if line.display_type == 'line_section':  # Stop when we hit the next section
-                return lines
+                break
             else:
-                lines.add(line)
-        return lines
+                lines.append(line)
+        return self.env['sale.order.line'].union(*lines)
 
     def _iterate_items_compute_bool(self, single_line_func):
         if not self.display_type:
