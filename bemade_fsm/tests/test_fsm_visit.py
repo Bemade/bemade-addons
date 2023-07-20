@@ -7,7 +7,7 @@ class FSMVisitTest(BemadeFSMBaseTest):
 
     def test_create_visit_sets_name_on_section(self):
         so = self._generate_sale_order()
-        self._add_service_so_line(so)
+        self._generate_sale_order_line(sale_order=so)
 
         visit = self._generate_visit(so)
 
@@ -35,7 +35,7 @@ class FSMVisitTest(BemadeFSMBaseTest):
     def test_visit_completes_when_task_completes(self):
         so = self._generate_sale_order()
         visit = self._generate_visit(so)
-        self._add_service_so_line(so, task=True)
+        self._generate_sale_order_line(so)
         so.action_confirm()
         task = so.order_line.filtered(lambda l: l.task_id).task_id
 
@@ -46,7 +46,7 @@ class FSMVisitTest(BemadeFSMBaseTest):
     def test_visit_shows_invoiced_when_invoiced(self):
         so = self._generate_sale_order()
         visit = self._generate_visit(so)
-        self._add_service_so_line(so, task=True)
+        self._generate_sale_order_line(so)
         so.action_confirm()
         task = so.order_line.filtered(lambda l: l.task_id).task_id
         task.action_fsm_validate()
@@ -54,6 +54,23 @@ class FSMVisitTest(BemadeFSMBaseTest):
         self._invoice_sale_order(so)
 
         self.assertTrue(visit.is_invoiced)
+
+    def test_visit_groups_section_tasks_when_confirmed(self):
+        partner = self._generate_partner()
+        so = self._generate_sale_order()
+        visit = self._generate_visit(sale_order=so)
+        sol1 = self._generate_sale_order_line(sale_order=so)
+        sol2 = self._generate_sale_order_line(sale_order=so)
+        visit.so_section_id.sequence = 1
+        sol1.sequence = 2
+        sol2.sequence = 3
+
+        so.action_confirm()
+
+        visit_task = visit.task_id
+        self.assertTrue(visit_task)
+        visit_subtasks = visit_task.child_ids
+        self.assertTrue(visit_subtasks and sol1.task_id in visit_subtasks and sol2.task_id in visit_subtasks)
 
     def _invoice_sale_order(self, so):
         wiz = self.env['sale.advance.payment.inv'].with_context({'active_ids': [so.id]}).create({})
@@ -67,13 +84,3 @@ class FSMVisitTest(BemadeFSMBaseTest):
             'sale_order_id': sale_order.id,
             'label': label,
         }])
-
-    def _add_service_so_line(self, sale_order, task: bool = False):
-        """ Generates a sales order line for a service product.
-
-        :param sale_order: The sales order to which the new line is to be added
-        :param task: If true, the created line will be for a product with service_tracking=task_global_project
-        """
-        service_tracking = 'task_global_project' if task else 'no'
-        product = self._generate_product(service_tracking=service_tracking)
-        return self._generate_sale_order_line(sale_order, product)

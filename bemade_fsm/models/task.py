@@ -32,6 +32,8 @@ class Task(models.Model):
     allow_billable = fields.Boolean(string="Can be billed",
                                     related=False,
                                     compute="_compute_allow_billable",)
+
+    visit_id = fields.Many2one(comodel_name='bemade_fsm.visit')
     @api.depends('sale_line_id.order_id.site_contacts', 'sale_line_id.order_id.work_order_contacts')
     def _compute_contacts(self):
         """ The work order contacts and site contacts for a given task are taken from the sale order if the task
@@ -55,10 +57,11 @@ class Task(models.Model):
                     'site_contacts': [Command.set(rec.site_contacts.ids)],
                 })
 
-    @api.depends('parent_id', 'project_id')
+    @api.depends('parent_id.visit_id', 'project_id.is_fsm', 'project_id.allow_billable')
     def _compute_allow_billable(self):
         for rec in self:
-            if rec.parent_id and rec.project_id and rec.project_id.is_fsm:
+            # If an FSM task has a parent that is linked to an SO line, then the parent is the billable one
+            if rec.parent_id and not rec.parent_id.visit_id and rec.project_id and rec.project_id.is_fsm:
                 rec.allow_billable = False
             else:
                 rec.allow_billable = rec.project_id.allow_billable
