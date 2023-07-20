@@ -55,7 +55,8 @@ class SaleOrder(models.Model):
     def _inverse_default_contacts(self):
         pass
 
-    @api.depends('partner_id', 'partner_shipping_id', 'partner_shipping_id.equipment_ids', 'partner_id.owned_equipment_ids')
+    @api.depends('partner_id', 'partner_shipping_id', 'partner_shipping_id.equipment_ids',
+                 'partner_id.owned_equipment_ids')
     def _compute_default_equipment(self):
         for rec in self:
             if rec.partner_shipping_id.equipment_ids:
@@ -88,7 +89,6 @@ class SaleOrderLine(models.Model):
                                      relation="bemade_fsm_equipment_sale_order_line_rel",
                                      column1="sale_order_line_id",
                                      column2="equipment_id")
-
 
     @api.model_create_multi
     def create(self, vals):
@@ -238,3 +238,15 @@ class SaleOrderLine(models.Model):
                 if not val:
                     return val
             return True
+
+    @api.depends('product_uom', 'product_uom_qty', 'product_id.planning_enabled', 'state',
+                 'product_id.task_template_id')
+    def _compute_planning_hours_to_plan(self):
+        # Override the method from sale_planning to use time estimates from the task template if appropriate
+        super()._compute_planning_hours_to_plan()
+        templated_lines = self.filtered(
+            lambda l: l.product_id.task_template_id and l.product_id.task_template_id.planned_hours)
+        for line in templated_lines:
+            line.planning_hours_to_plan = line.product_id.task_template_id.planned_hours
+            if line.product_uom_category_id == self.env.ref('uom.product_uom_unit').category_id:
+                line.planning_hours_to_plan *= line.product_uom_qty
