@@ -40,7 +40,6 @@
             "bemade_mailcow_integration/static/src/xml/mailcow_templates.xml",
         ],
     },
-    'demo': [],
     'installable': True,
     'application': False,
     'auto_install': False

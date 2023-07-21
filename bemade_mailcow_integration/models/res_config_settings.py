@@ -13,3 +13,8 @@ class ResConfigSettings(models.TransientModel):
         help="API key for the Mailcow server",
         config_parameter='mailcow.api_key',
     )
+
+    mailcow_sync_alias = fields.Boolean(
+        string='Sync Aliases with Odoo',
+        help='Auto create Aliases in Mailcow from Odoo',
+        config_parameter='mailcow.sync_alias')

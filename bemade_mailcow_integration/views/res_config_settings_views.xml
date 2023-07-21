@@ -24,6 +24,13 @@
                             <div class="content-group">
                                 <field name="mailcow_api_key"/>
                             </div>
+                            <label for="mailcow_sync_alias" string="Sync Aliases with Odoo'"/>
+                            <div class="text-muted">
+                                Auto create Aliases in Mailcow from Odoo
+                            </div>
+                            <div class="content-group">
+                                <field name="mailcow_sync_alias"/>
+                            </div>
                         </div>
                     </div>
                 </div>

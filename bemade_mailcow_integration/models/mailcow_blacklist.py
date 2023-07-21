@@ -2,6 +2,7 @@
 
 from odoo import models, fields, api
 import logging
+import json
 
 _logger = logging.getLogger(__name__)
 
@@ -28,17 +29,14 @@ class MailcowBlacklist(models.Model):
             'object_list': 'bl'
         }
 
-
-
         self.api_request(endpoint_add, 'POST', data)
         _logger.info(f'Added {vals["email"]} to Mailcow blacklist')
 
-        allblemail = self.api_request(endpoint_get_bl, 'GET', None)
+        bl_emails = self.api_request(endpoint_get_bl, 'GET', None)
 
-        mc_id = [d['prefid'] for d in allblemail if d['value'] == vals['email']]
+        mc_id = [d['prefid'] for d in bl_emails if d['value'] == vals['email']]
         vals['mc_id'] = mc_id[0]
         res = super().create(vals)
-
         return res
 
     def write(self, vals):
@@ -65,13 +63,10 @@ class MailcowBlacklist(models.Model):
         """
         Overridden unlink method to remove the blacklist entry from the Mailcow server.
         """
+        endpoint = '/api/v1/delete/domain-policy'
         for record in self:
-            endpoint = '/api/v1/delete/domain-policy'
-            data = {
-                'items': [record.mc_id]
-            }
-            result  = record.api_request(endpoint, 'POST', data)
-            print(result)
+            data = json.dumps(record.mc_id)
+            self.api_request(endpoint, 'POST', data)
             _logger.info(f'Removed {record.email} from Mailcow blacklist')
         return super().unlink()
 
