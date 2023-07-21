@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <record id="view_partner_form_inherit" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <field name="phone" position="before">
+                <field name="is_odoo_user"/>
+                <field name="is_odoo_partner"/>
+                <field name="odoo_partner_type" attrs="{'invisible': [('is_odoo_partner', '=', False)]}"/>
+            </field>
+        </field>
+    </record>
+
     <record id="view_partner_tree_inherit" model="ir.ui.view">
         <field name="name">res.partner.tree.inherit</field>
         <field name="model">res.partner</field>
@@ -10,7 +23,9 @@
                 <attribute name="js_class">res_partner_odoo_scrapper_tree</attribute>
             </xpath>
             <xpath expr="//tree" position="inside">
+                <field name="is_odoo_user"/>
                 <field name="is_odoo_partner"/>
+                <field name="odoo_partner_type"/>
             </xpath>
         </field>
     </record>
@@ -23,6 +38,15 @@
             <xpath expr="//kanban" position="attributes">
                 <attribute name="js_class">res_partner_odoo_scrapper_kanban</attribute>
             </xpath>
+            <xpath expr="//kanban" position="inside">
+                <field name="odoo_partner_type"/>
+            </xpath>
+            <field name="display_name" position="after">
+<!--                <t t-if="record.odoo_partner_type.raw_value">-->
+                <br/>
+                <field name="odoo_partner_type"/>
+<!--                </t>-->
+            </field>
         </field>
     </record>
 

@@ -2,8 +2,10 @@
 
 import ListController from 'web.ListController';
 import ListView from 'web.ListView';
+
 import KanbanController from 'web.KanbanController';
 import KanbanView from 'web.KanbanView';
+
 const viewRegistry = require('web.view_registry');
 
 const OdooScrapperListController = ListController.extend({
@@ -25,7 +27,7 @@ const OdooScrapperListController = ListController.extend({
     },
 });
 
-const OdooScrapperListView = ListView.extend({
+export const OdooScrapperListView = ListView.extend({
     config: _.extend({}, ListView.prototype.config, {
         Controller: OdooScrapperListController,
     }),
@@ -33,11 +35,6 @@ const OdooScrapperListView = ListView.extend({
 
 // key must match with the js_class attribute of the tree view you want to modify
 viewRegistry.add('res_partner_odoo_scrapper_tree', OdooScrapperListView);
-
-
-
-
-
 
 const OdooScrapperKanbanController = KanbanController.extend({
     // buttons_template must match the t-name on the template for the button (static xml)
@@ -58,7 +55,7 @@ const OdooScrapperKanbanController = KanbanController.extend({
     },
 });
 
-const OdooScrapperKanbanView = KanbanView.extend({
+export const OdooScrapperKanbanView = KanbanView.extend({
     config: _.extend({}, KanbanView.prototype.config, {
         Controller: OdooScrapperKanbanController,
     }),

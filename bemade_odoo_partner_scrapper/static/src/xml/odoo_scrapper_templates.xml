@@ -9,16 +9,12 @@
         </t>
     </t>
 
-
-   <t t-extend="KanbanView.buttons" t-name="odoo_scrapper.kanban_view_buttons">
-       <t t-jquery="button" t-operation="after">
+    <t t-extend="KanbanView.buttons" t-name="odoo_scrapper.kanban_view_buttons">
+        <t t-jquery="button" t-operation="after">
             <button type="button"
                     class="btn btn-primary ml4 o_button_get_partner"
                     title="Get Odoo Partner"> Get Odoo Partner </button>
-       </t>
-   </t>
-
-
-
+        </t>
+    </t>
 
 </templates>
