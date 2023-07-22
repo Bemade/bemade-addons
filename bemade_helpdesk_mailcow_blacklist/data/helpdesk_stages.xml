@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="helpdesk_stage_spam" model="helpdesk.stage">
+            <field name="name">Spam</field>
+            <field name="sequence">50</field>
+            <field name="is_close">True</field>
+        </record>
+    </data>
+</odoo>

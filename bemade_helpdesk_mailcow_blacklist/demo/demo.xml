@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Demo User -->
+        <record id="demo_user_1" model="res.users">
+            <field name="name">Demo User</field>
+            <field name="login">demo_user</field>
+            <field name="password">demo_user</field>
+            <field name="email">demo_user@example.com</field>
+        </record>
+
+        <!-- Demo Helpdesk Team -->
+        <record id="demo_helpdesk_team_1" model="helpdesk.team">
+            <field name="name">Demo Helpdesk Team</field>
+        </record>
+
+        <!-- Demo Helpdesk Ticket -->
+        <record id="demo_helpdesk_ticket_1" model="helpdesk.ticket">
+            <field name="name">Demo Helpdesk Ticket</field>
+            <field name="team_id" ref="demo_helpdesk_team_1"/>
+            <field name="user_id" ref="demo_user_1"/>
+            <field name="partner_email">demo_sender@example.com</field>
+            <field name="partner_id" ref="base.res_partner_1"/>
+            <field name="description">This is a demo ticket for testing the blacklist feature.</field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_ticket_form_inherit_mailcow" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.form.mailcow</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk.helpdesk_ticket_view_form"/>
+        <field name="arch" type="xml">
+            <header position="inside">
+                <button name="action_add_blacklist" type="object" string="Add to Blacklist" class="oe_highlight" attrs="{'invisible': [('partner_email', '=', False)]}"/>
+            </header>
+        </field>
+    </record>
+</odoo>
