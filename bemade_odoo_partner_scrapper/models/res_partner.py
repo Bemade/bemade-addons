@@ -17,6 +17,8 @@ class ResPartner(models.Model):
     odoo_note = fields.Html(string="Note on Odoo")
     odoo_id = fields.Char(string="ID on Odoo")
     odoo_url = fields.Char(string="Odoo Partner URL", tracking=True, index=True)
+    odoo_page = fields.Html(string="Odoo Partner/Referral Page")
+    odoo_page_update = fields.Date(string="Odoo Page Update")
     odoo_partner_type = fields.Selection(
         [('learning', 'Learning'),
          ('ready', 'Ready'),
@@ -29,42 +31,46 @@ class ResPartner(models.Model):
         response = requests.get(url)
         if response.status_code == 200:
             self.image_1920 = b64encode(response.content).decode('utf-8')
+            _logger.info(f"Image for {self.name} set from {url}")
         else:
             raise ValueError('Could not download image: got response code {}'.format(response.status_code))
 
     @api.model
     def get_odoo_partner(self):
 
-        def extract_client_data(url):
-            page = requests.get("https://www.odoo.com" + url)
-            soup = BeautifulSoup(page.content, 'html.parser')
+        def extract_client_data(soup):
             odoo_name = soup.find(id='partner_name').text
             odoo_note = soup.find('div', class_='col-lg-8 mt32')
 
             main_image = soup.find('img', {'class': 'img img-fluid d-block mx-auto mb16'})
             image_link = main_image['src']
 
-            client = self.env['res.partner'].search([('odoo_name','=',odoo_name)])
+            exist_client = self.env['res.partner'].search([('odoo_name', '=', odoo_name)])
 
-            if not client:
-                client = client.create({
-                    'name':odoo_name,
+            if not exist_client:
+                exist_client = exist_client.create({
+                    'name': odoo_name,
                     'is_company': True,
                     'odoo_name':odoo_name,
                     'odoo_note':odoo_note,
-                    'is_odoo_user': True
+                    'is_odoo_user': True,
+                    'odoo_page': soup,
                 })
-                client.set_image_from_url(image_link)
+                exist_client.set_image_from_url(image_link)
+                _logger.info(f"Client {exist_client.name} created")
 
-            return(client)
+            return exist_client
 
         def process_partner_relation(partner, client):
-            print (f"{partner.name} Odoo Partner of {client.name}")
-            self.env['res.partner.relation'].create({
-                'left_partner_id' : partner.id,
-                'right_partner_id' : client.id,
-                'type_id' : self.env.ref('bemade_odoo_partner_scrapper.rel_type_odoo_partner').id
-            })
+            if partner.id != client.id:
+                self.env['res.partner.relation'].create({
+                    'left_partner_id' : partner.id,
+                    'right_partner_id' : client.id,
+                    'type_id' : self.env.ref('bemade_odoo_partner_scrapper.rel_type_odoo_partner').id
+                })
+                _logger.info(f"Partner {partner.name} Odoo Partner of {client.name}")
+            else:
+                _logger.info(f"Partner {partner.name} is the same as client {client.name}")
 
         def extract_partner_data(url):
             page = requests.get("https://www.odoo.com" + url)
@@ -73,8 +79,8 @@ class ResPartner(models.Model):
             partner_data = {}
 
             partner_data['name'] = soup.find(id="partner_name").text
-
             partner_type = soup.find('h3', class_='col-lg-12 text-center text-muted')
+
             if partner_type and partner_type.span:
                 partner_data['odoo_partner_type'] = partner_type.span.text.strip().lower()
 
@@ -192,31 +198,48 @@ class ResPartner(models.Model):
             if odoo_partner['image_link']:
                 image_url = odoo_partner['image_link']
                 del odoo_partner['image_link']
+                _logger.info(f"Image for {odoo_partner['name']} set from {image_url}")
 
-            print(odoo_partner['clients_url'])
             if odoo_partner['clients_url']:
                 clients_url = odoo_partner['clients_url']
-                del odoo_partner['clients_url']
             else:
                 clients_url = set()
 
-            print (clients_url)
+            if 'clients_url' in odoo_partner:
+                del odoo_partner['clients_url']
+
             exist_odoo_name = self.env['res.partner'].search([('odoo_name', '=', odoo_partner['odoo_name'])])
             if exist_odoo_name:
+                _logger.info(f"Partner Odoo Name {odoo_partner['name']} already exist")
                 new_partner = exist_odoo_name
             else:
                 exist_email = self.env['res.partner'].search([('email', '=', odoo_partner['email'])]) if 'email' in odoo_partner else False
                 if exist_email:
+                    _logger.info(f"Partner Email {odoo_partner['name']} already exist")
                     new_partner = exist_email
                 else:
                     exist_phone = self.env['res.partner'].search([('phone', '=', odoo_partner['phone'])]) if 'phone' in odoo_partner else False
                     if exist_phone:
+                        _logger.info(f"Partner Phone {odoo_partner['name']} already exist")
                         new_partner = exist_phone
                     else:
+                        _logger.info(f"Partner {odoo_partner['name']} created")
                         new_partner = self.env['res.partner'].create(odoo_partner)
                         if image_url:
                             new_partner.set_image_from_url(image_url)
 
             for client_url in clients_url:
-                client = extract_client_data(client_url.get('href'))
-                process_partner_relation(new_partner, client)
+                if 'http' not in client_url:
+                    exist_url = self.env['res.partner'].search([('odoo_url', '=', client_url)])
+                # add condition on odoo_date, actually not pulling data if date exist
+                    if exist_url and exist_url.odoo_page:
+                        soup = exist_url.odoo_page
+                        _logger.info(f"Client {exist_url.name} reloading soup from db")
+                    else:
+                        print("https://www.odoo.com" + client_url)
+                        page = requests.get("https://www.odoo.com" + client_url)
+                        soup = BeautifulSoup(page.content, 'html.parser')
+                        _logger.info(f"Client {exist_url.name} read from odoo.com")
+
+                    client = extract_client_data(soup)
+                    process_partner_relation(new_partner, client)
