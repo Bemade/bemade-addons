@@ -33,11 +33,11 @@ class ResPartner(models.Model):
             color = 0
             if record.odoo_partner_type == 'learning':
                 color = 2
-            elif record.status == 'ready':
+            elif record.odoo_partner_type == 'ready':
                 color = 10
-            elif record.cleaning_status == 'silver':
+            elif record.odoo_partner_type == 'silver':
                 color = 7
-            elif record.cleaning_status == 'gold':
+            elif record.odoo_partner_type == 'gold':
                 color = 3
             else:
                 if record.is_odoo_user:
