@@ -14,6 +14,8 @@ class MailThread(models.AbstractModel):
             user = self.env['res.users'].search([('partner_id', '=', recipient['id'])], limit=1)
             if user:
                 employee = self.env['hr.employee'].search([('user_id', '=', user.id)], limit=1)
+            else:
+                employee = False
 
             if employee:
                 employee_id = employee.id
