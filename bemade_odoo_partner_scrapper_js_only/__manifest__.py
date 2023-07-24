@@ -16,7 +16,9 @@
     'license': 'GPL-3',
     'author': 'Bemade',
     'website': 'https://www.bemade.org',
-    'depends': ['base', 'contacts', 'sale_management', 'sale' , 'partner_multi_relation'],
+    'depends': [
+        'bemade_odoo_partner_scrapper'
+    ],
     'data': [
     ],
     "assets": {

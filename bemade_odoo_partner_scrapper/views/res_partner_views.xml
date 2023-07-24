@@ -6,12 +6,31 @@
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
-            <field name="phone" position="before">
-                <field name="is_odoo_user"/>
-                <field name="is_odoo_partner"/>
-                <field name="odoo_partner_type" attrs="{'invisible': [('is_odoo_partner', '=', False)]}"/>
+            <field name="company_type" position="after">
+                <br/>
+                <field name="is_odoo_user"/>Odoo User
+                <field name="is_odoo_partner"/>Odoo Partner
+                <br/>
+                <div attrs="{'invisible': [('is_odoo_partner', '=', False)]}">
+                    <h3><field name="odoo_partner_type"/> Partner</h3>
+                </div>
             </field>
+            <group name="container_row_2" position="after">
+                <group name="container_row_3">
+                    <field name="relation_all_ids">
+                        <tree>
+                            <field name="other_partner_id" required="True" options="{'no_create': True}"
+                                   string="Customer" domain="[['relation_all_ids.type_selection_id.id', '=', 1]]"/>
+                            <field name="date_start"/>
+                            <field name="date_end"/>
+                            <field name="active" invisible="1"/>
+                            <field name="active" invisible="1"/>
+                        </tree>
+                    </field>
+                </group>
+            </group>
         </field>
+
     </record>
 
     <record id="view_partner_tree_inherit" model="ir.ui.view">
@@ -41,12 +60,14 @@
             <xpath expr="//kanban" position="inside">
                 <field name="odoo_partner_type"/>
             </xpath>
-            <field name="display_name" position="after">
-<!--                <t t-if="record.odoo_partner_type.raw_value">-->
-                <br/>
-                <field name="odoo_partner_type"/>
-<!--                </t>-->
-            </field>
+            <xpath expr="//div[@class='oe_kanban_global_click o_kanban_record_has_image_fill o_res_partner_kanban']" position="attributes">
+                <attribute name="t-attf-class">oe_kanban_global_click o_kanban_record_has_image_fill o_res_partner_kanban oe_kanban_color_#{record.color}</attribute>
+            </xpath>
+            <xpath expr="//strong[@class='o_kanban_record_title oe_partner_heading']" position="before">
+                <strong t-if="record.odoo_partner_type.raw_value" class="o_kanban_record_subtitle oe_partner_heading">
+                    <field name="odoo_partner_type"/>
+                </strong>
+            </xpath>
         </field>
     </record>
 

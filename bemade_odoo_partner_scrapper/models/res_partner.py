@@ -27,6 +27,25 @@ class ResPartner(models.Model):
         string="Partner Type",
         tracking=True)
 
+    @api.model
+    def change_color_on_kanban(self):
+        for record in self:
+            color = 0
+            if record.odoo_partner_type == 'learning':
+                color = 2
+            elif record.status == 'ready':
+                color = 10
+            elif record.cleaning_status == 'silver':
+                color = 7
+            elif record.cleaning_status == 'gold':
+                color = 3
+            else:
+                if record.is_odoo_user:
+                    color = 4
+            record.color = color
+
+    color = fields.Integer('Color Index', compute="change_color_on_kanban")
+
     def set_image_from_url(self, url):
         response = requests.get(url)
         if response.status_code == 200:
