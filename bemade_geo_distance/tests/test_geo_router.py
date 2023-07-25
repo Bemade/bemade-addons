@@ -26,7 +26,7 @@ class TestGeoRouter(TransactionCase):
         arrival_time_utc = arrival_time_local.astimezone(pytz.utc)
         arrival_time = arrival_time_utc.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
         print(arrival_time)
-        
+
         distance, time = self.env['base.geo_router'].get_driving_distance_time(bemade, montreal,
                                                                                arrival_time=arrival_time)
 

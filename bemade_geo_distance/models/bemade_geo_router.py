@@ -29,7 +29,7 @@ class GeoRouter(models.AbstractModel):
 
     @api.model
     def get_driving_distance_time(self, origin, destination, departure_time: datetime.datetime = None,
-                                  arrival_time: datetime.date = None, units: units = 'metric',
+                                  arrival_time: datetime.datetime = None, units: units = 'metric',
                                   avoid_tolls=False, avoid_highways=False, avoid_ferries=False) -> (float, float):
         """ Calculates the route between two addresses and returns the distance it either in Kilometers or Miles and
             the time in minutes.
