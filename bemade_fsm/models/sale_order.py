@@ -89,6 +89,14 @@ class SaleOrderLine(models.Model):
                                      relation="bemade_fsm_equipment_sale_order_line_rel",
                                      column1="sale_order_line_id",
                                      column2="equipment_id")
+    is_field_service = fields.Boolean(string="Is Field Service",
+                                      compute="_compute_is_field_service",
+                                      store=True)
+
+    @api.depends('product_id')
+    def _compute_is_field_service(self):
+        for rec in self:
+            rec.is_field_service = rec.product_id.is_field_service
 
     @api.model_create_multi
     def create(self, vals):
