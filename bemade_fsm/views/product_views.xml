@@ -11,6 +11,9 @@
                     <field name="task_template_id"
                            attrs="{'invisible': [('service_tracking', 'not in', ('task_global_project', 'task_in_project'))]}"/>
                 </xpath>
+                <xpath expr="//field[@name='planning_enabled']" position="after">
+                    <field name="is_field_service"/>
+                </xpath>
             </field>
         </record>
         <record id="product_search_form_view_inherit_bemade_fsm" model="ir.ui.view">

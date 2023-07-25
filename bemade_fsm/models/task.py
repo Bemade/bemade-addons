@@ -1,5 +1,7 @@
 from odoo import fields, models, api, Command, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
+from odoo.osv import expression
+from collections import defaultdict, namedtuple
 
 
 class Task(models.Model):
@@ -10,7 +12,7 @@ class Task(models.Model):
                                      column1="task_id",
                                      column2="equipment_id",
                                      string="Equipment to Service",
-                                     tracking=True,)
+                                     tracking=True, )
 
     work_order_contacts = fields.Many2many(comodel_name="res.partner",
                                            relation="task_work_order_contact_rel",
@@ -28,13 +30,64 @@ class Task(models.Model):
                                      inverse="_inverse_contacts",
                                      store=True)
 
+    planned_date_begin = fields.Datetime("Start Date", tracking=True,
+                                         task_dependency_tracking=True,
+                                         compute="_compute_planned_dates",
+                                         inverse="_inverse_planned_dates",
+                                         store=True)
+    planned_date_end = fields.Datetime("End Date", tracking=True,
+                                       task_dependency_tracking=True,
+                                       compute="_compute_planned_dates",
+                                       inverse="_inverse_planned_dates",
+                                       store=True)
+
     # Override related field to make it return false if this is an FSM subtask
     allow_billable = fields.Boolean(string="Can be billed",
                                     related=False,
-                                    compute="_compute_allow_billable",)
+                                    compute="_compute_allow_billable", )
 
     visit_id = fields.Many2one(comodel_name='bemade_fsm.visit')
-    @api.depends('sale_line_id.order_id.site_contacts', 'sale_line_id.order_id.work_order_contacts')
+
+    def _get_related_planning_slots(self):
+        domain = expression.AND([
+            self._get_domain_compute_forecast_hours(),
+            [('task_id', 'in', self.ids + self._get_all_subtasks().ids)]
+        ])
+        return self.env['planning.slot'].search(domain)
+
+    @api.depends('forecast_hours')
+    def _compute_planned_dates(self):
+        forecast_data = self._get_related_planning_slots()
+        mapped_data = {}
+        TimeSpan = namedtuple('timespan', ['start', 'end'])
+        for d in forecast_data:
+            if d not in mapped_data:
+                mapped_data.update({d: TimeSpan(d.start_datetime, d.end_datetime)})
+                continue
+            if mapped_data[d].start > d.start_datetime:
+                mapped_data[d].start = d.start_datetime
+            if mapped_data[d].end < d.end_datetime:
+                mapped_data[d].end = d.end_datetime
+        for rec in self:
+            if rec not in mapped_data:
+                if not rec.planned_date_end:
+                    rec.planned_date_end = False
+                if not rec.planned_date_begin:
+                    rec.planned_date_begin = False
+                continue
+            rec.planned_date_begin, rec.planned_date_end = mapped_data[rec]
+
+    def _inverse_planned_dates(self):
+        """ Modifying the planned dates for tasks with existing planning records
+        (planning.slot) has no defined safe behaviour, so we block it."""
+        if self._get_related_planning_slots():
+            raise UserError(_("Modifying the planned start or end time on a task is not "
+                              "permitted when that task already has planning records "
+                              "associated to it. Please modify or delete the planning "
+                              "records instead."))
+
+    @api.depends('sale_line_id.order_id.site_contacts',
+                 'sale_line_id.order_id.work_order_contacts')
     def _compute_contacts(self):
         """ The work order contacts and site contacts for a given task are taken from the sale order if the task
         is related to one, and from the task's customer if there is no sale order related to the task."""
