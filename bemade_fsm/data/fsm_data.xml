@@ -7,6 +7,7 @@
             <field name="legend_blocked">Blocked</field>
             <field name="fold" eval="False"/>
             <field name="is_closed" eval="False"/>
+            <field name="project_ids" eval="[(4,ref('industry_fsm.fsm_project'))]"/>
         </record>
         <record id="planning_project_stage_work_completed" model="project.task.type">
             <field name="sequence">15</field>
@@ -14,6 +15,7 @@
             <field name="legend_blocked">Blocked</field>
             <field name="fold" eval="False"/>
             <field name="is_closed" eval="False"/>
+            <field name="project_ids" eval="[(4,ref('industry_fsm.fsm_project'))]"/>
         </record>
         <record id="planning_project_stage_exception" model="project.task.type">
             <field name="sequence">19</field>
@@ -21,6 +23,7 @@
             <field name="legend_blocked">Blocked</field>
             <field name="fold" eval="False"/>
             <field name="is_closed" eval="False"/>
+            <field name="project_ids" eval="[(4,ref('industry_fsm.fsm_project'))]"/>
         </record>
         <!-- Since the Field Service project has no_update="1" we use a workaround here -->
         <function model="ir.model.data" name="write">
