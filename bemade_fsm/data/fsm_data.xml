@@ -1,9 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
     <data>
+        <record id="planning_project_stage_waiting_parts" model="project.task.type">
+            <field name="sequence">2</field>
+            <field name="name">Waiting on Parts</field>
+            <field name="legend_blocked">Blocked</field>
+            <field name="fold" eval="False"/>
+            <field name="is_closed" eval="False"/>
+        </record>
         <record id="planning_project_stage_work_completed" model="project.task.type">
             <field name="sequence">15</field>
             <field name="name">Work Executed</field>
+            <field name="legend_blocked">Blocked</field>
+            <field name="fold" eval="False"/>
+            <field name="is_closed" eval="False"/>
+        </record>
+        <record id="planning_project_stage_exception" model="project.task.type">
+            <field name="sequence">19</field>
+            <field name="name">Exception</field>
             <field name="legend_blocked">Blocked</field>
             <field name="fold" eval="False"/>
             <field name="is_closed" eval="False"/>
