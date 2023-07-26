@@ -45,8 +45,8 @@ class Partner(models.Model):
     @api.depends('equipment_ids', 'child_ids.company_type', 'child_ids.equipment_ids')
     def _compute_owned_equipment_ids(self):
         for rec in self:
-            ids = rec.equipment_ids | rec.child_ids.filtered(lambda l: l.company_type == 'company').mapped(
-                'equipment_ids')
+            ids = rec.equipment_ids | rec.child_ids.filtered(
+                lambda l: l.company_type == 'company').mapped('equipment_ids')
             rec.owned_equipment_ids = ids or False
 
     @api.depends('site_ids')
@@ -57,7 +57,8 @@ class Partner(models.Model):
     @api.depends('equipment_ids')
     def _compute_equipment_count(self):
         for rec in self:
-            all_equipment_ids = self.env['bemade_fsm.equipment'].search([('partner_id', '=', rec.id)])
+            all_equipment_ids = self.env['bemade_fsm.equipment'].search(
+                [('partner_location_id', '=', rec.id)])
             rec.equipment_count = len(all_equipment_ids)
 
     @api.model
