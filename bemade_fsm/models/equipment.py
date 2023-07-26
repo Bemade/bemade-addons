@@ -84,3 +84,8 @@ class Equipment(models.Model):
             'res_model': 'bemade_fsm.equipment',
             'type': 'ir.actions.act_window',
         }
+
+    @api.depends('pid_tag', 'name')
+    def _compute_complete_name(self):
+        for rec in self:
+            rec.complete_name = "[%s] %s" % (rec.pid_tag or ' ', rec.name)
