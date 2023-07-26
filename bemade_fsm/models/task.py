@@ -44,7 +44,8 @@ class Task(models.Model):
     # Override related field to make it return false if this is an FSM subtask
     allow_billable = fields.Boolean(string="Can be billed",
                                     related=False,
-                                    compute="_compute_allow_billable", )
+                                    compute="_compute_allow_billable",
+                                    store=True)
 
     visit_id = fields.Many2one(comodel_name='bemade_fsm.visit')
 
