@@ -98,13 +98,7 @@ tour.register('equipment_sale_order_tour', {
     content: 'Navigate to the Field Service tab.',
     trigger: 'a.nav-link[role="tab"]:contains(Field Service)'
 }, {
-    content: 'Click Edit',
-    trigger: 'button.o_form_button_edit',
-}, {
-    content: 'Click the equipment dropdown.',
-    trigger: '.o_field_widget[name="equipment_id"] input',
-}, {
-    content: 'Check that the equipment is in the dropdown.',
+    content: 'Check that the equipment is listed in the tab.',
     trigger: `li.ui-menu-item > a:contains(${TEST_EQPT1})`,
 }
 ]);

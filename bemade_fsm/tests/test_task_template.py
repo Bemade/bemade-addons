@@ -2,6 +2,7 @@ from .test_bemade_fsm_common import BemadeFSMBaseTest
 from odoo.tests.common import HttpCase, tagged, Form
 from odoo.exceptions import MissingError
 from odoo import Command
+from odoo.tools import mute_logger
 from psycopg2.errors import ForeignKeyViolation
 
 
@@ -13,7 +14,8 @@ class TestTaskTemplate(BemadeFSMBaseTest):
         task_template = self._generate_task_template(names=['Template 1'])
         product = self._generate_product(name="Test Product 1", task_template=task_template)
         with self.assertRaises(ForeignKeyViolation):
-            task_template.unlink()
+            with mute_logger('odoo.sql_db'):
+                task_template.unlink()
 
     def test_delete_subtask_template(self):
         """ Deletion of a child task should be OK even if the parent is on a product. Children of the deleted
