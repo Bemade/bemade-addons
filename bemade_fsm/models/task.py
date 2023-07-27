@@ -49,6 +49,13 @@ class Task(models.Model):
 
     visit_id = fields.Many2one(comodel_name='bemade_fsm.visit')
 
+    # user_id = fields.Many2one('res.users', compute='_compute_user_id')
+    #
+    # @api.depends('user_ids')
+    # def _compute_user_id(self):
+    #     for rec in self:
+    #         rec.user_id = rec.user_ids and rec.user_ids[0] or 0
+
     def _get_related_planning_slots(self):
         domain = expression.AND([
             self._get_domain_compute_forecast_hours(),

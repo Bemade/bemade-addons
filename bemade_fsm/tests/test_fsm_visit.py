@@ -72,6 +72,16 @@ class FSMVisitTest(BemadeFSMBaseTest):
         visit_subtasks = visit_task.child_ids
         self.assertTrue(visit_subtasks and sol1.task_id in visit_subtasks and sol2.task_id in visit_subtasks)
 
+    def test_adding_visit_creates_one_sale_order_line(self):
+        partner = self._generate_partner()
+        so = self._generate_sale_order()
+        self._generate_sale_order_line(sale_order=so)
+        self._generate_sale_order_line(sale_order=so)
+
+        self._generate_visit(sale_order=so)
+
+        self.assertEqual(len(so.order_line), 3)
+
     def _invoice_sale_order(self, so):
         wiz = self.env['sale.advance.payment.inv'].with_context({'active_ids': [so.id]}).create({})
         wiz.create_invoices()

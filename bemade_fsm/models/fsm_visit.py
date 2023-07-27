@@ -13,7 +13,8 @@ class FSMVisit(models.Model):
     so_section_id = fields.Many2one(comodel_name="sale.order.line",
                                     string="Sale Order Section",
                                     help="The section on the sale order that represents the labour and parts for "
-                                         "this visit")
+                                         "this visit",
+                                    ondelete="cascade")
     sale_order_id = fields.Many2one(comodel_name="sale.order",
                                     string="Sales Order",
                                     required=True)
