@@ -73,9 +73,13 @@ class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
     valid_equipment_ids = fields.One2many(comodel_name="bemade_fsm.equipment",
                                           related="order_id.partner_id.owned_equipment_ids")
-    visit_id = fields.One2many(comodel_name="bemade_fsm.visit",
-                               inverse_name="so_section_id",
-                               string="Visit")
+    visit_ids = fields.One2many(comodel_name="bemade_fsm.visit",
+                               inverse_name="so_section_id",)
+    visit_id = fields.Many2one(comodel_name="bemade_fsm.visit",
+                               compute="_compute_visit_id",
+                               string = "Visit",
+                               ondelete='cascade',
+                               store=True)
     is_fully_delivered = fields.Boolean(string="Fully Delivered",
                                         compute="_compute_is_fully_delivered",
                                         help="Indicates whether a line or all the lines in a section have been"
@@ -92,6 +96,11 @@ class SaleOrderLine(models.Model):
     is_field_service = fields.Boolean(string="Is Field Service",
                                       compute="_compute_is_field_service",
                                       store=True)
+
+    @api.depends('visit_ids')
+    def _compute_visit_id(self):
+        for rec in self:
+            rec.visit_id = rec.visit_ids and rec.visit_ids[0]
 
     @api.depends('product_id')
     def _compute_is_field_service(self):
@@ -201,14 +210,16 @@ class SaleOrderLine(models.Model):
     @api.depends('order_id.order_line', 'display_type', 'qty_to_deliver', 'order_id.order_line.qty_to_deliver',
                  'order_id.order_line.display_type')
     def _compute_is_fully_delivered(self):
-        self.is_fully_delivered = self._iterate_items_compute_bool(lambda l: l.qty_to_deliver == 0)
+        for rec in self:
+            rec.is_fully_delivered = rec._iterate_items_compute_bool(lambda l: l.qty_to_deliver == 0)
 
     @api.depends('is_fully_delivered')
     def _compute_is_fully_invoiced(self):
-        if not self.is_fully_delivered:
-            self.is_fully_delivered_and_invoiced = False
-            return
-        self.is_fully_delivered_and_invoiced = self._iterate_items_compute_bool(lambda l: l.qty_to_invoice == 0)
+        for rec in self:
+            if not rec.is_fully_delivered:
+                rec.is_fully_delivered_and_invoiced = False
+                return
+            rec.is_fully_delivered_and_invoiced = rec._iterate_items_compute_bool(lambda l: l.qty_to_invoice == 0)
 
     def get_section_lines(self):
         """ Returns a RecordSet containing the sale order lines that fall under this section. """

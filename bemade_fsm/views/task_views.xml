@@ -22,11 +22,13 @@
                         </group>
                     </page>
                 </xpath>
-                <button name="action_fsm_validate" class='btn-primary' position="attributes">
+                <button name="action_fsm_validate" class='btn-primary'
+                        position="attributes">
                     <attribute name="string">Mark as Delivered</attribute>
                     <attribute name="groups">industry_fsm.group_fsm_manager</attribute>
                 </button>
-                <button name="action_fsm_validate" class='btn-secondary' position="attributes">
+                <button name="action_fsm_validate" class='btn-secondary'
+                        position="attributes">
                     <attribute name="string">Mark as Delivered</attribute>
                     <attribute name="groups">industry_fsm.group_fsm_manager</attribute>
                 </button>
@@ -39,47 +41,78 @@
                                   ('parent_id', '=', False)]
             </field>
         </record>
-        <record id="industry_fsm.project_task_action_fsm_map" model="ir.actions.act_window">
+        <record id="industry_fsm.project_task_action_fsm_map"
+                model="ir.actions.act_window">
             <field name="domain">[('is_fsm', '=', True),
                                   ('display_project_id', '!=', False),
                                   ('parent_id', '=', False)]
             </field>
         </record>
-        <record id="industry_fsm.project_task_action_to_schedule_fsm" model="ir.actions.act_window">
+        <record id="industry_fsm.project_task_action_to_schedule_fsm"
+                model="ir.actions.act_window">
             <field name="domain">[('is_fsm', '=', True),
                                   ('display_project_id', '!=', False),
                                   ('parent_id', '=', False)]
             </field>
         </record>
-        <record id="industry_fsm.project_task_action_all_fsm" model="ir.actions.act_window">
+        <record id="industry_fsm.project_task_action_all_fsm"
+                model="ir.actions.act_window">
             <field name="domain">[('is_fsm', '=', True),
                                   ('display_project_id', '!=', False),
                                   ('parent_id', '=', False)]
             </field>
         </record>
-        <record id="industry_fsm_sale.project_task_action_to_invoice_fsm" model="ir.actions.act_window">
+        <record id="industry_fsm_sale.project_task_action_to_invoice_fsm"
+                model="ir.actions.act_window">
             <field name="domain">[('is_fsm', '=', True),
                                   ('display_project_id', '!=', False),
                                   ('parent_id', '=', False)]
             </field>
         </record>
         <!-- Add parent_id = false to domain for planning actions as well -->
-        <record id="industry_fsm.project_task_action_fsm_planning_groupby_user" model="ir.actions.act_window">
+        <record id="industry_fsm.project_task_action_fsm_planning_groupby_user"
+                model="ir.actions.act_window">
             <field name="domain">[('is_fsm', '=', True),
                                   ('display_project_id', '!=', False),
                                   ('parent_id', '=', False)]
             </field>
         </record>
-        <record id="industry_fsm.project_task_action_fsm_planning_groupby_project" model="ir.actions.act_window">
+        <record id="industry_fsm.project_task_action_fsm_planning_groupby_project"
+                model="ir.actions.act_window">
             <field name="domain">[('is_fsm', '=', True),
                                   ('display_project_id', '!=', False),
                                   ('parent_id', '=', False)]
             </field>
         </record>
-        <record id="industry_fsm_report.project_task_action_fsm_planning_groupby_worksheet" model="ir.actions.act_window">
+        <record id="industry_fsm_report.project_task_action_fsm_planning_groupby_worksheet"
+                model="ir.actions.act_window">
             <field name="domain">[('is_fsm', '=', True),
                                   ('display_project_id', '!=', False),
                                   ('parent_id', '=', False)]
+            </field>
+        </record>
+        <record id="project_task_view_calendar_fsm" model="ir.ui.view">
+            <field name="name">bemade_fsm.project_task_view_calendar_fsm</field>
+            <field name="inherit_id" ref="industry_fsm.project_task_view_calendar_fsm"/>
+            <field name="model">project.task</field>
+            <field name="arch" type="xml">
+                <field name="user_ids" position="attributes">
+                    <attribute name="filters">1</attribute>
+                    <attribute name="color">user_ids</attribute>
+                </field>
+            </field>
+        </record>
+        <record id="project_task_view_calendar_fsm_no_worksheet" model="ir.ui.view">
+            <field name="name">bemade_fsm.project_task_view_calendar_no_worksheet</field>
+            <field name="inherit_id"
+                   ref="industry_fsm_report.project_task_view_calendar_fsm_worksheet"/>
+            <field name="model">project.task</field>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='worksheet_template_id']"
+                       position="replace"></xpath>
+                <xpath expr="//calendar" position="attributes">
+                    <attribute name="color">user_ids</attribute>
+                </xpath>
             </field>
         </record>
     </data>
