@@ -49,12 +49,34 @@ class Task(models.Model):
 
     visit_id = fields.Many2one(comodel_name='bemade_fsm.visit')
 
+    is_complete = fields.Boolean(compute="_compute_is_complete")
+
     # user_id = fields.Many2one('res.users', compute='_compute_user_id')
     #
     # @api.depends('user_ids')
     # def _compute_user_id(self):
     #     for rec in self:
     #         rec.user_id = rec.user_ids and rec.user_ids[0] or 0
+
+    def _get_closed_stage_by_project(self):
+        """ Gets the stage representing completed tasks for each project in
+        self.project_id. Copied from industry_fsm/.../project.py:217-221
+        for consistency.
+
+        :returns: Dict of project.project -> project.task.type"""
+        return {
+            project:
+                project.type_ids.filtered(lambda stage: stage.is_closed)[:1]
+                or project.type_ids[-1:]
+            for project in self.project_id
+        }
+
+    @api.depends('project_id', 'stage_id.is_closed')
+    def _compute_is_complete(self):
+        closing_stages = self._get_closed_stage_by_project()
+        for rec in self:
+            rec.is_complete = rec.stage_id == (rec.project_id
+                                               and closing_stages[rec.project_id])
 
     def _get_related_planning_slots(self):
         domain = expression.AND([
