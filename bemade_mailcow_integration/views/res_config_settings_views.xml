@@ -8,28 +8,43 @@
             <div id="emails" position='after'>
                 <div id="mailcow">
                     <h2>Mailcow Settings</h2>
-                    <div class="row mt16 o_settings_container">
-                        <div class="col-12 col-lg-6 o_setting_box">
-                            <label for="mailcow_base_url" string="Mailcow URL"/>
-                            <div class="text-muted">
-                                Base URL for Mailcow server
+                    <div class="row mt16 o_settings_container" name="mailcow_setting">
+                        <div class="col-xs-12 col-md-6 o_setting_box" id="mail_setting_creds">
+                            <div class="o_setting_right_pane" id="mailcow_settings_creds_settings">
+                                <label for="mailcow_base_url" string="Mailcow URL"/>
+                                <div class="text-muted">
+                                    Base URL for Mailcow server
+                                </div>
+                                <div class="content-group">
+                                    <field name="mailcow_base_url"/>
+                                </div>
+                                <label for="mailcow_api_key" string="API Key"/>
+                                <div class="text-muted">
+                                    Mailcow API Key
+                                </div>
+                                <div class="content-group">
+                                    <field name="mailcow_api_key"/>
+                                </div>
                             </div>
-                            <div class="content-group">
-                                <field name="mailcow_base_url"/>
-                            </div>
-                            <label for="mailcow_api_key" string="API Key"/>
-                            <div class="text-muted">
-                                Mailcow API Key
-                            </div>
-                            <div class="content-group">
-                                <field name="mailcow_api_key"/>
-                            </div>
-                            <label for="mailcow_sync_alias" string="Sync Aliases with Odoo'"/>
-                            <div class="text-muted">
-                                Auto create Aliases in Mailcow from Odoo
-                            </div>
-                            <div class="content-group">
+                        </div>
+                        <div class="col-xs-12 col-md-6 o_setting_box" name="mailcow_setting_options">
+                            <div class="o_setting_left_pane">
                                 <field name="mailcow_sync_alias"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="mailcow_sync_alias" string="Sync Aliases with Odoo"/>
+                                <div class="text-muted">
+                                    Auto create Aliases in Mailcow from Odoo
+                                </div>
+                            </div>
+                            <div class="o_setting_left_pane">
+                                <field name="mailcow_auto_create"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="mailcow_auto_create" string="Create mailbox in Mailcow"/>
+                                <div class="text-muted">
+                                    Auto create Mailbox in Mailcow on creation in Odoo
+                                </div>
                             </div>
                         </div>
                     </div>
