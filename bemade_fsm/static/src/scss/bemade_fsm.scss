@@ -1,0 +1,45 @@
+.border-black {
+  border: 1px solid black;
+}
+
+.wo-information{
+  border: 1px solid black;
+  .row{
+    .col-auto{
+      border: 1px solid black;
+    }
+  }
+  page-break-inside: avoid;
+}
+
+.wo-intervention{
+  border: 1px solid black;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  page-break-inside: avoid;
+}
+
+.wo-parts-used{
+    page-break-inside: avoid;
+}
+
+.wo-task{
+  border: 1px solid black;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  page-break-inside: avoid;
+}
+
+.border-top-black{
+  border-top: 1px solid black;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.manual_line_input {
+  border-bottom: 1px solid black;
+  margin: 30px 0px 0px 0px;
+  width: 100%;
+}

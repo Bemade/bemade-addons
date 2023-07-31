@@ -49,6 +49,7 @@
         'views/menus.xml',
         'views/task_views.xml',
         'views/sale_order_views.xml',
+        'reports/worksheet_templates.xml',
     ],
     'assets': {
         'web.assets_tests': [
@@ -56,6 +57,9 @@
             'bemade_fsm/static/tests/tours/equipment_tour.js',
             'bemade_fsm/static/tests/tours/sale_order_tour.js',
         ],
+        'web.report_assets_common': [
+            'bemade_fsm/static/src/scss/bemade_fsm.scss'
+        ]
     },
     'installable': True,
     'auto_install': False
