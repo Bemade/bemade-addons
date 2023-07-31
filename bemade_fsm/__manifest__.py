@@ -34,6 +34,7 @@
                 'sale_project',
                 'sale_stock',
                 'sale_planning',
+                'worksheet',
                 'industry_fsm_stock',
                 'industry_fsm_report',
                 'bemade_partner_root_ancestor',

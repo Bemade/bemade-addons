@@ -7,7 +7,7 @@
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">bemade_fsm.worksheet_complete</field>
             <field name="print_report_name">
-                '%s Worksheet %s' % (time.now().strftime('%Y-%m-%d'),object.name)
+                '%s Worksheet %s' % (time.strftime('%Y-%m-%d'), object.name)
             </field>
             <field name="binding_model_id" ref="model_project_task"/>
             <field name="binding_type">report</field>
@@ -25,15 +25,15 @@
         </template>
 
         <template id="worksheet_complete_page">
-            <t t-set="address">
+            <t t-set="address" t-if="doc.sale_order_id">
                 <strong class="big-red">Customer:</strong>
-                <div t-field="doc.partner_id"
+                <div t-field="doc.sale_order_id.partner_id"
                      t-options='{"widget": "contact",
                                 "fields": ["address", "name"], "no_marker": True}'/>
             </t>
             <t t-set="information_block">
                 <strong>Service Address:</strong>
-                <div t-field="doc.customer_shipping_id"
+                <div t-field="doc.partner_id"
                      t-options='{"widget": "contact",
                                  "fields": ["address", "name", "phone"],
                                  "no_marker": True, "phone_icons": True}'/>
@@ -46,41 +46,88 @@
                 </h2>
 
                 <div class="container wo-information">
-                    <div t-if="doc.sale_order_id.client_order_ref" class="col-3">
-                        <p class="m-0">
-                            <strong>Your Reference: </strong>
-                            <span t-field="doc.sale_order_id.client_order_ref"/>
-                        </p>
-                        <p t-if="doc.planned_date_begin" class="m-0">
-                            <strong t-if="doc.planned_date_begin" >Planned for: </strong>
-                            <span t-field="doc.planned_date_begin"
-                                  t-options='{"widget": "datetime"}'/>
-                        </p>
-                    </div>
-                    <div class="col-3">
-                        <strong>Technician(s):</strong>
-                        <t t-foreach="doc.technician_ids" t-as="technician"
-                           t-if="doc.technician_ids">
-                            <p class="m-0" t-field="technician.name"/>
-                        </t>
-                    </div>
-                    <div class="col-3">
-                        <strong>Site Contacts:</strong>
-                        <t t-foreach="doc.site_contacts" t-as="contact">
-                            <p class="m-0" t-out="contact"
-                               t-options='{"widget": "contact",
+                    <div class="row mt32 mb32" id="informations">
+                        <div t-if="doc.sale_order_id.client_order_ref" class="col-3">
+                            <p class="m-0">
+                                <strong>Your Reference: </strong>
+                                <span t-field="doc.sale_order_id.client_order_ref"/>
+                            </p>
+                            <p t-if="doc.planned_date_begin" class="m-0">
+                                <strong t-if="doc.planned_date_begin">Planned
+                                    for: </strong>
+                                <span t-field="doc.planned_date_begin"
+                                      t-options='{"widget": "datetime"}'/>
+                            </p>
+                        </div>
+                        <div class="col-3">
+                            <strong>Technician(s):</strong>
+                            <t t-foreach="doc.user_ids" t-as="technician"
+                               t-if="doc.user_ids">
+                                <p class="m-0" t-field="technician.name"/>
+                            </t>
+                        </div>
+                        <div class="col-3">
+                            <strong>Site Contacts:</strong>
+                            <t t-foreach="doc.site_contacts" t-as="contact">
+                                <p class="m-0" t-out="contact"
+                                   t-options='{"widget": "contact",
                                          "fields": ["name", "phone", "mobile", "email"],
                                          "no_marker": True, "phone_icons": True}'/>
-                        </t>
+                            </t>
+                        </div>
+                        <div class="col-3">
+                            <strong>Work order attn:</strong>
+                            <t t-foreach="doc.work_order_contacts" t-as="contact">
+                                <p class="m-0" t-out="contact"/>
+                            </t>
+                        </div>
                     </div>
-                    <div class="col-3">
-                        <strong>Work order attn:</strong>
-                        <t t-foreach="doc.work_order_contacts" t-as="contact">
-                            <p class="m-0" t-out="contact"/>
-                        </t>
+                    <div class="row">
+                        <div class="col mb16">
+                            <h3 class="mb32"><strong>Interventions</strong></h3>
+                        </div>
                     </div>
+                    <t t-foreach="doc.child_ids" t-as="intervention">
+                        <div class="container wo-intervention mb16">
+                            <div class="row mb16 pb16">
+                                <div class="col-12 mb16 tb16">
+                                    <h4><strong>
+                                        <span t-field="intervention.name"/>
+                                        (<span t-field="intervention.equipment_ids"
+                                               t-options="{'widget': 'many2many_tags'}"/>
+                                        )
+                                    </strong></h4>
+                                    <p class="mb16" t-field="intervention.description"/>
+                                </div>
+                            </div>
+                            <table class="table table-borderless">
+                                <thead>
+                                    <th>Done</th>
+                                    <th>Task to do</th>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="intervention.child_ids" t-as="task">
+                                        <tr class="wo-task">
+                                            <td style="width: 5%">
+                                                <input type="checkbox"
+                                                       t-att-checked="task.is_complete"/>
+                                            </td>
+                                            <td style="width: 95%">
+                                                <p t-field="task.name"/>
+                                                <p t-field="task.description"/>
+                                            </td>
+                                            <!-- TODO: Figure out what to do with the old
+                                                       concept of task comments -->
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </t>
                 </div>
             </div>
         </template>
+
     </data>
 </odoo>
