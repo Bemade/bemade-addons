@@ -72,7 +72,7 @@ class SaleOrder(models.Model):
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
     valid_equipment_ids = fields.One2many(comodel_name="bemade_fsm.equipment",
-                                          related="order_id.partner_id.owned_equipment_ids")
+                                          related="order_id.valid_equipment_ids")
     visit_ids = fields.One2many(comodel_name="bemade_fsm.visit",
                                inverse_name="so_section_id",)
     visit_id = fields.Many2one(comodel_name="bemade_fsm.visit",

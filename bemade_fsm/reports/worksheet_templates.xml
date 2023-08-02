@@ -93,9 +93,12 @@
                                 <div class="col-12 mb16 tb16">
                                     <h4><strong>
                                         <span t-field="intervention.name"/>
-                                        (<span t-field="intervention.equipment_ids"
-                                               t-options="{'widget': 'many2many_tags'}"/>
-                                        )
+                                        <t t-foreach="intervention.equipment_ids"
+                                           t-as="equipment">
+                                            <span t-field="equipment.name"/>
+                                            <span t-if="intervention_index &lt; intervention_size - 1"
+                                                  t-out="', '" />
+                                        </t>
                                     </strong></h4>
                                     <p class="mb16" t-field="intervention.description"/>
                                 </div>
