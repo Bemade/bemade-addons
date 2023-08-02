@@ -7,14 +7,12 @@
             <field name="inherit_id" ref="industry_fsm.view_task_form2_inherit"/>
             <field name="priority" eval="8"/>
             <field name="arch" type="xml">
-                <xpath expr="//field[@name='partner_id']" position="after">
-                    <field name="equipment_ids"
-                           domain="[('partner_location_id', '=', partner_id)]"
-                           context="{'tree_view_ref': 'bemade_fsm.equipment_view_tree'}"/>
-                </xpath>
                 <xpath expr="//page[@name='extra_info']" position="after">
                     <page string="Field Service" name="field_service">
-                        <group name="contacts">
+                        <group name="equipment_and_contacts">
+                            <field name="equipment_ids"
+                                   domain="[('partner_location_id', '=', partner_id)]"
+                                   context="{'tree_view_ref': 'bemade_fsm.equipment_view_tree'}"/>
                             <field name="site_contacts"
                                    context="{'tree_view_ref': 'bemade_fsm.fsm_contacts_view_tree'}"/>
                             <field name="work_order_contacts"
