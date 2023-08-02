@@ -9,6 +9,8 @@ class MailAlias(models.Model):
     @api.model
     def create(self, vals):
         alias = super(MailAlias, self).create(vals)
+        if not alias.name:
+            return alias
 
         alias_domain = self.env["ir.config_parameter"].sudo().get_param("mail.catchall.domain"),
         catchall_alias = self.env["ir.config_parameter"].sudo().get_param("mail.catchall.alias"),
