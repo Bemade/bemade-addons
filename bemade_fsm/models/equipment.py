@@ -67,7 +67,6 @@ class Equipment(models.Model):
                 '|', '|', '|',
                 ('pid_tag', operator, name),
                 ('name', operator, name),
-                ('partner_id.name', operator, name),
                 ('partner_location_id.name', operator, name)],
                 limit=limit)
         else:
