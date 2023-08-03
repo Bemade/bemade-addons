@@ -147,10 +147,6 @@ class SaleOrderLine(models.Model):
             task.child_ids.write({'sale_order_id': None, 'sale_line_id': None, })
             return task
 
-        def _generate_task_name(template=None):
-            template_name = template and template.name
-            return f"{self.order_id.name}: {self.order_id.partner_shipping_id.name} - {self.name} ({template_name})"
-
         def _timesheet_create_task_prepare_values_from_template(project, template,
                                                                 parent):
             """ Copies the values from a project.task.template over to the set of values used to create a project.task.
@@ -162,7 +158,7 @@ class SaleOrderLine(models.Model):
             :param parent: project.task to set as the parent to this task.
             """
             vals = self._timesheet_create_task_prepare_values(project)
-            vals['name'] = _generate_task_name(template) if not parent else template.name
+            vals['name'] = template.name
             vals['description'] = template.description or vals['description']
             vals['parent_id'] = parent and parent.id
             vals['user_ids'] = template.assignees.ids
@@ -186,7 +182,6 @@ class SaleOrderLine(models.Model):
         if not task.equipment_ids and self.equipment_ids:
             task.equipment_ids = self.equipment_ids.ids
         task.planned_hours = self.task_duration
-        task.name = _generate_task_name(tmpl)
         return task
 
     def _timesheet_service_generation(self):
@@ -202,12 +197,13 @@ class SaleOrderLine(models.Model):
             project_id = task_ids[0].project_id
             line.visit_id.task_id = line._generate_task_for_visit_line(project_id)
             task_ids.write({'parent_id': line.visit_id.task_id.id})
+        self.mapped('task_id').synchronize_name_fsm()
 
     def _generate_task_for_visit_line(self, project):
         self.ensure_one()
 
         task = self.env['project.task'].create({
-            'name': self.order_id.name + ": " + self.name,
+            'name': 'Temp Name',
             'description': f"Parent task for {self.order_id.name}, visit {self.name}",
             'project_id': project.id,
             'equipment_ids': self.get_section_line_ids().mapped('equipment_ids').ids,
