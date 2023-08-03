@@ -57,13 +57,7 @@ class FSMVisitTest(BemadeFSMBaseTest):
         self.assertTrue(visit.is_invoiced)
 
     def test_visit_groups_section_tasks_when_confirmed(self):
-        so = self._generate_sale_order()
-        visit = self._generate_visit(sale_order=so)
-        sol1 = self._generate_sale_order_line(sale_order=so)
-        sol2 = self._generate_sale_order_line(sale_order=so)
-        visit.so_section_id.sequence = 1
-        sol1.sequence = 2
-        sol2.sequence = 3
+        so, visit, sol1, sol2 = self._generate_so_with_one_visit_two_lines()
 
         so.action_confirm()
 
@@ -74,15 +68,7 @@ class FSMVisitTest(BemadeFSMBaseTest):
             visit_subtasks and sol1.task_id in visit_subtasks and sol2.task_id in visit_subtasks)
 
     def test_visit_task_gets_correct_due_date_on_confirmation(self):
-        partner = self._generate_partner()
-        so = self._generate_sale_order(partner=partner)
-        visit = self._generate_visit(sale_order=so)
-        sol1 = self._generate_sale_order_line(sale_order=so, qty=4.0)
-        sol2 = self._generate_sale_order_line(sale_order=so, qty=4.0)
-        visit.approx_date = date.today() + timedelta(days=7)
-        visit.so_section_id.sequence = 1
-        sol1.sequence = 2
-        sol2.sequence = 3
+        so, visit, sol1, sol2 = self._generate_so_with_one_visit_two_lines()
 
         so.action_confirm()
 
@@ -115,16 +101,3 @@ class FSMVisitTest(BemadeFSMBaseTest):
 
         self.assertEqual(len(so.order_line), 3)
 
-    def _invoice_sale_order(self, so):
-        wiz = self.env['sale.advance.payment.inv'].with_context(
-            {'active_ids': [so.id]}).create({})
-        wiz.create_invoices()
-        inv = so.invoice_ids[-1]
-        inv.action_post()
-        return inv
-
-    def _generate_visit(self, sale_order, label="Test Label"):
-        return self.env['bemade_fsm.visit'].create([{
-            'sale_order_id': sale_order.id,
-            'label': label,
-        }])

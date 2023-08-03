@@ -168,3 +168,27 @@ class BemadeFSMBaseTest(TransactionCase):
             names.pop(0)
             parent = subtasks[0]
         return template
+
+    def _invoice_sale_order(self, so):
+        wiz = self.env['sale.advance.payment.inv'].with_context(
+            {'active_ids': [so.id]}).create({})
+        wiz.create_invoices()
+        inv = so.invoice_ids[-1]
+        inv.action_post()
+        return inv
+
+    def _generate_visit(self, sale_order, label="Test Label"):
+        return self.env['bemade_fsm.visit'].create([{
+            'sale_order_id': sale_order.id,
+            'label': label,
+        }])
+
+    def _generate_so_with_one_visit_two_lines(self):
+        so = self._generate_sale_order()
+        visit = self._generate_visit(sale_order=so)
+        sol1 = self._generate_sale_order_line(sale_order=so)
+        sol2 = self._generate_sale_order_line(sale_order=so)
+        visit.so_section_id.sequence = 1
+        sol1.sequence = 2
+        sol2.sequence = 3
+        return so, visit, sol1, sol2

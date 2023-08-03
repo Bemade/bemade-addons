@@ -216,6 +216,7 @@ class SaleOrderLine(models.Model):
             'visit_id': self.visit_id.id,
             'date_deadline': self.visit_id.approx_date,
             'planned_hours': self.task_duration,
+            'user_ids': False, # Force to empty or it uses the current user
         })
         return task
 
