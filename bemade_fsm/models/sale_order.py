@@ -1,5 +1,6 @@
 from odoo import fields, models, api, _, Command
 from odoo.exceptions import ValidationError
+from odoo.tools import float_round
 
 
 class SaleOrder(models.Model):
@@ -55,7 +56,8 @@ class SaleOrder(models.Model):
     def _inverse_default_contacts(self):
         pass
 
-    @api.depends('partner_id', 'partner_shipping_id', 'partner_shipping_id.equipment_ids',
+    @api.depends('partner_id', 'partner_shipping_id',
+                 'partner_shipping_id.equipment_ids',
                  'partner_id.owned_equipment_ids')
     def _compute_default_equipment(self):
         for rec in self:
@@ -74,10 +76,10 @@ class SaleOrderLine(models.Model):
     valid_equipment_ids = fields.One2many(comodel_name="bemade_fsm.equipment",
                                           related="order_id.valid_equipment_ids")
     visit_ids = fields.One2many(comodel_name="bemade_fsm.visit",
-                               inverse_name="so_section_id",)
+                                inverse_name="so_section_id", )
     visit_id = fields.Many2one(comodel_name="bemade_fsm.visit",
                                compute="_compute_visit_id",
-                               string = "Visit",
+                               string="Visit",
                                ondelete='cascade',
                                store=True)
     is_fully_delivered = fields.Boolean(string="Fully Delivered",
@@ -96,6 +98,9 @@ class SaleOrderLine(models.Model):
     is_field_service = fields.Boolean(string="Is Field Service",
                                       compute="_compute_is_field_service",
                                       store=True)
+
+    task_duration = fields.Float(string="Estimated Duration",
+                                 compute="_compute_task_duration", )
 
     @api.depends('visit_ids')
     def _compute_visit_id(self):
@@ -129,7 +134,9 @@ class SaleOrderLine(models.Model):
             :param template: project.task.template to use to create the task.
             :param parent: project.task to set as the parent to this task.
             """
-            values = _timesheet_create_task_prepare_values_from_template(project, template, parent)
+            values = _timesheet_create_task_prepare_values_from_template(project,
+                                                                         template,
+                                                                         parent)
             task = self.env['project.task'].sudo().create(values)
             subtasks = []
             for t in template.subtasks:
@@ -144,7 +151,8 @@ class SaleOrderLine(models.Model):
             template_name = template and template.name
             return f"{self.order_id.name}: {self.order_id.partner_shipping_id.name} - {self.name} ({template_name})"
 
-        def _timesheet_create_task_prepare_values_from_template(project, template, parent):
+        def _timesheet_create_task_prepare_values_from_template(project, template,
+                                                                parent):
             """ Copies the values from a project.task.template over to the set of values used to create a project.task.
 
             :param project: project.project record to set on the task's project_id field.
@@ -177,6 +185,7 @@ class SaleOrderLine(models.Model):
             task.message_post(body=task_msg)
         if not task.equipment_ids and self.equipment_ids:
             task.equipment_ids = self.equipment_ids.ids
+        task.planned_hours = self.task_duration
         task.name = _generate_task_name(tmpl)
         return task
 
@@ -184,7 +193,7 @@ class SaleOrderLine(models.Model):
         super()._timesheet_service_generation()
         visit_lines = self.filtered(lambda l: l.visit_id)
         for line in visit_lines:
-            task_ids = line.get_section_lines().mapped('task_id')
+            task_ids = line.get_section_line_ids().mapped('task_id')
             if not task_ids:
                 continue
             if len(set([task.project_id for task in task_ids])) > 1:
@@ -196,22 +205,27 @@ class SaleOrderLine(models.Model):
 
     def _generate_task_for_visit_line(self, project):
         self.ensure_one()
+
         task = self.env['project.task'].create({
             'name': self.order_id.name + ": " + self.name,
             'description': f"Parent task for {self.order_id.name}, visit {self.name}",
             'project_id': project.id,
-            'equipment_ids': self.get_section_lines().mapped('equipment_ids').ids,
+            'equipment_ids': self.get_section_line_ids().mapped('equipment_ids').ids,
             'sale_order_id': self.order_id.id,
             'partner_id': self.order_id.partner_shipping_id.id,
             'visit_id': self.visit_id.id,
+            'date_deadline': self.visit_id.approx_date,
+            'planned_hours': self.task_duration,
         })
         return task
 
-    @api.depends('order_id.order_line', 'display_type', 'qty_to_deliver', 'order_id.order_line.qty_to_deliver',
+    @api.depends('order_id.order_line', 'display_type', 'qty_to_deliver',
+                 'order_id.order_line.qty_to_deliver',
                  'order_id.order_line.display_type')
     def _compute_is_fully_delivered(self):
         for rec in self:
-            rec.is_fully_delivered = rec._iterate_items_compute_bool(lambda l: l.qty_to_deliver == 0)
+            rec.is_fully_delivered = rec._iterate_items_compute_bool(
+                lambda l: l.qty_to_deliver == 0)
 
     @api.depends('is_fully_delivered')
     def _compute_is_fully_invoiced(self):
@@ -219,15 +233,15 @@ class SaleOrderLine(models.Model):
             if not rec.is_fully_delivered:
                 rec.is_fully_delivered_and_invoiced = False
                 return
-            rec.is_fully_delivered_and_invoiced = rec._iterate_items_compute_bool(lambda l: l.qty_to_invoice == 0)
+            rec.is_fully_delivered_and_invoiced = rec._iterate_items_compute_bool(
+                lambda l: l.qty_to_invoice == 0)
 
-    def get_section_lines(self):
-        """ Returns a RecordSet containing the sale order lines that fall under this section. """
+    def get_section_line_ids(self):
         self.ensure_one()
-        assert self.display_type == 'line_section', 'Method called incorrectly on non-section order line.'
+        assert self.display_type == 'line_section', "Cannot get section lines for a non-section."
         found = False
         lines = []
-        for line in self.order_id.order_line:
+        for line in self.order_id.order_line.sorted(lambda l: l.sequence):
             if line == self:
                 found = True
                 continue
@@ -258,14 +272,42 @@ class SaleOrderLine(models.Model):
                     return val
             return True
 
-    @api.depends('product_uom', 'product_uom_qty', 'product_id.planning_enabled', 'state',
-                 'product_id.task_template_id')
+    @api.depends('task_duration', 'product_id', 'product_id.planning_enabled', 'state')
     def _compute_planning_hours_to_plan(self):
-        # Override the method from sale_planning to use time estimates from the task template if appropriate
-        super()._compute_planning_hours_to_plan()
-        templated_lines = self.filtered(
-            lambda l: l.product_id.task_template_id and l.product_id.task_template_id.planned_hours)
+        # Override the method from sale_planning to use time estimates from the task
+        # template if appropriate. Also compute the value for visit lines.
+        planning_lines = self.filtered_domain([
+            ('product_id.planning_enabled', '=', True),
+            ('state', 'not in', ['draft', 'sent'])
+        ])
+        for line in planning_lines:
+            line.planning_hours_to_plan = line.task_duration
+        for line in self - planning_lines:
+            line.planning_hours_to_plan = 0.0
+
+    @api.depends('product_id', 'visit_id')
+    def _compute_task_duration(self):
+        uom_hour = self.env.ref('uom.product_uom_hour')
+        uom_unit = self.env.ref('uom.product_uom_unit')
+        templated_lines = self.filtered(lambda l: l.product_id.task_template_id
+                                                  and l.product_id.task_template_id.
+                                        planned_hours)
+        visit_lines = self.filtered(lambda l: l.visit_id)
+        regular_lines = self - templated_lines - visit_lines
+        for line in regular_lines:
+            if line.product_uom == uom_hour or line.product_uom == uom_unit:
+                line.task_duration = line.product_uom_qty
+            else:
+                line.task_duration = float_round(
+                    line.product_uom._compute_quantity(line.product_uom_qty, uom_hour,
+                                                       raise_if_failure=False),
+                    precision_digits=2)
         for line in templated_lines:
-            line.planning_hours_to_plan = line.product_id.task_template_id.planned_hours
-            if line.product_uom_category_id == self.env.ref('uom.product_uom_unit').category_id:
-                line.planning_hours_to_plan *= line.product_uom_qty
+            line.task_duration = line.product_id.task_template_id.planned_hours
+            if line.product_uom_category_id == self.env.ref(
+                    'uom.product_uom_unit').category_id:
+                line.task_duration *= line.product_uom_qty
+        visit_lines = self.filtered(lambda l: l.visit_id)
+        for line in visit_lines:
+            line.task_duration = sum(line.get_section_line_ids().
+                                     mapped('task_duration'))

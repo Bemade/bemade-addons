@@ -52,17 +52,18 @@ class TestTaskTemplate(BemadeFSMBaseTest):
 
         sol = self._generate_sale_order_line(sale_order=so, product=product)
 
-        self.assertEqual(sol.planning_hours_to_plan, 8)
+        self.assertEqual(sol.task_duration, 8)
 
     def test_hours_estimate_multiplied_for_multiple_units_sold(self):
         partner = self._generate_partner()
         so = self._generate_sale_order(partner=partner)
         task_template = self._generate_task_template(planned_hours=8)
-        product = self._generate_product(uom=self.env.ref('uom.product_uom_unit'), task_template=task_template)
+        product = self._generate_product(uom=self.env.ref('uom.product_uom_unit'),
+                                         task_template=task_template)
 
         sol = self._generate_sale_order_line(sale_order=so, product=product, qty=3.0)
 
-        self.assertEqual(sol.planning_hours_to_plan, 24)
+        self.assertEqual(sol.task_duration, 24)
 
 
 

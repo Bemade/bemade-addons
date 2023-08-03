@@ -39,7 +39,7 @@ class FSMVisit(models.Model):
     @api.depends('so_section_id', 'sale_order_id.summary_equipment_ids')
     def _compute_summarized_equipment_ids(self):
         for rec in self:
-            lines = rec.so_section_id.get_section_lines()
+            lines = rec.so_section_id.get_section_line_ids()
             equipment_ids = []
             for line in lines:
                 for equipment in line.equipment_ids:
