@@ -37,6 +37,7 @@
                 'worksheet',
                 'industry_fsm_stock',
                 'industry_fsm_report',
+                'industry_fsm_sale_report',
                 'bemade_partner_root_ancestor',
                 'mail',
                 ],
@@ -50,7 +51,8 @@
         'views/menus.xml',
         'views/task_views.xml',
         'views/sale_order_views.xml',
-        'reports/worksheet_templates.xml',
+        'reports/worksheet_custom_report_templates.xml',
+        'reports/worksheet_custom_reports.xml',
     ],
     'assets': {
         'web.assets_tests': [
