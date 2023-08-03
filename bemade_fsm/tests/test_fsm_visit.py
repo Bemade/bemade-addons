@@ -101,3 +101,16 @@ class FSMVisitTest(BemadeFSMBaseTest):
 
         self.assertEqual(len(so.order_line), 3)
 
+    def test_marking_visit_task_done_completes_descendants(self):
+        so, visit, sol1, sol2 = self._generate_so_with_one_visit_two_lines()
+        so.action_confirm()
+        parent, child1, child2 = visit.task_id, sol1.task_id, sol2.task_id
+
+        parent.action_fsm_validate()
+
+        self.assertTrue(parent.is_closed)
+        self.assertTrue(child1.is_closed)
+        self.assertTrue(child2.is_closed)
+        self.assertEqual(sol1.qty_to_deliver, 0)
+        self.assertEqual(sol2.qty_to_deliver, 0)
+        self.assertTrue(visit.is_completed)
