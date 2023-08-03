@@ -65,6 +65,19 @@ class TestTaskTemplate(BemadeFSMBaseTest):
 
         self.assertEqual(sol.task_duration, 24)
 
+    def test_child_task_names_are_short_version(self):
+        so, visit, sol1, sol2 = self._generate_so_with_one_visit_two_lines()
+        template = self._generate_task_template(names=['Task'])
+        product = self._generate_product(task_template=template)
+        sol1.name = "Short Name 1"
+        sol2.name = "Short Name 2"
+        sol3 = self._generate_sale_order_line(sale_order=so, product=product)
+
+        so.action_confirm()
+
+        self.assertEqual(sol1.task_id.name, "Short Name 1")
+        self.assertEqual(sol2.task_id.name, "Short Name 2")
+        self.assertEqual(sol3.task_id.name, "Task")
 
 
 @tagged('-at_install', 'post_install', 'slow')

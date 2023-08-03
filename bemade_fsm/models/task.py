@@ -151,3 +151,28 @@ class Task(models.Model):
         for visit in visits:
             stage = closed_stage_by_project[visit.project_id]
             visits.write({'stage_id': stage.id, 'fsm_done': True})
+
+    def synchronize_name_fsm(self):
+        """ Applies naming to the entire task tree for tasks that are part of this
+        recordset. Root tasks are named:
+
+            SOXXXXX: Partner Shipping Name - Sale Line Name (Template Name)
+
+        Child tasks with sale_line_id are named by their template if set, sale line name
+        if not.
+
+        Child tasks not linked to sale lines are left with their original names."""
+
+        all_tasks = self | self._get_all_subtasks()
+        for rec in all_tasks:
+            assert rec.is_fsm, "This method should only be called on FSM tasks."
+
+            template = rec.sale_line_id and rec.sale_line_id.product_id.task_template_id
+            if not rec.parent_id:
+                rec.name = f"{rec.sale_order_id.name}: " \
+                            f"{rec.sale_order_id.partner_shipping_id.name} - " \
+                           f"{rec.sale_line_id.name}"
+                if template:
+                    rec.name += f" ({template.name})"
+            else:
+                rec.name = f"{template.name or rec.sale_line_id.name or rec.name}"
