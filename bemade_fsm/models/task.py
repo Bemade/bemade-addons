@@ -49,8 +49,6 @@ class Task(models.Model):
 
     visit_id = fields.Many2one(comodel_name='bemade_fsm.visit')
 
-    is_complete = fields.Boolean(compute="_compute_is_complete")
-
     # user_id = fields.Many2one('res.users', compute='_compute_user_id')
     #
     # @api.depends('user_ids')
@@ -70,13 +68,6 @@ class Task(models.Model):
                 or project.type_ids[-1:]
             for project in self.project_id
         }
-
-    @api.depends('project_id', 'stage_id.is_closed')
-    def _compute_is_complete(self):
-        closing_stages = self._get_closed_stage_by_project()
-        for rec in self:
-            rec.is_complete = rec.stage_id == (rec.project_id
-                                               and closing_stages[rec.project_id])
 
     def _get_related_planning_slots(self):
         domain = expression.AND([
@@ -148,3 +139,15 @@ class Task(models.Model):
                 rec.allow_billable = False
             else:
                 rec.allow_billable = rec.project_id.allow_billable
+
+    def action_fsm_validate(self):
+        visits = self.filtered(lambda t: t.visit_id)
+        non_visits = self - visits
+        super(Task, non_visits).action_fsm_validate()
+
+        visits._stop_all_timers_and_create_timesheets()
+        closed_stage_by_project = visits._get_closed_stage_by_project()
+        super(Task, visits.child_ids).action_fsm_validate()
+        for visit in visits:
+            stage = closed_stage_by_project[visit.project_id]
+            visits.write({'stage_id': stage.id, 'fsm_done': True})
