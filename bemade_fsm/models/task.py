@@ -49,12 +49,14 @@ class Task(models.Model):
 
     visit_id = fields.Many2one(comodel_name='bemade_fsm.visit')
 
-    # user_id = fields.Many2one('res.users', compute='_compute_user_id')
-    #
-    # @api.depends('user_ids')
-    # def _compute_user_id(self):
-    #     for rec in self:
-    #         rec.user_id = rec.user_ids and rec.user_ids[0] or 0
+    relevant_order_lines = fields.Many2many(comodel_name='sale.order.line',
+                                            store=False,
+                                            compute='_compute_relevant_order_lines',)
+    @api.depends('sale_order_id')
+    def _compute_relevant_order_lines(self):
+        for rec in self:
+            rec.relevant_order_lines = rec.sale_order_id \
+                                       and rec.sale_order_id.get_relevant_order_lines(rec)
 
     def _get_closed_stage_by_project(self):
         """ Gets the stage representing completed tasks for each project in
@@ -176,3 +178,7 @@ class Task(models.Model):
                     rec.name += f" ({template.name})"
             else:
                 rec.name = f"{template.name or rec.sale_line_id.name or rec.name}"
+
+    @property
+    def root_ancestor(self):
+        return self.parent_id and self.parent_id.root_ancestor or self
