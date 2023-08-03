@@ -25,7 +25,8 @@ class TestSalesOrder(BemadeFSMBaseTest):
         partner = self._generate_partner()
         so = self._generate_sale_order(partner=partner)
         parent_task = self._generate_task_template(structure=[2, 1],
-                                                   names=['Parent Template', 'Child Template',
+                                                   names=['Parent Template',
+                                                          'Child Template',
                                                           'Grandchild Template'])
         child_task_1 = parent_task.subtasks[0]
         child_task_2 = parent_task.subtasks[1]
@@ -39,7 +40,8 @@ class TestSalesOrder(BemadeFSMBaseTest):
         self.assertTrue(parent_task.name in sol.task_id.name)
         self.assertTrue(child_task_1.name in sol.task_id.child_ids[0].name)
         self.assertTrue(child_task_2.name in sol.task_id.child_ids[1].name)
-        self.assertTrue(sol.task_id.child_ids[0].child_ids and len(sol.task_id.child_ids[0].child_ids) == 1)
+        self.assertTrue(sol.task_id.child_ids[0].child_ids and len(
+            sol.task_id.child_ids[0].child_ids) == 1)
         self.assertTrue(grandchild_task.name in sol.task_id.child_ids.child_ids[0].name)
 
     def test_order_confirmation_single_equipment(self):
@@ -65,17 +67,20 @@ class TestSalesOrder(BemadeFSMBaseTest):
         partner = self._generate_partner()
         for i in range(5):
             self._generate_equipment(partner=partner)
-        sale_order = self._generate_sale_order(partner=partner) # No default equipment since more than 3 on partner
-        sol1, sol2, sol3 = [self._generate_sale_order_line(sale_order=sale_order) for i in range(3)]
-        sol1.equipment_ids = [Command.set([partner.equipment_ids[i].id for i in range(2)])]
-        sol3.equipment_ids = [Command.set([partner.equipment_ids[i].id for i in range(2, 5)])]
+        sale_order = self._generate_sale_order(
+            partner=partner)  # No default equipment since more than 3 on partner
+        sol1, sol2, sol3 = [self._generate_sale_order_line(sale_order=sale_order) for i
+                            in range(3)]
+        sol1.equipment_ids = [
+            Command.set([partner.equipment_ids[i].id for i in range(2)])]
+        sol3.equipment_ids = [
+            Command.set([partner.equipment_ids[i].id for i in range(2, 5)])]
 
         sale_order.action_confirm()
 
         self.assertEqual(sol1.equipment_ids, sol1.task_id.equipment_ids)
         self.assertEqual(sol2.equipment_ids, sol2.task_id.equipment_ids)
         self.assertEqual(sol3.equipment_ids, sol3.task_id.equipment_ids)
-
 
     def test_task_template_with_equipment_flow(self):
         """ The equipment selected on a task template should flow down to the task created on SO confirmation."""
@@ -167,7 +172,8 @@ class TestSalesOrder(BemadeFSMBaseTest):
         """ Marking the task linked to an SO line should mark the line delivered. Marking sub-tasks done should not."""
         partner = self._generate_partner()
         so = self._generate_sale_order(partner=partner)
-        task_template = self._generate_task_template(structure=[2], names=["Parent Task", "Subtask"])
+        task_template = self._generate_task_template(structure=[2],
+                                                     names=["Parent Task", "Subtask"])
         product = self._generate_product(task_template=task_template)
         sol = self._generate_sale_order_line(so, product=product)
         so.action_confirm()
@@ -230,6 +236,20 @@ class TestSalesOrder(BemadeFSMBaseTest):
         self.assertEqual(task.site_contacts, so.site_contacts)
         self.assertEqual(task.work_order_contacts, so.work_order_contacts)
 
+    def test_tasks_created_at_order_confirmation_have_no_assignees(self):
+        so, visit, sol1, sol2 = self._generate_so_with_one_visit_two_lines()
+        user = self._generate_project_user(name="User", login='login')
+
+        # We test as a specific user since testing as root may not produce the error
+        so.with_user(user).action_confirm()
+
+        visit_task = visit.task_id
+        subtask1 = visit_task.child_ids[0]
+        subtask2 = visit_task.child_ids[1]
+        self.assertFalse(visit_task.user_ids)
+        self.assertFalse(subtask1.user_ids)
+        self.assertFalse(subtask2.user_ids)
+
 
 @tagged("-at_install", "post_install", "slow")
 class TestSaleOrderTour(HttpCase, TestSalesOrder):
@@ -247,7 +267,8 @@ class TestSaleOrderTour(HttpCase, TestSalesOrder):
     def test_task_mark_to_invoice(self):
         # Make sure that when a manager clicks the ready to invoice button, the qty delivered is updated on the SO
         so = self._generate_sale_order(client_order_ref='TEST ORDER 2')
-        sol = self._generate_sale_order_line(so, self._generate_product(name='Test Product 3'))
+        sol = self._generate_sale_order_line(so, self._generate_product(
+            name='Test Product 3'))
         so.action_confirm()
         user = self._generate_project_manager_user('Mr. User', 'mruser')
         self.start_tour('/web', 'sale_order_tour', login=user.login)
