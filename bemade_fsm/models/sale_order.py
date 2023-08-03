@@ -36,6 +36,16 @@ class SaleOrder(models.Model):
                                 inverse_name="sale_order_id",
                                 readonly=False)
 
+    @api.depends('order_line.task_id')
+    def get_relevant_order_lines(self, task_id):
+        self.ensure_one()
+        linked_lines = self.order_line.filtered(lambda l: l.task_id == task_id
+                                                or l == task_id.visit_id.so_section_id)
+        visit_lines = linked_lines.filtered(lambda l: l.visit_id)
+        for line in visit_lines:
+            linked_lines |= line.get_section_line_ids()
+        return linked_lines
+
     @api.depends('order_line.equipment_ids')
     def _compute_summary_equipment_ids(self):
         for rec in self:
@@ -212,7 +222,7 @@ class SaleOrderLine(models.Model):
             'visit_id': self.visit_id.id,
             'date_deadline': self.visit_id.approx_date,
             'planned_hours': self.task_duration,
-            'user_ids': False, # Force to empty or it uses the current user
+            'user_ids': False,  # Force to empty or it uses the current user
         })
         return task
 
