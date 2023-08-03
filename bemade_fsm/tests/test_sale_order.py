@@ -21,28 +21,30 @@ class TestSalesOrder(BemadeFSMBaseTest):
         self.assertTrue(task_template.name in task.name)
         self.assertTrue(task_template.planned_hours == task.planned_hours)
 
-    def test_order_confirmation_tree_template(self):
+    def test_task_template_tree_order_confirmation(self):
         partner = self._generate_partner()
         so = self._generate_sale_order(partner=partner)
-        parent_task = self._generate_task_template(structure=[2, 1],
+        parent_template = self._generate_task_template(structure=[2, 1],
                                                    names=['Parent Template',
                                                           'Child Template',
                                                           'Grandchild Template'])
-        child_task_1 = parent_task.subtasks[0]
-        child_task_2 = parent_task.subtasks[1]
-        grandchild_task = parent_task.subtasks[0].subtasks[0]
-        product = self._generate_product(task_template=parent_task)
+        child_template_1= parent_template.subtasks[0]
+        child_template_2 = parent_template.subtasks[1]
+        grandchild_template = parent_template.subtasks[0].subtasks[0]
+        product = self._generate_product(task_template=parent_template)
         sol = self._generate_sale_order_line(so, product=product)
 
         so.action_confirm()
 
-        self.assertTrue(sol.task_id.child_ids and len(sol.task_id.child_ids) == 2)
-        self.assertTrue(parent_task.name in sol.task_id.name)
-        self.assertTrue(child_task_1.name in sol.task_id.child_ids[0].name)
-        self.assertTrue(child_task_2.name in sol.task_id.child_ids[1].name)
-        self.assertTrue(sol.task_id.child_ids[0].child_ids and len(
-            sol.task_id.child_ids[0].child_ids) == 1)
-        self.assertTrue(grandchild_task.name in sol.task_id.child_ids.child_ids[0].name)
+        parent = sol.task_id
+        c1, c2 = parent.child_ids
+        gc = c1.child_ids[:1]
+        self.assertTrue(parent.child_ids and len(parent.child_ids) == 2)
+        self.assertTrue(parent_template.name in parent.name)
+        self.assertEqual(child_template_1.name, c1.name)
+        self.assertEqual(child_template_2.name, c2.name)
+        self.assertTrue(c1.child_ids and len(c1.child_ids) == 1)
+        self.assertEqual(grandchild_template.name, gc.name)
 
     def test_order_confirmation_single_equipment(self):
         """ The equipment selected on the SO should transfer to the task."""

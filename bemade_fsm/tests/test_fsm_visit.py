@@ -115,7 +115,7 @@ class FSMVisitTest(BemadeFSMBaseTest):
         self.assertEqual(sol2.qty_to_deliver, 0)
         self.assertTrue(visit.is_completed)
 
-    def test_marking_visit_done_does_not_create_sale_order_line(self):
+    def test_marking_visit_task_done_does_not_create_sale_order_line(self):
         so, visit, sol1, sol2 = self._generate_so_with_one_visit_two_lines()
         so.action_confirm()
 
