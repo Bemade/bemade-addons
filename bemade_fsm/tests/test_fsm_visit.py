@@ -1,5 +1,6 @@
 from odoo.tests import TransactionCase, tagged, Form
 from .test_bemade_fsm_common import BemadeFSMBaseTest
+from datetime import date, timedelta
 
 
 @tagged('-at_install', 'post_install')
@@ -56,7 +57,6 @@ class FSMVisitTest(BemadeFSMBaseTest):
         self.assertTrue(visit.is_invoiced)
 
     def test_visit_groups_section_tasks_when_confirmed(self):
-        partner = self._generate_partner()
         so = self._generate_sale_order()
         visit = self._generate_visit(sale_order=so)
         sol1 = self._generate_sale_order_line(sale_order=so)
@@ -70,7 +70,40 @@ class FSMVisitTest(BemadeFSMBaseTest):
         visit_task = visit.task_id
         self.assertTrue(visit_task)
         visit_subtasks = visit_task.child_ids
-        self.assertTrue(visit_subtasks and sol1.task_id in visit_subtasks and sol2.task_id in visit_subtasks)
+        self.assertTrue(
+            visit_subtasks and sol1.task_id in visit_subtasks and sol2.task_id in visit_subtasks)
+
+    def test_visit_task_gets_correct_due_date_on_confirmation(self):
+        partner = self._generate_partner()
+        so = self._generate_sale_order(partner=partner)
+        visit = self._generate_visit(sale_order=so)
+        sol1 = self._generate_sale_order_line(sale_order=so, qty=4.0)
+        sol2 = self._generate_sale_order_line(sale_order=so, qty=4.0)
+        visit.approx_date = date.today() + timedelta(days=7)
+        visit.so_section_id.sequence = 1
+        sol1.sequence = 2
+        sol2.sequence = 3
+
+        so.action_confirm()
+
+        visit_task = visit.task_id
+        self.assertEqual(visit_task.date_deadline, visit.approx_date)
+
+    def test_visit_task_gets_correct_duration_on_confirmation(self):
+        partner = self._generate_partner()
+        so = self._generate_sale_order(partner=partner)
+        visit = self._generate_visit(sale_order=so)
+        sol1 = self._generate_sale_order_line(sale_order=so, qty=4.0)
+        sol2 = self._generate_sale_order_line(sale_order=so, qty=4.0)
+        visit.approx_date = date.today() + timedelta(days=7)
+        visit.so_section_id.sequence = 1
+        sol1.sequence = 2
+        sol2.sequence = 3
+
+        so.action_confirm()
+
+        visit_task = visit.task_id
+        self.assertEqual(visit_task.planned_hours, 8.0)
 
     def test_adding_visit_creates_one_sale_order_line(self):
         partner = self._generate_partner()
@@ -83,7 +116,8 @@ class FSMVisitTest(BemadeFSMBaseTest):
         self.assertEqual(len(so.order_line), 3)
 
     def _invoice_sale_order(self, so):
-        wiz = self.env['sale.advance.payment.inv'].with_context({'active_ids': [so.id]}).create({})
+        wiz = self.env['sale.advance.payment.inv'].with_context(
+            {'active_ids': [so.id]}).create({})
         wiz.create_invoices()
         inv = so.invoice_ids[-1]
         inv.action_post()
