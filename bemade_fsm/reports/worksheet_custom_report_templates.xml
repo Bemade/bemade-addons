@@ -39,7 +39,6 @@
                     <t t-set="is_any_total_discount_line" t-value="False"/>
                     <t t-set="section_lines" t-value="order_lines.filtered(lambda l: l.display_type == 'line_section')"/>
                     <t t-foreach="order_lines" t-as="line">
-                        <!--                        <t t-set="is_task" t-value="line == doc.sale_line_id"/>-->
                         <t t-set="final_subtotal"
                            t-value="final_subtotal + line.delivered_price_subtotal"/>
                         <t t-set="final_total"
@@ -76,7 +75,6 @@
                             </tr>
                         </thead>
                         <tbody class="sale_tbody">
-
                             <t t-set="current_subtotal" t-value="0"/>
                             <t t-foreach="order_lines" t-as="line">
                                 <t t-set="is_task" t-value="line == doc.sale_line_id"/>
@@ -85,11 +83,9 @@
                                 <t t-set="current_subtotal"
                                    t-value="current_subtotal + line.delivered_price_subtotal"
                                    groups="account.group_show_line_subtotals_tax_excluded"/>
-
                                 <t t-set="current_total"
                                    t-value="current_subtotal + line.delivered_price_total"
                                    groups="account.group_show_line_subtotals_tax_included"/>
-
                                 <tr t-att-class="'bg-200 font-weight-bold o_line_section' if line.display_type == 'line_section' else 'font-italic o_line_note' if line.display_type == 'line_note' else ''">
                                     <t t-if="not line.display_type and not line.is_downpayment">
                                         <td><span t-field="line.name"/></td>
@@ -170,7 +166,6 @@
                     </div>
                 </div>
                 <div t-if="doc.worksheet_signature">
-
                     <div t-if="report_type == html" class="ribbon" style="
                             position: absolute;
                             right: 0px; top: 0px;
@@ -193,7 +188,6 @@
                             Signed
                         </span>
                     </div>
-
                     <div t-attf-class="#{'col-12 col-lg-3' if report_type != 'html' else 'col-sm-7 col-md-4'} ml-auto text-right" style="page-break-inside: avoid">
                         <h5>Signature</h5>
                         <img t-att-src="image_data_uri(doc.worksheet_signature)" style="max-height: 6rem; max-width: 100%; color:black;"/><br/>
@@ -202,7 +196,6 @@
                 </div>
             </div>
         </template>
-
         <template id="work_order">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="doc">
@@ -213,6 +206,7 @@
                 </t>
             </t>
         </template>
+        <!-- Make the front-end "Sign" page show our new template -->
         <template id="portal_my_worksheet"
                   inherit_id="industry_fsm_report.portal_my_worksheet">
             <xpath expr="//div[@t-call='industry_fsm_report.worksheet_custom_page']"

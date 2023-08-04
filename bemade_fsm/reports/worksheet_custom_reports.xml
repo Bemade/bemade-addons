@@ -7,12 +7,7 @@
             <field name="report_file">bemade_fsm.work_order</field>
             <field name="print_report_name">'%s Work Order %s' % (
                 time.strftime('%Y-%m-%d'), object.name)</field>
-            <field name="report_type">qweb-html</field>
+            <field name="report_type">qweb-pdf</field>
         </record>
-
-<!--        <record id="work_order_template" model="worksheet.template">-->
-<!--            <field name="name">Basic Work Order</field>-->
-<!--            <field name="res_model">project.task</field>-->
-<!--        </record>-->
     </data>
 </odoo>
