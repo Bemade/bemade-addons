@@ -25,9 +25,6 @@
                                 }'/>
                         </t>
                     </div>
-                    <div t-attf-class="{{('col-6' if report_type == 'pdf' else 'col-md-6 col-12') + ' mb-3'}}">
-                        <span>Company: <span t-out="company"/></span>
-                    </div>
                 </div>
                 <t t-set="order_lines" t-value="doc.relevant_order_lines"/>
                 <t t-if="order_lines">
@@ -172,6 +169,37 @@
                         </div>
                     </div>
                 </div>
+                <div t-if="doc.worksheet_signature">
+
+                    <div t-if="report_type == html" class="ribbon" style="
+                            position: absolute;
+                            right: 0px; top: 0px;
+                            z-index: 1;
+                            overflow: hidden;
+                            width: 75px; height: 75px;
+                            text-align: right;">
+                        <span style="
+                                font-size: 10px;
+                                color: #fff;
+                                text-transform: uppercase;
+                                text-align: center;
+                                font-weight: bold; line-height: 20px;
+                                transform: rotate(45deg);
+                                width: 100px; height: auto; display: block;
+                                background: green;
+                                position: absolute;
+                                top: 19px; right: -21px; left: auto;
+                                padding: 0;">
+                            Signed
+                        </span>
+                    </div>
+
+                    <div t-attf-class="#{'col-12 col-lg-3' if report_type != 'html' else 'col-sm-7 col-md-4'} ml-auto text-right" style="page-break-inside: avoid">
+                        <h5>Signature</h5>
+                        <img t-att-src="image_data_uri(doc.worksheet_signature)" style="max-height: 6rem; max-width: 100%; color:black;"/><br/>
+                        <span t-field="doc.worksheet_signed_by"/>
+                    </div>
+                </div>
             </div>
         </template>
 
@@ -184,6 +212,13 @@
                     </t>
                 </t>
             </t>
+        </template>
+        <template id="portal_my_worksheet"
+                  inherit_id="industry_fsm_report.portal_my_worksheet">
+            <xpath expr="//div[@t-call='industry_fsm_report.worksheet_custom_page']"
+                   position="replace">
+                <div t-call="bemade_fsm.work_order_page"/>
+            </xpath>
         </template>
     </data>
 </odoo>
