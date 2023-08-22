@@ -51,12 +51,14 @@ class Task(models.Model):
 
     relevant_order_lines = fields.Many2many(comodel_name='sale.order.line',
                                             store=False,
-                                            compute='_compute_relevant_order_lines',)
+                                            compute='_compute_relevant_order_lines', )
+
     @api.depends('sale_order_id')
     def _compute_relevant_order_lines(self):
         for rec in self:
-            rec.relevant_order_lines = rec.sale_order_id \
-                                       and rec.sale_order_id.get_relevant_order_lines(rec)
+            rec.relevant_order_lines = (
+                        rec.sale_order_id and rec.sale_order_id.get_relevant_order_lines(
+                    rec) or False)
 
     def _get_closed_stage_by_project(self):
         """ Gets the stage representing completed tasks for each project in
@@ -172,7 +174,7 @@ class Task(models.Model):
             template = rec.sale_line_id and rec.sale_line_id.product_id.task_template_id
             if not rec.parent_id:
                 rec.name = f"{rec.sale_order_id.name}: " \
-                            f"{rec.sale_order_id.partner_shipping_id.name} - " \
+                           f"{rec.sale_order_id.partner_shipping_id.name} - " \
                            f"{rec.sale_line_id.name}"
                 if template:
                     rec.name += f" ({template.name})"
