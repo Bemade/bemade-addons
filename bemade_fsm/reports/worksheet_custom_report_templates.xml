@@ -128,14 +128,14 @@
                                           t-options='{"widget": "monetary", "display_currency": doc.sale_order_id.pricelist_id.currency_id}'/>
                                 </td>
                             </tr>
-                            <tr t-if="final_tax">
+                            <tr t-if="final_tax" class="border-black o_subtotal">
                                 <td><strong>Taxes</strong></td>
                                 <td class="text-right">
                                     <span t-esc="final_tax"
                                           t-options='{"widget": "monetary", "display_currency": doc.sale_order_id.pricelist_id.currency_id}'/>
                                 </td>
                             </tr>
-                            <tr>
+                            <tr t-if="final_total" class="border-black o_total">
                                 <td><strong>Total</strong></td>
                                 <td class="text-right">
                                     <span t-esc="final_total"
@@ -146,6 +146,69 @@
                     </div>
                 </div>
             </div>
+        </template>
+        <template id="subtask_list">
+            <ul t-if="task.child_ids" class="ml-1 pl-1" style="list-style-type: none;">
+                <t t-foreach="task.child_ids" t-as="subtask">
+                    <li class="ml-1">
+                        <span t-out="subtask.name"/>
+                        <t t-call="bemade_fsm.subtask_list">
+                            <t t-set="task" t-value="subtask"/>
+                        </t>
+                    </li>
+                </t>
+            </ul>
+        </template>
+        <template id="workorder_page_tasks_table">
+            <t t-set="interventions" t-value="doc.child_ids"/>
+            <t t-set="timesheets" t-value="doc.timesheet_ids"/>
+            <t t-foreach="interventions" t-as="intervention">
+                <h2 style="page-break-before: always;"
+                    t-out="str(intervention_index + 1) + '. ' + intervention.name"/>
+                <h3 t-if="intervention.equipment_ids">Equipment:
+                    <t t-foreach="intervention.equipment_ids" t-as="equipment_id">
+                        <span t-out="equipment_id.complete_name + (', ' if not equipment_id_last else '')"/>
+                    </t>
+                </h3>
+                <t t-set="tasks" t-value="intervention.child_ids"/>
+                <div t-if="tasks" class="table-responsive-sm">
+                    <table class="table table-sm o_main_table">
+                        <thead>
+                            <tr>
+                                <th width="7%">Status</th>
+                                <th width="30%">Task</th>
+                                <th width="18%">Technician</th>
+                                <th width="45%">Comments</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="tasks" t-as="task">
+                                <tr class="o_line_section">
+                                    <td t-out="task.stage_id.name"/>
+                                    <td>
+                                        <span t-out="task.name"/>
+                                    </td>
+                                    <td>
+                                        <t t-foreach="task.user_ids" t-as="user">
+                                            <span t-out="user.name + (', ' if not user_last else '')"/>
+                                        </t>
+                                    </td>
+                                    <td t-out="task.description or ''"/>
+                                </tr>
+                                <tr class="mt-0 pt-0">
+                                    <td/>
+                                    <td>
+                                        <t t-call="bemade_fsm.subtask_list"/>
+                                    </td>
+                                    <td/>
+                                    <td/>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+
         </template>
         <template id="workorder_page_info_block">
             <div class="row">
@@ -210,6 +273,7 @@
                 <t t-call="bemade_fsm.workorder_page_info_block"/>
                 <t t-call="bemade_fsm.workorder_page_sale_order_table"/>
                 <t t-call="bemade_fsm.workorder_page_signature_block"/>
+                <t t-call="bemade_fsm.workorder_page_tasks_table"/>
             </div>
         </template>
         <template id="work_order">
