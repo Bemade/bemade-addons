@@ -7,6 +7,12 @@
             <field name="inherit_id" ref="industry_fsm.view_task_form2_inherit"/>
             <field name="priority" eval="8"/>
             <field name="arch" type="xml">
+                <xpath expr="//field[@name='name']/.." position="before">
+                    <h1 class="d-flex flex-row justify-content-between">
+                        <field name="work_order_number"
+                               attrs="{'invisible': [('work_order_number', '=', False)]}"/>
+                    </h1>
+                </xpath>
                 <xpath expr="//page[@name='extra_info']" position="after">
                     <page string="Field Service" name="field_service">
                         <group name="equipment_and_contacts">
@@ -89,17 +95,17 @@
                                   ('parent_id', '=', False)]
             </field>
         </record>
-<!--        <record id="project_task_view_calendar_fsm" model="ir.ui.view">-->
-<!--            <field name="name">bemade_fsm.project_task_view_calendar_fsm</field>-->
-<!--            <field name="inherit_id" ref="industry_fsm.project_task_view_calendar_fsm"/>-->
-<!--            <field name="model">project.task</field>-->
-<!--            <field name="arch" type="xml">-->
-<!--                <field name="user_ids" position="attributes">-->
-<!--                    <attribute name="filters">1</attribute>-->
-<!--                    <attribute name="color">user_ids</attribute>-->
-<!--                </field>-->
-<!--            </field>-->
-<!--        </record>-->
+        <!--        <record id="project_task_view_calendar_fsm" model="ir.ui.view">-->
+        <!--            <field name="name">bemade_fsm.project_task_view_calendar_fsm</field>-->
+        <!--            <field name="inherit_id" ref="industry_fsm.project_task_view_calendar_fsm"/>-->
+        <!--            <field name="model">project.task</field>-->
+        <!--            <field name="arch" type="xml">-->
+        <!--                <field name="user_ids" position="attributes">-->
+        <!--                    <attribute name="filters">1</attribute>-->
+        <!--                    <attribute name="color">user_ids</attribute>-->
+        <!--                </field>-->
+        <!--            </field>-->
+        <!--        </record>-->
         <record id="project_task_view_calendar_fsm_no_worksheet" model="ir.ui.view">
             <field name="name">bemade_fsm.project_task_view_calendar_no_worksheet</field>
             <field name="inherit_id"
