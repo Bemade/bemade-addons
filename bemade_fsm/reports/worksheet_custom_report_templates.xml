@@ -170,6 +170,9 @@
                         <span t-out="equipment_id.complete_name + (', ' if not equipment_id_last else '')"/>
                     </t>
                 </h3>
+                <div>
+                    <span t-esc="intervention.description"/>
+                </div>
                 <t t-set="tasks" t-value="intervention.child_ids"/>
                 <div t-if="tasks" class="table-responsive-sm">
                     <table class="table table-sm o_main_table">
@@ -183,7 +186,7 @@
                         </thead>
                         <tbody>
                             <t t-foreach="tasks" t-as="task">
-                                <tr class="o_line_section">
+                                <tr class="o_line_section p-1 m-1">
                                     <td t-out="task.stage_id.name"/>
                                     <td>
                                         <span t-out="task.name"/>
@@ -211,14 +214,15 @@
 
         </template>
         <template id="workorder_page_info_block">
+            <h1>Work Order <span t-out="doc.work_order_number"></span></h1>
             <div class="row">
                 <div t-attf-class="{{'col-6' if report_type == 'pdf' else 'col-md-6 col-12'}}">
-                    <div t-if="doc.user_ids"><strong>Technicians: </strong></div>
+                    <div t-if="doc.user_ids"><h6>Technicians: </h6></div>
                     <t t-foreach="doc.user_ids" t-as="user">
                         <div class="mb-3">
                             <div t-esc="user" t-options='{
                                                 "widget": "contact",
-                                                "fields": ["name", "address", "phone", "email"]
+                                                "fields": ["name", "email"]
                                             }'/>
                         </div>
                     </t>
@@ -226,11 +230,35 @@
 
                 <div t-attf-class="{{('col-6' if report_type == 'pdf' else 'col-md-6 col-12') + ' mb-3'}}">
                     <t t-if="doc.partner_id">
-                        <div><strong>Customer: </strong></div>
+                        <div><h6>Customer: </h6></div>
                         <div t-esc="doc.partner_id" t-options='{
                                     "widget": "contact",
                                     "fields": ["name", "address",]
                                 }'/>
+                    </t>
+                </div>
+            </div>
+            <div class="row">
+                <div t-attf-class="{{'col-6' if report_type == 'pdf' else 'col-md-6 col-12'}}">
+                    <div t-if="doc.site_contacts"><h6>Site Contacts: </h6></div>
+                    <t t-foreach="doc.site_contacts" t-as="contact">
+                        <div class="mb-3">
+                            <div t-esc="contact" t-options='{
+                                                "widget": "contact",
+                                                "fields": ["name", "phone", "email"]
+                                            }'/>
+                        </div>
+                    </t>
+                </div>
+                <div t-attf-class="{{'col-6' if report_type == 'pdf' else 'col-md-6 col-12'}}">
+                    <div t-if="doc.work_order_contacts"><h6>Work Order Contacts: </h6></div>
+                    <t t-foreach="doc.work_order_contacts" t-as="contact">
+                        <div class="mb-3">
+                            <div t-esc="contact" t-options='{
+                                                "widget": "contact",
+                                                "fields": ["name", "phone", "email"]
+                                            }'/>
+                        </div>
                     </t>
                 </div>
             </div>

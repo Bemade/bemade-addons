@@ -2,6 +2,7 @@ from odoo import fields, models, api, Command, _
 from odoo.exceptions import ValidationError, UserError
 from odoo.osv import expression
 from collections import defaultdict, namedtuple
+import re
 
 
 class Task(models.Model):
@@ -53,12 +54,29 @@ class Task(models.Model):
                                             store=False,
                                             compute='_compute_relevant_order_lines', )
 
+    work_order_number = fields.Char(readonly=True)
+
+    @api.model_create_multi
+    def create(self, vals):
+        res = super().create(vals)
+        for rec in res:
+            if rec.sale_order_id:
+                seq = 1
+                prev_seqs = self.sale_order_id.tasks_ids and \
+                            self.sale_order_id.tasks_ids.mapped('work_order_number')
+                if prev_seqs:
+                    seq += max(map(lambda n: int(re.search("\d+$", n).start() or 0),
+                                   prev_seqs))
+                rec.work_order_number = rec.sale_order_id.name.replace('SO', 'WO', 1) \
+                                        + f"-{seq}"
+        return res
+
     @api.depends('sale_order_id')
     def _compute_relevant_order_lines(self):
         for rec in self:
             rec.relevant_order_lines = (
-                        rec.sale_order_id and rec.sale_order_id.get_relevant_order_lines(
-                    rec) or False)
+                    rec.sale_order_id and rec.sale_order_id.get_relevant_order_lines(
+                rec) or False)
 
     def _get_closed_stage_by_project(self):
         """ Gets the stage representing completed tasks for each project in
@@ -160,7 +178,7 @@ class Task(models.Model):
         """ Applies naming to the entire task tree for tasks that are part of this
         recordset. Root tasks are named:
 
-            SOXXXXX: Partner Shipping Name - Sale Line Name (Template Name)
+            Partner Shipping Name - Sale Line Name (Template Name)
 
         Child tasks with sale_line_id are named by their template if set, sale line name
         if not.
@@ -173,8 +191,7 @@ class Task(models.Model):
 
             template = rec.sale_line_id and rec.sale_line_id.product_id.task_template_id
             if not rec.parent_id:
-                rec.name = f"{rec.sale_order_id.name}: " \
-                           f"{rec.sale_order_id.partner_shipping_id.name} - " \
+                rec.name = f"{rec.sale_order_id.partner_shipping_id.name} - " \
                            f"{rec.sale_line_id.name}"
                 if template:
                     rec.name += f" ({template.name})"
