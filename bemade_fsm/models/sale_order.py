@@ -1,6 +1,7 @@
 from odoo import fields, models, api, _, Command
 from odoo.exceptions import ValidationError
 from odoo.tools import float_round
+import re
 
 
 class SaleOrder(models.Model):
