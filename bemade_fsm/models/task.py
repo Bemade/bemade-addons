@@ -65,8 +65,9 @@ class Task(models.Model):
                 prev_seqs = self.sale_order_id.tasks_ids and \
                             self.sale_order_id.tasks_ids.mapped('work_order_number')
                 if prev_seqs:
-                    seq += max(map(lambda n: int(re.search("\d+$", n).start() or 0),
-                                   prev_seqs))
+                    pattern = re.compile(r"\d+$")
+                    matches = map(lambda n: pattern.search(n), prev_seqs)
+                    seq += max(map(lambda n: int(n.group(1)) if n else 0), matches)
                 rec.work_order_number = rec.sale_order_id.name.replace('SO', 'WO', 1) \
                                         + f"-{seq}"
         return res
@@ -190,13 +191,15 @@ class Task(models.Model):
             assert rec.is_fsm, "This method should only be called on FSM tasks."
 
             template = rec.sale_line_id and rec.sale_line_id.product_id.task_template_id
+            name_parts = rec.sale_line_id and rec.sale_line_id.name.split('\n')
+            title = name_parts and name_parts[0] or rec.sale_line_id.product_id.name
             if not rec.parent_id:
                 rec.name = f"{rec.sale_order_id.partner_shipping_id.name} - " \
-                           f"{rec.sale_line_id.name}"
+                           f"{title}"
                 if template:
                     rec.name += f" ({template.name})"
             else:
-                rec.name = f"{template.name or rec.sale_line_id.name or rec.name}"
+                rec.name = template.name or title or rec.name
 
     @property
     def root_ancestor(self):
