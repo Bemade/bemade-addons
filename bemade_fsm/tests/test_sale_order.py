@@ -25,10 +25,10 @@ class TestSalesOrder(BemadeFSMBaseTest):
         partner = self._generate_partner()
         so = self._generate_sale_order(partner=partner)
         parent_template = self._generate_task_template(structure=[2, 1],
-                                                   names=['Parent Template',
-                                                          'Child Template',
-                                                          'Grandchild Template'])
-        child_template_1= parent_template.subtasks[0]
+                                                       names=['Parent Template',
+                                                              'Child Template',
+                                                              'Grandchild Template'])
+        child_template_1 = parent_template.subtasks[0]
         child_template_2 = parent_template.subtasks[1]
         grandchild_template = parent_template.subtasks[0].subtasks[0]
         product = self._generate_product(task_template=parent_template)
@@ -251,6 +251,25 @@ class TestSalesOrder(BemadeFSMBaseTest):
         self.assertFalse(visit_task.user_ids)
         self.assertFalse(subtask1.user_ids)
         self.assertFalse(subtask2.user_ids)
+
+    def test_long_line_name_overflows_to_task_description(self):
+        so = self._generate_sale_order()
+        product = self._generate_product()
+        product.description_sale = "This is a long product description.\n" \
+                                   "It even spans multiple lines.\n" \
+                                   "One could find this annoying in a task name."
+
+        sol = self._generate_sale_order_line(sale_order=so, product=product)
+
+        so.action_confirm()
+        task = sol.task_id
+
+        self.assertFalse("This is a long product description." in task.name)
+        self.assertFalse("It even spans multiple lines." in task.name)
+        self.assertFalse("One could find this annoying in a task name." in task.name)
+        self.assertTrue("It even spans multiple lines." in task.description)
+        self.assertTrue("One could find this annoying in a task name."
+                        in task.description)
 
 
 @tagged("-at_install", "post_install", "slow")
