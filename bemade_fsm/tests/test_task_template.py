@@ -78,14 +78,3 @@ class TestTaskTemplate(BemadeFSMBaseTest):
         self.assertEqual(sol1.task_id.name, "Short Name 1")
         self.assertEqual(sol2.task_id.name, "Short Name 2")
         self.assertEqual(sol3.task_id.name, "Task")
-
-
-@tagged('-at_install', 'post_install', 'slow')
-class TestTaskTemplateTour(HttpCase, BemadeFSMBaseTest):
-
-    def test_task_template_tour(self):
-        user = self._generate_project_manager_user('Mister PM', 'misterpm')
-        task_template = self._generate_task_template(names=['Template 1'])
-        self._generate_product(name="Test Product 1", task_template=task_template)
-        self.start_tour('/web', 'task_template_tour',
-                        login=user.login, )

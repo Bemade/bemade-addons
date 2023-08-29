@@ -96,11 +96,11 @@ class SaleOrderLine(models.Model):
     is_fully_delivered = fields.Boolean(string="Fully Delivered",
                                         compute="_compute_is_fully_delivered",
                                         help="Indicates whether a line or all the lines in a section have been"
-                                             "entirely delivered.")
+                                             " entirely delivered.")
     is_fully_delivered_and_invoiced = fields.Boolean(string="Fully Invoiced",
                                                      compute="_compute_is_fully_invoiced",
                                                      help="Indicates whether a line or all the lines in a section have been"
-                                                          "entirely delivered and invoiced.")
+                                                          " entirely delivered and invoiced.")
     equipment_ids = fields.Many2many(string="Equipment to Service",
                                      comodel_name="bemade_fsm.equipment",
                                      relation="bemade_fsm_equipment_sale_order_line_rel",
