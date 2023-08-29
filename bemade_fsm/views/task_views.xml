@@ -14,7 +14,7 @@
                     </h1>
                 </xpath>
                 <xpath expr="//page[@name='extra_info']" position="after">
-                    <page string="Field Service" name="field_service">
+                    <page string="Field Service" name="field_service" translate="True">
                         <group name="equipment_and_contacts">
                             <field name="equipment_ids"
                                    domain="[('partner_location_id', '=', partner_id)]"
