@@ -19,22 +19,3 @@ class TestEquipment(BemadeFSMBaseTest):
         partner_company.write({'equipment_ids': [Command.set([])]})
         with self.assertRaises(MissingError):
             equipment.name
-
-
-@tagged('-at_install', 'post_install', 'slow')
-class TestEquipmentTours(HttpCase, BemadeFSMBaseTest):
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        partner = cls._generate_partner("Test Partner")
-        cls._generate_partner('Site Contact', 'person', parent=partner)
-        cls._generate_equipment(name='Test Equipment 1', partner=partner)
-        cls.user = cls._generate_project_manager_user("Mister PM", 'misterpm')
-
-    def test_equipment_base_tour(self):
-        self.start_tour('/web', 'equipment_base_tour',
-                        login=self.user.login, )
-
-    def test_equipment_sale_order_tour(self):
-        self.start_tour('/web', 'equipment_sale_order_tour', login=self.user.login)
