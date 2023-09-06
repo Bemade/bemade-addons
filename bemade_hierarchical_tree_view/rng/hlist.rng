@@ -9,6 +9,7 @@
     <rng:define name="hlist">
         <rng:element name="hlist">
             <rng:attribute name="parent_field"/>
+            <rng:attribute name="children_field"/>
             <rng:optional><rng:attribute name="name"/></rng:optional>
             <rng:optional><rng:attribute name="create"/></rng:optional>
             <rng:optional><rng:attribute name="delete"/></rng:optional>

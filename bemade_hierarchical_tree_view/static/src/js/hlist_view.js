@@ -30,7 +30,8 @@ var HListView = ListView.extend({
      * @param {Object} viewInfo
      * @param {Object} params
      * @param {boolean} params.hasActionMenus
-     * @param {string} [params.parentField]
+     * @param {string} params.parentField
+     * @param {string} params.childrenField
      * @param {boolean} [params.hasSelectors=true]
      */
     init: function(viewInfo, params) {
@@ -41,8 +42,13 @@ var HListView = ListView.extend({
     _updateMVCParams: function() {
         this._super.apply(this, arguments);
         var attrs = this.arch.attrs;
-        this.loadParams.parentField = attrs.parentField;
-        this.modelParams.parentField = attrs.parentField;
+
+        this.loadParams.parentField = attrs.parent_field;
+
+        this.modelParams.parentField = attrs.parent_field;
+
+        this.rendererParams.parentField = this.modelParams.parentField
+        this.rendererParams.childrenField = attrs.childrenField
     }
 });
 
