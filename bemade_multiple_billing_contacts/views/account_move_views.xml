@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+        <record id="invoice_view_form" model="ir.ui.view">
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="name">bemade_multiple_billing_contacts.invoice.view.form</field>
+            <field name="model">account.move</field>
+            <field name="arch" type="xml">
+                <field name="partner_id" position="after">
+                    <field name="billing_contacts"
+                           attrs="{'invisible': [('move_type', 'not in',
+                                                 ('out_invoice', 'out_refund'))]}"
+                           widget="many2many_checkboxes"
+                           domain="['|', '|', ('id', 'in', billing_contacts),
+                                              ('parent_id', '=', partner_id),
+                                         ('parent_id', 'parent_of', partner_id),
+                                    ('is_company', '=',False)]"/>
+                </field>
+            </field>
+        </record>
+    </data>
+</odoo>
