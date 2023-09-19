@@ -16,6 +16,5 @@ class StockQuant(models.Model):
 
     @api.depends('inventory_diff_quantity', 'value_unit')
     def _compute_difference_value(self):
-        for rec in self:
-            rec.value_difference = (rec.value_unit * rec.inventory_diff_quantity
-                                    if rec.inventory_diff_quantity is not None else None)
+        for rec in self.filtered(lambda r: r.inventory_quantity is not None):
+            rec.value_difference = rec.value_unit * rec.inventory_diff_quantity
