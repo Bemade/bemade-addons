@@ -25,8 +25,6 @@
     'website': 'https://www.bemade.org',
     'license': 'OPL-1',
     'depends': ['delivery'],
-    'data': [''],
-    'demo': [''],
     'installable': True,
     'auto_install': False,
 }

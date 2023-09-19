@@ -1,4 +1,4 @@
-from odoo import fields, models, api, _, Command
+from odoo import fields, models, api
 
 
 class StockPicking(models.Model):
@@ -10,6 +10,7 @@ class StockPicking(models.Model):
                                  compute='_compute_carrier_id',
                                  inverse='_inverse_carrier_id',
                                  store=True)
+
     # carrier_set_manually = fields.Boolean(default=False)
 
     @api.depends('sale_id')
