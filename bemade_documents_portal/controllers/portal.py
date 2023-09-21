@@ -1,5 +1,7 @@
 from odoo.addons.portal.controllers.portal import CustomerPortal
 from odoo.http import request, route
+from odoo.exceptions import AccessError, MissingError
+from odoo import _
 
 
 class DocumentCustomerPortal(CustomerPortal):
@@ -17,16 +19,12 @@ class DocumentCustomerPortal(CustomerPortal):
         domain = self._prepare_documents_domain()
         documents_count = Documents.search_count(domain)
         documents = Documents.search(domain)
-        print(f"Documents: {documents_count}...")
-        for doc in documents:
-            print(doc.name)
         values.update({
             'documents_count': documents_count,
             'documents': documents.sudo(),
             'default_url': '/my/documents',
             'page_name': 'my_documents',
         })
-        print
         return request.render("bemade_documents_portal.portal_my_documents", values)
 
     def _prepare_documents_domain(self):
@@ -37,3 +35,30 @@ class DocumentCustomerPortal(CustomerPortal):
                 ('partner_id', '=', partner.id),
                 ('owner_id', '=', user.id),
                 ]
+
+    def _render_record_template(self, values):
+        """ Override this method to apply a different template for a single document
+        record on the portal. """
+        return request.render("bemade_documents_portal.document_portal_template", values)
+
+    @route('/my/documents/<int:document_id>', type='http', auth='user', website=True)
+    def portal_document_page(self, document_id, download=False, **kwargs):
+        document = request.env['documents.document'].browse(document_id)
+        if not document:
+            raise MissingError(_('This document does not exist.'))
+        if download:
+            return self._download_attachment(document)
+        values={
+            'document': document,
+            'page_name': 'my_documents',
+            'action': document._get_portal_return_action(),
+        }
+        return self._render_record_template(values)
+
+    def _download_attachment(self, document):
+        attachment = document.attachment_id
+        headers = [
+            ('content-type', attachment.mimetype),
+            ('content-length', attachment.file_size),
+        ]
+        return request.make_response(attachment.raw, headers)

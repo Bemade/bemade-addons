@@ -24,7 +24,7 @@
     'author': 'Bemade Inc.',
     'website': 'https://www.bemade.org',
     'license': 'OPL-1',
-    'depends': ['documents', 'portal'],
+    'depends': ['documents', 'portal', 'mail_enterprise', 'im_livechat'],
     'data': ['views/document_portal_templates.xml'],
     'demo': [],
     'installable': True,
