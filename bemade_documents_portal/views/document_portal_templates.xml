@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <template id="portal_my_home" inherit_id="portal.portal_my_home">
+            <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="title">Documents</t>
+                    <t t-set="url">/my/documents</t>
+                    <t t-set="placeholder_count">documents_count</t>
+                </t>
+            </xpath>
+        </template>
+        <template id="portal_my_documents" name="My Documents">
+            <t t-call="portal.portal_layout">
+                <t t-call="portal.portal_table">
+                    <thead>
+                        <tr class="active">
+                            <th>Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="documents" t-as="document">
+                            <tr>
+                                <td><a t-att-href="document.get_portal_url()"><t t-esc="document.name"/></a></td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </t>
+            </t>
+        </template>
+        <template id="portal_breadcrumbs" inherit_id="portal.portal_breadcrumbs">
+            <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+                <li t-if="page_name == 'my_documents'"
+                    class="breadcrumb-item">Documents</li>
+            </xpath>
+        </template>
+    </data>
+</odoo>
