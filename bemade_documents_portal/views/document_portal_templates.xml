@@ -53,7 +53,7 @@
                         <!-- Main Document Contents -->
                         <div id="document_content"
                              class="col-12 col-lg justify-content-end w-100 h-100">
-                            <div t-if="document.attachment_type == 'image'"
+                            <div t-if="'image' in document.mimetype"
                                  class="o_attachment_preview_img">
                                 <img id="attachment_img"
                                      class="img img-fluid d-block"
@@ -71,6 +71,16 @@
                                 <li class="list-group-item flex-grow-1 b-0">
                                     <strong class="text-muted">File Size:
                                         <t t-call="documents.format_file_size"/>
+                                    </strong>
+                                </li>
+                                <li class="list-group-item flex-grow-1 b-0">
+                                    <strong class="text-muted">File Type:
+                                        <t t-esc="document.mimetype"/>
+                                    </strong>
+                                </li>
+                                <li class="list-group-item flex-grow-1 b-0">
+                                    <strong class="text-muted">Attachment Type:
+                                        <t t-esc="document.attachment_type"/>
                                     </strong>
                                 </li>
                             </ul>
