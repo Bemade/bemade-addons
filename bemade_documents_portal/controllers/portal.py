@@ -60,5 +60,6 @@ class DocumentCustomerPortal(CustomerPortal):
         headers = [
             ('content-type', attachment.mimetype),
             ('content-length', attachment.file_size),
+            ('content-disposition', f'attachment; filename="{document.name}"')
         ]
         return request.make_response(attachment.raw, headers)
