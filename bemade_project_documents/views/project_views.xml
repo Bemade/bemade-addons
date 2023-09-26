@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="project_action_view_documents" model="ir.actions.act_window">
+            <field name="name">Documents</field>
+            <field name="res_model">documents.document</field>
+            <field name="view_mode">tree,kanban</field>
+            <field name="search_view_id" ref="documents.document_view_search"/>
+            <field name="domain">
+                [('res_id', '=', active_id), ('res_model', '=', 'project.project')]
+            </field>
+            <field name="context">{
+                'default_res_id': active_id,
+                'default_res_model': 'project.project',
+            }</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No documents found. Let's create one!
+                </p>
+            </field>
+        </record>
+        <record id="view_project_kanban_inherit" model="ir.ui.view">
+            <field name="inherit_id" ref="project.view_project_kanban"/>
+            <field name="name">project_documents.project.view.kanban</field>
+            <field name="model">project.project</field>
+            <field name="arch" type="xml">
+                <xpath expr="//a[@name='attachment_tree_view']/.." position="replace">
+                    <a name="%(project_action_view_documents)" type="action">Documents</a>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

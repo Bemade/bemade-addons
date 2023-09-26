@@ -22,12 +22,14 @@
     'summary': 'Improved workflow for project documents.',
     'description': """Adds multiple workflow items to project documents, including:
                         * Approval stages
-                        * Document versions with revision numbers""",
+                        * Document versions with revision numbers
+                        * Ability to request document approval from a partner
+                    """,
     'category': '',
     'author': 'Bemade Inc.',
     'website': 'https://www.bemade.org',
     'license': 'OPL-1',
-    'depends': [],
+    'depends': ['documents_project'],
     'data': [],
     'demo': [],
     'installable': True,
