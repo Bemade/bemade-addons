@@ -25,7 +25,9 @@
             <field name="model">project.project</field>
             <field name="arch" type="xml">
                 <xpath expr="//a[@name='attachment_tree_view']/.." position="replace">
-                    <a name="%(project_action_view_documents)" type="action">Documents</a>
+                    <div role="menuitem">
+                        <a name="%(project_action_view_documents)d" type="action">Documents</a>
+                    </div>
                 </xpath>
             </field>
         </record>
