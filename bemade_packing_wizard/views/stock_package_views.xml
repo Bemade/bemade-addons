@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_quant_package_form_size" model="ir.ui.view">
+        <field name="name">stock.view_quant_package_form_size</field>
+        <field name="model">stock.quant.package</field>
+        <field name="inherit_id" ref="stock.view_quant_package_form"/>
+        <field name="arch" type="xml">
+            <field name="package_type_id" position="replace">
+                <field name="auto_create_package" attrs="{'invisible': 1}"/>
+                <field name="package_type_id"
+                       attrs="{'invisible': [('package_type_id', '=', False),('auto_create_package', '=', True)]}"/>
+                <field name="carrier_id" attrs="{'invisible': 1}"/>
+                <field name="provider" attrs="{'invisible': 1}"/>
+                <field name="length" attrs="{'invisible': ['|', ('package_type_id', '!=', False), ('auto_create_package', '!=', True)]}"/>
+                <field name="width" attrs="{'invisible': ['|', ('package_type_id', '!=', False), ('auto_create_package', '!=', True)]}"/>
+                <field name="height" attrs="{'invisible': ['|', ('package_type_id', '!=', False), ('auto_create_package', '!=', True)]}"/>
+            </field>
+        </field>
+    </record>
+</odoo>
