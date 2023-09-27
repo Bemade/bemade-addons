@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <div t-name="DocumentViews.buttons"
+         t-inherit="documents.DocumentsViews.buttons" t-inherit-mode="extension">
+        <xpath expr="//button[hasclass('o_documents_kanban_share_domain')]"
+               position="after">
+            <button type="button" title="Request approvals"
+                    groups="project.group_project_manager"
+                    class="btn btn-secondary o_documents_kanban_request_approvals">
+                Request Approvals
+            </button>
+        </xpath>
+    </div>
+</templates>

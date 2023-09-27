@@ -29,9 +29,22 @@
     'author': 'Bemade Inc.',
     'website': 'https://www.bemade.org',
     'license': 'OPL-1',
-    'depends': ['bemade_documents_portal', 'documents_project'],
-    'data': ['views/project_views.xml'],
-    'demo': [],
+    'depends': ['documents',
+                'bemade_documents_portal',
+                'documents_project',
+                ],
+    'data': ['views/project_views.xml',
+             'wizard/request_approvals_wizard.xml',
+             'security/ir.model.access.csv',
+             ],
+    'assets': {
+        'web.assets_backend': [
+            'bemade_project_documents/static/src/js/documents_controller_patch.js'
+        ],
+        'web.assets_qweb': [
+            'bemade_project_documents/static/src/xml/documents_views.xml'
+        ]
+    },
     'installable': True,
     'auto_install': False,
 }
