@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record model="documents.revision.sequence" id="document_revision_sequence_default">
+            <field name="name">Default Document Revision Sequence</field>
+            <field name="code">document.revision</field>
+            <field name="implementation">standard</field>
+            <field name="prefix">DOC/</field>
+            <field name="padding">2</field>
+        </record>
+    </data>
+</odoo>
