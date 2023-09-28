@@ -1,0 +1,5 @@
+ul#top_menu {
+    > li:first-child {
+        font-size: 200%; // This will make the font size twice as big
+    }
+}

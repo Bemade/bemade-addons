@@ -11,9 +11,12 @@
                        attrs="{'invisible': [('package_type_id', '=', False),('auto_create_package', '=', True)]}"/>
                 <field name="carrier_id" attrs="{'invisible': 1}"/>
                 <field name="provider" attrs="{'invisible': 1}"/>
-                <field name="length" attrs="{'invisible': ['|', ('package_type_id', '!=', False), ('auto_create_package', '!=', True)]}"/>
-                <field name="width" attrs="{'invisible': ['|', ('package_type_id', '!=', False), ('auto_create_package', '!=', True)]}"/>
-                <field name="height" attrs="{'invisible': ['|', ('package_type_id', '!=', False), ('auto_create_package', '!=', True)]}"/>
+                <field name="length"
+                       attrs="{'invisible': ['|', ('package_type_id', '!=', False), ('auto_create_package', '!=', True)]}"/>
+                <field name="width"
+                       attrs="{'invisible': ['|', ('package_type_id', '!=', False), ('auto_create_package', '!=', True)]}"/>
+                <field name="height"
+                       attrs="{'invisible': ['|', ('package_type_id', '!=', False), ('auto_create_package', '!=', True)]}"/>
             </field>
         </field>
     </record>

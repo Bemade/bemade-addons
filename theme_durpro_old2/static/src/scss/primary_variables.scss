@@ -1,0 +1,165 @@
+
+//------------------------------------------------------------------------------
+// Colors
+//------------------------------------------------------------------------------
+
+// Theme colors
+$o-color-palettes: map-merge($o-color-palettes,
+    (
+        'avantgarde-1':(
+            'alpha': #3975A1,
+            'beta': #60575A,
+            'gamma': #FFFFFF,
+            'delta': #A0A0B0,
+            'epsilon': #000000,
+
+            'success': #31B05E,
+            'info': #4D68A3,
+            'warning': #EACF41,
+            'danger': #CB3E3E,
+        ),
+    )
+);
+
+//------------------------------------------------------------------------------
+// Fonts
+//------------------------------------------------------------------------------
+
+$o-theme-h1-font-size-multiplier: 3;
+$o-theme-h2-font-size-multiplier: 2.5;
+$o-theme-h3-font-size-multiplier: (31.25 / 16);
+$o-theme-h4-font-size-multiplier: (25.00 / 16);
+$o-theme-h5-font-size-multiplier: (20.00 / 16);
+$o-theme-h6-font-size-multiplier: 1.1;
+
+$o-theme-font-configs: (
+    'Lato': (
+        'family': ('Lato', sans-serif),
+        'url': 'Lato:300,300i,400,400i,700,700i',
+    ),
+    'Raleway': (
+        'family': ('Raleway', sans-serif),
+        'url': 'Raleway:300,300i,400,400i,700,700i',
+    ),
+    'Heebo': (
+        'family': ('Heebo', sans-serif),
+        'url': 'Heebo:300,300i,400,400i,700,700i',
+    ),
+    'Abril Fatface': (
+        'family': ('Abril Fatface', cursive),
+        'url': 'Abril+Fatface:300,300i,400,400i,700,700i',
+    ),
+    'Alfa Slab One': (
+        'family': ('Alfa Slab One', cursive),
+        'url': 'Alfa+Slab+One:300,300i,400,400i,700,700i',
+    ),
+    'Arvo': (
+        'family': ('Arvo', serif),
+        'url': 'Arvo:300,300i,400,400i,700,700i',
+    ),
+    'Cantata One': (
+        'family': ('Cantata One', serif),
+        'url': 'Cantata+One:300,300i,400,400i,700,700i',
+    ),
+    'Open Sans Condensed': (
+        'family': ('Open Sans Condensed', sans-serif),
+        'url': 'Open+Sans+Condensed:300,300i,400,400i,700,700i',
+    ),
+    'Open Sans': (
+        'family': ('Open Sans', sans-serif),
+        'url': 'Open+Sans:300,300i,400,400i,700,700i',
+    ),
+    'Oswald': (
+        'family': ('Oswald', sans-serif),
+        'url': 'Oswald:300,300i,400,400i,700,700i',
+    ),
+    'Poiret One': (
+        'family': ('Poiret One', cursive),
+        'url': 'Poiret+One:300,300i,400,400i,700,700i',
+    ),
+    'PT Sans Narrow': (
+        'family': ('PT Sans Narrow', sans-serif),
+        'url': 'PT+Sans+Narrow:300,300i,400,400i,700,700i',
+    ),
+    'Roboto Slab': (
+        'family': ('Roboto Slab', serif),
+        'url': 'Roboto+Slab:300,300i,400,400i,700,700i',
+    ),
+    'Playfair Display': (
+        'family': ('Playfair Display', serif),
+        'url': 'Playfair+Display:300,300i,400,400i,700,700i',
+    ),
+    'Vollkorn': (
+        'family': ('Vollkorn', serif),
+        'url': 'Vollkorn:300,300i,400,400i,700,700i',
+    ),
+    'Libre Baskerville': (
+        'family': ('Libre Baskerville', serif),
+        'url': 'Libre+Baskerville:300,300i,400,400i,700,700i',
+    ),
+    'Atkinson Hyperlegible': (
+        'family': ('Atkinson Hyperlegible', serif),
+        'url': 'Atkinson+Hyperlegible:300,300i,400,400i,700,700i',
+    ),
+    'Syne': (
+        'family': ('Syne', serif),
+        'url': 'Syne:300,300i,400,400i,700,700i',
+    ),
+);
+
+//------------------------------------------------------------------------------
+// Website customizations
+//------------------------------------------------------------------------------
+
+$o-website-values-palettes: (
+    (
+        'color-palettes-name': 'durpro-1',
+        'layout': 'full',
+
+        'font-size-base': 1rem,
+        'font': 'Syne',
+        'headings-font': 'Syne',
+        'navbar-font': 'Syne',
+        'buttons-font': 'Syne',
+
+        'header-template': 'hamburger',
+        'hamburger-type': 'default',
+        'hamburger-position': 'right',
+
+        'footer-template': 'descriptive',
+
+        'btn-primary-outline': true,
+        'link-underline': 'never',
+    ),
+);
+
+//$o-selected-color-palettes-names: ();
+$o-selected-color-palettes-names: append($o-selected-color-palettes-names, 'avantgarde-1');
+
+$o-color-palettes-compatibility-indexes: (
+    1: 'avantgarde-1',
+    2: 'generic-1',
+    3: 'generic-2',
+    4: 'generic-3',
+    5: 'generic-4',
+    6: 'generic-5',
+    7: 'generic-6',
+    8: 'generic-7',
+    9: 'generic-8',
+    10: 'generic-9',
+    11: 'generic-10',
+    12: 'generic-11',
+    13: 'generic-12',
+    14: 'generic-13',
+    15: 'generic-14',
+    16: 'generic-15',
+    17: 'generic-16',
+    18: 'generic-17',
+);
+
+//------------------------------------------------------------------------------
+// Shapes
+//------------------------------------------------------------------------------
+
+$o-bg-shapes: change-shape-colors-mapping('web_editor', 'Origins/18', (1: 3));
+$o-bg-shapes: change-shape-colors-mapping('web_editor', 'Origins/14_001', (3: 4, 4: rgba(0, 0, 0, 0)));
