@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-08-29 15:04+0000\n"
-"PO-Revision-Date: 2023-08-29 15:04+0000\n"
+"POT-Creation-Date: 2023-10-02 20:26+0000\n"
+"PO-Revision-Date: 2023-10-02 20:26+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -27,7 +27,6 @@ msgstr ""
 "                                        Prix</span>\n"
 "                                    <span groups=\"account.group_show_line_subtotals_tax_included\">\n"
 "                                        Prix</span>"
-
 
 #. module: bemade_fsm
 #: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_signature_block
@@ -57,7 +56,7 @@ msgstr ""
 #. module: bemade_fsm
 #: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_sale_order_table
 msgid "<strong>Taxes</strong>"
-msgstr "<strong>Taxes</strong>"
+msgstr ""
 
 #. module: bemade_fsm
 #: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_sale_order_table
@@ -120,7 +119,7 @@ msgstr "Bloqué"
 #. module: bemade_fsm
 #: model:ir.model.fields,field_description:bemade_fsm.field_project_task__allow_billable
 msgid "Can be billed"
-msgstr "Facturable"
+msgstr ""
 
 #. module: bemade_fsm
 #: model:ir.model.fields,help:bemade_fsm.field_res_partner__is_site_contact
@@ -128,7 +127,6 @@ msgstr "Facturable"
 msgid ""
 "Check if the contact is a site contact, otherwise it is a not in that list"
 msgstr ""
-"Vérifier si le contact est un contact du site, sinon ne pas l'inclure dans la liste"
 
 #. module: bemade_fsm
 #: model:ir.model.fields,help:bemade_fsm.field_bemade_fsm_equipment__tag_ids
@@ -136,8 +134,8 @@ msgid ""
 "Classify and analyze your equipment categories like: Boiler, Laboratory, "
 "Waste water, Pure water"
 msgstr ""
-"Classifier et analyser vos catégories d'équipements comme : Chaudière, Laboratoire, "
-"Eaux usées, Eau pure"
+"Classifier et analyser vos catégories d'équipements comme : Chaudière, "
+"Laboratoire, Eaux usées, Eau pure"
 
 #. module: bemade_fsm
 #: model:ir.ui.menu,name:bemade_fsm.menu_service_client_equipment
@@ -262,6 +260,11 @@ msgid "Description"
 msgstr ""
 
 #. module: bemade_fsm
+#: model_terms:ir.ui.view,arch_db:bemade_fsm.view_task_form2_inherit
+msgid "Description/Comments"
+msgstr "Description/Commentaires"
+
+#. module: bemade_fsm
 #: model_terms:ir.ui.view,arch_db:bemade_fsm.fsm_equipment_view_tree
 msgid "Details"
 msgstr "Détails"
@@ -283,7 +286,7 @@ msgstr "Employés assignés aux tâches créées à partir de ce gabarit."
 #. module: bemade_fsm
 #: model:ir.model.fields,field_description:bemade_fsm.field_project_task__planned_date_end
 msgid "End Date"
-msgstr "Date de fin"
+msgstr ""
 
 #. module: bemade_fsm
 #: model:ir.actions.act_window,name:bemade_fsm.action_window_equipment
@@ -300,7 +303,7 @@ msgstr "Équipement désservi"
 #. module: bemade_fsm
 #: model:ir.model.fields,field_description:bemade_fsm.field_res_partner__equipment_count
 msgid "Equipment Count"
-msgstr "Nombre d'équipements"
+msgstr ""
 
 #. module: bemade_fsm
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_equipment__complete_name
@@ -450,11 +453,9 @@ msgstr "En cours"
 #: model:ir.model.fields,help:bemade_fsm.field_bemade_fsm_visit__is_invoiced
 #: model:ir.model.fields,help:bemade_fsm.field_sale_order_line__is_fully_delivered_and_invoiced
 msgid ""
-"Indicates whether a line or all the lines in a section have be enentirely"
-" delivered and invoiced."
+"Indicates whether a line or all the lines in a section have been entirely "
+"delivered and invoiced."
 msgstr ""
-"Indique si une ligne ou toutes les lignes dans une section ont été entièrement livrées"
-"et facturées."
 
 #. module: bemade_fsm
 #: model:ir.model.fields,help:bemade_fsm.field_bemade_fsm_visit__is_completed
@@ -463,7 +464,8 @@ msgid ""
 "Indicates whether a line or all the lines in a section have been entirely "
 "delivered."
 msgstr ""
-"Indique si une ligne ou toutes les lignes dans une section ont été entièrement livrées."
+"Indique si une ligne ou toutes les lignes dans une section ont été "
+"entièrement livrées."
 
 #. module: bemade_fsm
 #: model:ir.model.fields,field_description:bemade_fsm.field_project_task_template__planned_hours
@@ -499,7 +501,7 @@ msgstr "Est un abonné"
 #: model:ir.model.fields,field_description:bemade_fsm.field_res_partner__is_site_contact
 #: model:ir.model.fields,field_description:bemade_fsm.field_res_users__is_site_contact
 msgid "Is a site contact"
-msgstr "Est un contact du site"
+msgstr ""
 
 #. module: bemade_fsm
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_visit__label
@@ -558,17 +560,6 @@ msgstr "Erreur de livraison de message"
 msgid "Messages"
 msgstr ""
 
-#. module: bemade_fsm
-#: code:addons/bemade_fsm/models/task.py:0
-#, python-format
-msgid ""
-"Modifying the planned start or end time on a task is not permitted when that"
-" task already has planning records associated to it. Please modify or delete"
-" the planning records instead."
-msgstr ""
-"Modifier la date planifiée pour le début ou la fin d'une tâche nest pas permis quand"
-" cette tâche est déjà associée à des enregistrements de planification. Veuillez"
-" plutôt modifier ou supprimer les planifications associées."
 #. module: bemade_fsm
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_equipment__my_activity_date_deadline
 msgid "My Activity Deadline"
@@ -682,8 +673,8 @@ msgid ""
 "Products planned as field service will have travel time considered in "
 "planning."
 msgstr ""
-"Les produits planifiés comme service terrain auront leur temps de voyagement considéré"
-" lors de la planification."
+"Les produits planifiés comme service terrain auront leur temps de voyagement"
+" considéré lors de la planification."
 
 #. module: bemade_fsm
 #: model_terms:ir.ui.view,arch_db:bemade_fsm.task_template_search_view
@@ -726,7 +717,7 @@ msgstr "Section de commande de vente"
 #: model:ir.model,name:bemade_fsm.model_sale_order
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_visit__sale_order_id
 msgid "Sales Order"
-msgstr "Commande de vente"
+msgstr "Commande de ventes"
 
 #. module: bemade_fsm
 #: model:ir.model,name:bemade_fsm.model_sale_order_line
@@ -769,12 +760,12 @@ msgstr "Contacts sur site :"
 #. module: bemade_fsm
 #: model:ir.model.fields,field_description:bemade_fsm.field_res_partner__equipment_ids
 msgid "Site Equipment"
-msgstr "Équipements du site"
+msgstr ""
 
 #. module: bemade_fsm
 #: model:ir.model.fields,field_description:bemade_fsm.field_project_task__planned_date_begin
 msgid "Start Date"
-msgstr "Date de début"
+msgstr ""
 
 #. module: bemade_fsm
 #: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_tasks_table
@@ -860,8 +851,9 @@ msgstr "Gabarits pour nouvelles tâches"
 #. module: bemade_fsm
 #: model:ir.model.fields,help:bemade_fsm.field_sale_order__default_equipment_ids
 msgid "The default equipment to service for new sale order lines."
-msgstr "L'équipement à désservir par défaut pour les nouveaux articles de commande de"
-" ventes."
+msgstr ""
+"L'équipement à désservir par défaut pour les nouveaux articles de commande "
+"de ventes."
 
 #. module: bemade_fsm
 #: model:ir.model.fields,help:bemade_fsm.field_bemade_fsm_visit__so_section_id
@@ -869,22 +861,14 @@ msgid ""
 "The section on the sale order that represents the labour and parts for this "
 "visit"
 msgstr ""
-"La section sur la commande de vente représentant la main d'oeuvre et les pièces pour"
-" cette visite"
+"La section sur la commande de vente représentant la main d'oeuvre et les "
+"pièces pour cette visite"
+
 #. module: bemade_fsm
 #: model_terms:ir.actions.act_window,help:bemade_fsm.task_template_act_window
 msgid "There are no task templates, click above to create one."
-msgstr "Il n'existe aucun gabarit de tâche, cliquez ci-dessus pour en créer une."
-
-#. module: bemade_fsm
-#: code:addons/bemade_fsm/models/sale_order.py:0
-#, python-format
-msgid ""
-"This task has been created from: <a href=# data-oe-model=sale.order data-oe-"
-"id=%d>%s</a> (%s)"
 msgstr ""
-"Cette tâche a été créée à partir de : <a href=# data-oe-model=sale.order data-oe-"
-"id=%d>%s</a> (%s)"
+"Il n'existe aucun gabarit de tâche, cliquez ci-dessus pour en créer une."
 
 #. module: bemade_fsm
 #: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_sale_order_table
