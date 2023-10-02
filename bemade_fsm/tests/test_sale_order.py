@@ -270,3 +270,20 @@ class TestSalesOrder(BemadeFSMBaseTest):
         self.assertTrue("It even spans multiple lines." in task.description)
         self.assertTrue("One could find this annoying in a task name."
                         in task.description)
+
+    def test_subtask_templates_no_description_if_blank_on_template(self):
+        so = self._generate_sale_order()
+        template = self._generate_task_template(structure=[5], names=['Parent', 'Child'])
+        template.description = ""
+        template.subtasks[0].description = "Some fixed description"
+        for t in template.subtasks[1:]:
+            t.description = ""
+        product = self._generate_product(task_template=template)
+        sol = self._generate_sale_order_line(sale_order=so, product=product)
+
+        so.action_confirm()
+
+        task = sol.task_id
+        self.assertEqual(task.child_ids[0].description, template.subtasks[0].description)
+        for t in task.child_ids[1:]:
+            self.assertFalse(t.description)

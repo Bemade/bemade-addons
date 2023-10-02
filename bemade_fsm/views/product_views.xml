@@ -9,7 +9,8 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='project_id']" position="after">
                     <field name="task_template_id"
-                           attrs="{'invisible': [('service_tracking', 'not in', ('task_global_project', 'task_in_project'))]}"/>
+                           attrs="{'invisible': [('service_tracking', 'not in', ('task_global_project', 'task_in_project'))]}"
+                           domain="[('parent', '=', False)]"/>
                 </xpath>
                 <xpath expr="//field[@name='planning_enabled']" position="after">
                     <field name="is_field_service"/>

@@ -38,6 +38,16 @@
                 </button>
             </field>
         </record>
+        <record id="view_task_form2_inherit" model="ir.ui.view">
+            <field name="inherit_id" ref="project.view_task_form2"/>
+            <field name="model">project.task</field>
+            <field name="name">bemade_fsm.project_task.form2</field>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='child_ids']/tree//field[@name='name']" position="after">
+                    <field name="description" string="Description/Comments"/>
+                </xpath>
+            </field>
+        </record>
         <!-- Add parent_id = false to domain for My Tasks, All Tasks: To Schedule, All Tasks and To Invoice-->
         <record id="industry_fsm.project_task_action_fsm" model="ir.actions.act_window">
             <field name="domain">[('is_fsm', '=', True),
