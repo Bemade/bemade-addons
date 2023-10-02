@@ -170,7 +170,7 @@ class SaleOrderLine(models.Model):
             """
             vals = self._timesheet_create_task_prepare_values(project)
             vals['name'] = template.name
-            vals['description'] = template.description or vals['description']
+            vals['description'] = template.description or '' if parent else vals['description']
             vals['parent_id'] = parent and parent.id
             vals['user_ids'] = template.assignees.ids
             vals['tag_ids'] = template.tags.ids
