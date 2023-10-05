@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="action_upload_revision" model="ir.actions.act_window">
+        <field name="name">Upload Document Revision</field>
+        <field name="res_model">documents.revision.wizard</field>
+        <field name="binding_model_id" ref="documents.model_documents_document"/>
+        <field name="binding_type">action</field>
+        <field name="binding_view_types">list,form,kanban</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

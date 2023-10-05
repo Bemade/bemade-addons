@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_document_revision_user,Document Revision Access,model_documents_revision,documents.group_documents_user,1,1,1,1
+access_document_revision_manager,Document Revision Manager Access,model_documents_revision,documents.group_documents_manager,1,1,1,1
+access_document_revision_wizard_user,Document Revision Wizard Access,model_documents_revision_wizard,documents.group_documents_user,1,1,1,1
+access_document_revision_wizard_manager,Document Revision Wizard Manager Access,model_documents_revision_wizard,documents.group_documents_manager,1,1,1,1

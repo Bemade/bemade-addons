@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="document_revision_wizard_view_form" model="ir.ui.view">
+        <field name="name">bemade_document_versions.document.revision.wizard.form</field>
+        <field name="model">documents.revision.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="document_id" invisible="1"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group string="File">
+                            <field name="file"/>
+                            <field name="revision_name"/>
+                        </group>
+                        <group string="Sequence Numbering Setup">
+                            <field name="revision_sequence_prefix"/>
+                            <field name="revision_sequence_suffix"/>
+                            <field name="revision_sequence_padding"/>
+                        </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button string="Upload" name="action_upload_revision" type="object"
+                            class="btn-primary"/>
+                    <button special="cancel" string="Cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

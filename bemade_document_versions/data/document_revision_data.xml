@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
     <data>
-        <record model="documents.revision.sequence" id="document_revision_sequence_default">
+        <record model="ir.sequence" id="document_revision_sequence_default">
             <field name="name">Default Document Revision Sequence</field>
             <field name="code">document.revision</field>
             <field name="implementation">standard</field>
             <field name="prefix">DOC/</field>
             <field name="padding">2</field>
+        </record>
+        <record id="document_revision_workflow_rule" model="documents.workflow.rule">
+            <field name="sequence">0</field>
+            <field name="name">Revise</field>
+            <field name="domain_folder_id" ref="documents.documents_internal_folder"/>
+            <field name="create_model">documents.revision</field>
         </record>
     </data>
 </odoo>

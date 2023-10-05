@@ -1,11 +1,12 @@
 from odoo import models, fields, api, _
+from odoo.exceptions import UserError
 
 
 class DocumentRevisionSequence(models.Model):
-    """ Creates an independent sequence for each Document when the document is set to
-    track
-    """
-    _name = 'documents.revision.sequence'
     _inherit = 'ir.sequence'
+    # Would prefer to inherit and make a new model, but the way ir.sequence is
+    # implemented has a lot of hard coded references to "ir.sequence" for all the
+    # database operations.
 
-    document_id = fields.Many2one('documents.document', 'Document', ondelete='cascade')
+    document_id = fields.Many2one('documents.document', 'Document',
+                                  ondelete='cascade')

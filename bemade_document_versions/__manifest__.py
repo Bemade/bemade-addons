@@ -25,7 +25,11 @@
     'website': 'https://www.bemade.org',
     'license': 'OPL-1',
     'depends': ['documents', 'mail'],
-    'data': [],
+    'data': ['security/ir.model.access.csv',
+             'data/document_revision_data.xml',
+             'views/document_views.xml',
+             'wizard/document_revision_wizard.xml',
+             ],
     'installable': True,
     'auto_install': False,
 }
