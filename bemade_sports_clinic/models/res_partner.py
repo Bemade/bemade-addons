@@ -10,9 +10,7 @@ class Partner(models.Model):
                                    column1='team_id',
                                    column2='patient_id',
                                    string='Players')
-    type = fields.Selection(selection_add=[('team', 'Sports Team'),
-                                           ('treatment_pro', 'Treatment Professional'),
-                                           ])
+    type = fields.Selection(selection_add=[('team', 'Sports Team'),])
     staff_partner_ids = fields.Many2many(comodel_name='res.partner',
                                          relation='sports_team_staff_partner_rel',
                                          column1='team_id',
@@ -25,14 +23,6 @@ class Partner(models.Model):
                                       string='Teams')
 
     def write(self, vals):
-        # Override to validate changes to the 'type' field
-        treatment_pros = self.filtered(lambda r: r.type == 'treatment_pro')
-        if treatment_pros and 'type' in vals and vals['type'] != 'treatment_pro':
-            injuries = self.env['sports.patient.injury'].search_count(
-                [('treatment_professional_ids', 'in', treatment_pros.ids)])
-            if injuries:
-                raise UserError(_('Partner type cannot be changed since this treatment '
-                                  'professional appears on a patient injury record.'))
         teams = self.filtered(lambda r: r.type == 'team')
         if teams and 'type' in vals and vals['type'] != 'team':
             if teams.mapped('staff_partner_ids') or teams.mapped('patient_ids'):
@@ -42,13 +32,6 @@ class Partner(models.Model):
         return super().write(vals)
 
     def unlink(self):
-        treatment_pros = self.filtered(lambda r: r.type == 'treatment_pro')
-        if treatment_pros:
-            injuries = self.env['sports.patient.injury'].search_count(
-                [('treatment_professional_ids', 'in', treatment_pros.ids)])
-            if injuries:
-                raise UserError(_('Treatment professional cannot be deleted since they '
-                                  'appears on a patient injury record.'))
         teams = self.filtered(lambda r: r.type == 'team')
         if teams:
             if teams.mapped('staff_partner_ids') or teams.mapped('patient_ids'):

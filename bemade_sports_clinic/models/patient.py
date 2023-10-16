@@ -106,5 +106,5 @@ class PatientInjury(models.Model):
                                                   column2='treatment_pro_id',
                                                   string='Treatment Professionals',
                                                   domain=[
-                                                      ('type', '=', 'treatment_pro')], )
+                                                      ('user_ids', '!=', False)], )
     predicted_return_date = fields.Date(tracking=True)

@@ -86,5 +86,17 @@
                 </form>
             </field>
         </record>
+        <record id="sports_patient_injury_view_tree" model="ir.ui.view">
+            <field name="name">sports.patient.injury.view.tree</field>
+            <field name="model">sports.patient.injury</field>
+            <field name="arch" type="xml">
+                <tree string="Patient Injury History">
+                    <field name="injury_date_time" widget="datetime"/>
+                    <field name="diagnosis"/>
+                    <field name="predicted_return_date" widget="date"/>
+                    <field name="treatment_professional_ids"/>
+                </tree>
+            </field>
+        </record>
     </data>
 </odoo>
