@@ -53,7 +53,7 @@ class Patient(models.Model):
             if not rec.date_of_birth:
                 rec.age = False
             else:
-                rec.age = relativedelta(date.today() - rec.date_of_birth).years
+                rec.age = relativedelta(date.today(), rec.date_of_birth).years
 
     @api.depends('injury_ids.predicted_return_date')
     def _compute_predicted_return_date(self):
