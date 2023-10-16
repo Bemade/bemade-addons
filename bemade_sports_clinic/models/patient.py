@@ -1,7 +1,7 @@
 from odoo import models, fields, _, api
 from odoo.exceptions import ValidationError
 from datetime import date
-from dateutil import relativedelta
+from dateutil.relativedelta import relativedelta
 
 
 class Patient(models.Model):

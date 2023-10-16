@@ -5,7 +5,7 @@
         <record id="restrict_team_access_to_team_players" model="ir.rule">
             <field name="name">Restrict Team Staff Access to Their Players Only</field>
             <field name="model_id" ref="model_sports_patient"/>
-            <field name="groups" eval="[4, ref('base.group_portal')]"/>
+            <field name="groups" eval="[(6, 0, [ref('base.group_portal')])]"/>
             <field name="domain_force">
                 [('id', 'in', user.partner_id.staff_team_ids.mapped('patient_ids').ids)]
             </field>
