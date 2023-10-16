@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="teams_view_search" model="ir.ui.view">
+            <field name="name">teams.view.search</field>
+            <field name="model">res.partner</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="parent_id" string="Parent Organization"/>
+                    <field name="staff_partner_ids"/>
+                </search>
+            </field>
+        </record>
+    </data>
+</odoo>

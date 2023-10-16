@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data noupdate="1">
+        <!-- Refuse access to patient records that are not part of staff user's teams -->
+        <record id="restrict_team_access_to_team_players" model="ir.rule">
+            <field name="name">Restrict Team Staff Access to Their Players Only</field>
+            <field name="model_id" ref="model_sports_patient"/>
+            <field name="groups" eval="[4, ref('base.group_portal')]"/>
+            <field name="domain_force">
+                [('id', 'in', user.partner_id.staff_team_ids.mapped('patient_ids').ids)]
+            </field>
+        </record>
+        <!-- Patient injury records should be on invitation only for non-admins -->
+        <record id="restrict_patient_access_to_treatment_professionals" model="ir.rule">
+            <field name="name">Access patient injury records on invitation only</field>
+            <field name="model_id" ref="model_sports_patient_injury"/>
+            <field name="groups" eval="[(6, 0, [ref('group_sports_clinic_user'), ref('group_sports_clinic_treatment_professional')])]"/>
+            <field name="domain_force">
+                [('message_follower_ids', 'in', user.partner_id.ids)]
+            </field>
+        </record>
+    </data>
+</odoo>

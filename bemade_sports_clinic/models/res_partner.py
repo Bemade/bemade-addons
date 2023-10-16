@@ -11,18 +11,25 @@ class Partner(models.Model):
                                    column2='patient_id',
                                    string='Players')
     type = fields.Selection(selection_add=[('team', 'Sports Team'),
-                                           ('treatment_pro', 'Treatment Professional'),])
+                                           ('treatment_pro', 'Treatment Professional'),
+                                           ])
     staff_partner_ids = fields.Many2many(comodel_name='res.partner',
                                          relation='sports_team_staff_partner_rel',
                                          column1='team_id',
                                          column2='staff_partner_id',
                                          string='Staff')
+    staff_team_ids = fields.Many2many(comodel_name='res.partner',
+                                      relation='sports_team_staff_partner_rel',
+                                      column1='staff_partner_id',
+                                      column2='team_id',
+                                      string='Teams')
 
     def write(self, vals):
         # Override to validate changes to the 'type' field
         treatment_pros = self.filtered(lambda r: r.type == 'treatment_pro')
         if treatment_pros and 'type' in vals and vals['type'] != 'treatment_pro':
-            injuries = self.env['sports.patient.injury'].search_count([('treatment_professional_ids', 'in', treatment_pros.ids)])
+            injuries = self.env['sports.patient.injury'].search_count(
+                [('treatment_professional_ids', 'in', treatment_pros.ids)])
             if injuries:
                 raise UserError(_('Partner type cannot be changed since this treatment '
                                   'professional appears on a patient injury record.'))
@@ -37,7 +44,8 @@ class Partner(models.Model):
     def unlink(self):
         treatment_pros = self.filtered(lambda r: r.type == 'treatment_pro')
         if treatment_pros:
-            injuries = self.env['sports.patient.injury'].search_count([('treatment_professional_ids', 'in', treatment_pros.ids)])
+            injuries = self.env['sports.patient.injury'].search_count(
+                [('treatment_professional_ids', 'in', treatment_pros.ids)])
             if injuries:
                 raise UserError(_('Treatment professional cannot be deleted since they '
                                   'appears on a patient injury record.'))

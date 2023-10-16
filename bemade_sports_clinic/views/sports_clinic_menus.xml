@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="action_view_team" model="ir.actions.act_window">
+            <field name="name">Sports Teams</field>
+            <field name="res_model">res.partner</field>
+            <field name="domain">[('type', '=', 'team')]</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="teams_view_search"/>
+        </record>
+        <record id="action_view_organization" model="ir.actions.act_window">
+            <field name="name">Organizations</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_mode">list,kanban,form</field>
+            <field name="domain">[('is_company','=', True)]</field>
+        </record>
+        <record id="action_view_patient" model="ir.actions.act_window">
+            <field name="name">Patients</field>
+            <field name="res_model">sports.patient</field>
+            <field name="view_mode">list,kanban,form</field>
+        </record>
+        <record id="action_view_treatment_pros" model="ir.actions.act_window">
+            <field name="name">Treatment Professionals</field>
+            <field name="res_model">res.partner</field>
+            <field name="domain">[('type', '=', 'treatment_pro')]</field>
+            <field name="view_mode">list,kanban,form</field>
+        </record>
+        <menuitem id="sports_clinic_root"
+                  web_icon="bemade_sports_clinic,static/description/icon.png"
+                  name="Sports Clinic"
+                  groups="bemade_sports_clinic.group_sports_clinic_user"
+                  action="action_view_team">
+            <menuitem id="sports_clinic_clients"
+                      name="Contacts"
+                      groups="bemade_sports_clinic.group_sports_clinic_user">
+                <menuitem id="sports_clinic_organizations"
+                          name="Organizations"
+                          groups="bemade_sports_clinic.group_sports_clinic_user"
+                          action="action_view_organization"/>
+                <menuitem id="sports_clinic_teams"
+                          name="Teams"
+                          groups="bemade_sports_clinic.group_sports_clinic_user"
+                          action="action_view_team"/>
+                <menuitem id="sports_clinic_patients"
+                          name="Patients"
+                          groups="bemade_sports_clinic.group_sports_clinic_user"
+                          action="action_view_patient"/>
+            </menuitem>
+            <menuitem id="sports_clinic_treatment_pros"
+                      name="Treatment Professionals"
+                      groups="bemade_sports_clinic.group_sports_clinic_user"
+                      action="action_view_treatment_pros"/>
+        </menuitem>
+    </data>
+</odoo>
