@@ -25,13 +25,13 @@
         professionals. The core purpose of this module is to keep track of the treatment
         history of players and to make it appropriately accessible to the various
         involved parties (medical practitioners, clinic staff, team staff, and patients).
-        
+
         Internal users get access to patient data as appropriate, i.e.
         treatment professionals get full access to their own patients' data, clinic
         staff users get access to basic patient data needed for contacting patients, etc.
-        
+
         External users (portal users) can be added to give coaches and other team
-        personnel access to limited player data such as estimated return-to-play dates.  
+        personnel access to limited player data such as estimated return-to-play dates.
     """,
     'category': 'Services/Medical',
     'author': 'Bemade Inc.',

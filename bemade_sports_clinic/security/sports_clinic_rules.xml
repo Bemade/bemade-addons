@@ -16,8 +16,9 @@
             <field name="model_id" ref="model_sports_patient_injury"/>
             <field name="groups" eval="[(6, 0, [ref('group_sports_clinic_user'), ref('group_sports_clinic_treatment_professional')])]"/>
             <field name="domain_force">
-                [('message_follower_ids', 'in', user.partner_id.ids)]
+                [('message_partner_ids', 'in', user.partner_id.ids)]
             </field>
+            <field name="perm_create" eval="False"/>
         </record>
     </data>
 </odoo>

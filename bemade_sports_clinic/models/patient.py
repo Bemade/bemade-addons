@@ -11,6 +11,7 @@ class Patient(models.Model):
 
     first_name = fields.Char(required=True)
     last_name = fields.Char(required=True)
+    name = fields.Char(compute="_compute_name")
     date_of_birth = fields.Date(
         groups="bemade_sports_clinic.group_sports_clinic_treatment_professional")
     age = fields.Integer(compute='_compute_age',
@@ -62,9 +63,14 @@ class Patient(models.Model):
                 lambda r: r.predicted_return_date > date.today()).sorted(
                 'predicted_return_date')
             if ongoing_injuries:
-                rec.predicted_return_date = ongoing_injuries[-1]
+                rec.predicted_return_date = ongoing_injuries[-1].\
+                        predicted_return_date
             else:
                 rec.predicted_return_date = False
+    def _compute_name(self):
+        for rec in self:
+            rec.name = ((rec.first_name or "") + " " + (rec.last_name or
+                                                        "")).strip()
 
 
 class PatientContact(models.Model):
@@ -87,7 +93,10 @@ class PatientInjury(models.Model):
     _description = "A patient's injury."
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    patient_id = fields.Many2one(comodel_name='sports.patient', string="Patient")
+    patient_id = fields.Many2one(comodel_name='sports.patient',
+                                 string="Patient",
+                                 readonly=True)
+    patient_name = fields.Char(related="patient_id.name")
     diagnosis = fields.Char(tracking=True)
     injury_date_time = fields.Datetime(string='Date and Time of Injury')
     internal_notes = fields.Html(tracking=True)
