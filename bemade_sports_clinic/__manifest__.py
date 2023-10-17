@@ -46,7 +46,7 @@
         'views/sports_clinic_menus.xml',
         'views/patient_views.xml',
     ],
-    'demo': [],
+    'demo': ['data/demo/sports_clinic_demo_data.xml'],
     'installable': True,
     'auto_install': False,
     'application': True,

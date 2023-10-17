@@ -10,7 +10,7 @@ class Partner(models.Model):
                                    column1='team_id',
                                    column2='patient_id',
                                    string='Players')
-    type = fields.Selection(selection_add=[('team', 'Sports Team'),])
+    type = fields.Selection(selection_add=[('team', 'Sports Team'), ])
     staff_partner_ids = fields.Many2many(comodel_name='res.partner',
                                          relation='sports_team_staff_partner_rel',
                                          column1='team_id',
@@ -21,6 +21,10 @@ class Partner(models.Model):
                                       column1='staff_partner_id',
                                       column2='team_id',
                                       string='Teams')
+
+    is_treatment_professional = fields.Boolean(
+        compute="_compute_is_treatment_professional",
+        store=True)
 
     def write(self, vals):
         teams = self.filtered(lambda r: r.type == 'team')
@@ -39,3 +43,13 @@ class Partner(models.Model):
                                   'Its type cannot be deleted until these relations are '
                                   'removed. You may try archiving it instead.'))
         return super().unlink()
+
+    @api.depends('user_ids.groups_id')
+    def _compute_is_treatment_professional(self):
+        user_partners = self.filtered(lambda r: r.user_ids)
+        non_user_partners = self - user_partners
+        non_user_partners.is_treatment_professional = False
+        group = self.env.ref(
+            'bemade_sports_clinic.group_sports_clinic_treatment_professional')
+        for rec in user_partners:
+            rec.is_treatment_professional = group in rec.user_ids.groups_id

@@ -37,6 +37,7 @@ class Patient(models.Model):
                                  string='Injuries',
                                  groups='bemade_sports_clinic.group_sports_clinic_treatment_professional')
     predicted_return_date = fields.Date(compute='_compute_predicted_return_date', )
+
     # authorized_users = fields.One2many(compute='_compute_authorized_users', store=True)
     #
     # @api.depends('injury_ids.treatment_professional_ids', 'team_ids.staff_team_ids',
@@ -63,10 +64,11 @@ class Patient(models.Model):
                 lambda r: r.predicted_return_date > date.today()).sorted(
                 'predicted_return_date')
             if ongoing_injuries:
-                rec.predicted_return_date = ongoing_injuries[-1].\
-                        predicted_return_date
+                rec.predicted_return_date = ongoing_injuries[-1]. \
+                    predicted_return_date
             else:
                 rec.predicted_return_date = False
+
     def _compute_name(self):
         for rec in self:
             rec.name = ((rec.first_name or "") + " " + (rec.last_name or
@@ -106,5 +108,22 @@ class PatientInjury(models.Model):
                                                   column2='treatment_pro_id',
                                                   string='Treatment Professionals',
                                                   domain=[
-                                                      ('user_ids', '!=', False)], )
+                                                      ('is_treatment_professional', '=',
+                                                       True)], )
     predicted_return_date = fields.Date(tracking=True)
+
+    def write(self, vals):
+        super().write(vals)
+        if 'treatment_professional_ids' in vals:
+            to_subscribe = (self.treatment_professional_ids
+                            - self.message_follower_ids.mapped('partner_id'))
+            self.message_subscribe(to_subscribe.ids)
+
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        super().write(vals_list)
+        for rec in self:
+            to_subscribe = (rec.treatment_professional_ids
+                            - rec.message_follower_ids.mapped('partner_id'))
+            rec.message_subscribe(to_subscribe.ids)
