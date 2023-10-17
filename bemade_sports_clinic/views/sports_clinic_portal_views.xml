@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <template id="portal_my_home" inherit_id="portal.portal_my_home">
+            <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="title">Teams</t>
+                    <t t-set="url">/my/teams</t>
+                    <t t-set="placeholder_count">teams_count</t>
+                </t>
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="title">Players</t>
+                    <t t-set="url">/my/players</t>
+                    <t t-set="placeholder_count">players_count</t>
+                </t>
+            </xpath>
+        </template>
+    </data>
+</odoo>

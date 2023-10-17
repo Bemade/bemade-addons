@@ -111,8 +111,9 @@
             <field name="groups_id" eval="[Command.link(ref('group_sports_clinic_user'))]"/>
         </record>
         <record id="base.partner_demo_portal" model="res.partner">
-            <field name="parent_id" ref="bemade_sports_clinic.team_carabins"/>
+            <field name="parent_id" ref="team_carabins"/>
             <field name="function">Coach</field>
+            <field name="staff_team_ids" eval="[Command.link(ref('team_carabins'))]"/>
         </record>
     </data>
 </odoo>
