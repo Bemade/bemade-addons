@@ -34,9 +34,10 @@ class Patient(models.Model):
     ])
     injury_ids = fields.One2many(comodel_name='sports.patient.injury',
                                  inverse_name='patient_id',
-                                 string='Injuries',
-                                 groups='bemade_sports_clinic.group_sports_clinic_treatment_professional')
+                                 string='Injuries', )
     predicted_return_date = fields.Date(compute='_compute_predicted_return_date', )
+    is_injured = fields.Boolean(compute='_compute_is_injured')
+    injured_since = fields.Date(compute='_compute_is_injured')
 
     # authorized_users = fields.One2many(compute='_compute_authorized_users', store=True)
     #
@@ -69,10 +70,23 @@ class Patient(models.Model):
             else:
                 rec.predicted_return_date = False
 
+    @api.depends('first_name', 'last_name')
     def _compute_name(self):
         for rec in self:
             rec.name = ((rec.first_name or "") + " " + (rec.last_name or
                                                         "")).strip()
+
+    @api.depends('injury_ids.is_resolved')
+    def _compute_is_injured(self):
+        injured = self.filtered(
+            lambda r: r.injury_ids.filtered(lambda i: not i.is_resolved))
+        for rec in injured:
+            rec.is_injured = True
+            rec.injured_since = rec.injury_ids.sorted('injury_date_time')[
+                -1].injury_date_time.date()
+        for rec in self - injured:
+            rec.is_injured = False
+            rec.injured_since = False
 
 
 class PatientContact(models.Model):
@@ -111,6 +125,7 @@ class PatientInjury(models.Model):
                                                       ('is_treatment_professional', '=',
                                                        True)], )
     predicted_return_date = fields.Date(tracking=True)
+    is_resolved = fields.Boolean(compute="_compute_is_resolved")
 
     def write(self, vals):
         super().write(vals)
@@ -119,7 +134,6 @@ class PatientInjury(models.Model):
                             - self.message_follower_ids.mapped('partner_id'))
             self.message_subscribe(to_subscribe.ids)
 
-
     @api.model_create_multi
     def create(self, vals_list):
         super().write(vals_list)
@@ -127,3 +141,8 @@ class PatientInjury(models.Model):
             to_subscribe = (rec.treatment_professional_ids
                             - rec.message_follower_ids.mapped('partner_id'))
             rec.message_subscribe(to_subscribe.ids)
+
+    @api.depends('predicted_return_date')
+    def _compute_is_resolved(self):
+        for rec in self:
+            rec.is_resolved = rec.predicted_return_date < date.today()

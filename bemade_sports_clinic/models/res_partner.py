@@ -10,6 +10,8 @@ class Partner(models.Model):
                                    column1='team_id',
                                    column2='patient_id',
                                    string='Players')
+    player_count = fields.Integer(compute="_compute_player_counts")
+    injured_count = fields.Integer(compute="_compute_player_counts")
     type = fields.Selection(selection_add=[('team', 'Sports Team'), ])
     staff_partner_ids = fields.Many2many(comodel_name='res.partner',
                                          relation='sports_team_staff_partner_rel',
@@ -53,3 +55,8 @@ class Partner(models.Model):
             'bemade_sports_clinic.group_sports_clinic_treatment_professional')
         for rec in user_partners:
             rec.is_treatment_professional = group in rec.user_ids.groups_id
+
+    def _compute_player_counts(self):
+        for rec in self:
+            rec.player_count = len(rec.patient_ids)
+            rec.injured_count = len(rec.patient_ids.filtered(lambda p: p.is_injured))

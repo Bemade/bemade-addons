@@ -23,6 +23,7 @@
             <field name="team_ids" eval="[(6, 0, [ref('team_carabins')])]"/>
             <field name="date_of_birth">2001-08-23</field>
             <field name="email">jean.carabin@edudiants.umontreal.ca</field>
+            <field name="player_status">match</field>
         </record>
         <record id="patient_2" model="sports.patient">
             <field name="first_name">Rémi</field>
@@ -30,6 +31,7 @@
             <field name="team_ids" eval="[(6, 0, [ref('team_carabins')])]"/>
             <field name="date_of_birth">2002-05-17</field>
             <field name="email">remi.lafracture@edudiants.umontreal.ca</field>
+            <field name="player_status">practice</field>
         </record>
         <record id="team_carabins_hockey" model="res.partner">
             <field name="name">Carabins (Hockey féminin)</field>
@@ -43,6 +45,7 @@
             <field name="team_ids" eval="[(6, 0, [ref('team_carabins_hockey')])]"/>
             <field name="date_of_birth">2001-08-23</field>
             <field name="email">jeanne.carabine@edudiants.umontreal.ca</field>
+            <field name="player_status">match</field>
         </record>
         <record id="patient_4" model="sports.patient">
             <field name="first_name">Rimée</field>
@@ -50,6 +53,7 @@
             <field name="team_ids" eval="[(6, 0, [ref('team_carabins_hockey')])]"/>
             <field name="date_of_birth">2004-11-22</field>
             <field name="email">rimee.lafracture@edudiants.umontreal.ca</field>
+            <field name="player_status">practice</field>
         </record>
         <record id="partner_org_2" model="res.partner">
             <field name="name">Université Concordia</field>
@@ -72,6 +76,7 @@
             <field name="team_ids" eval="[(6, 0, [ref('team_stingers')])]"/>
             <field name="date_of_birth">2003-11-02</field>
             <field name="email">jo_stinger@encs.concordia.ca</field>
+            <field name="player_status">match</field>
         </record>
         <record id="patient_6" model="sports.patient">
             <field name="first_name">Jimmy</field>
@@ -79,6 +84,7 @@
             <field name="team_ids" eval="[(6, 0, [ref('team_stingers')])]"/>
             <field name="date_of_birth">2001-01-05</field>
             <field name="email">jim_bee@jmsb.concordia.ca</field>
+            <field name="player_status">match</field>
         </record>
         <record id="injury_1" model="sports.patient.injury">
             <field name="injury_date_time">2023-05-17 18:53:00</field>

@@ -15,5 +15,138 @@
                 </t>
             </xpath>
         </template>
+        <template id="portal_my_teams">
+            <t t-call="portal.portal_layout">
+                <h1>Your Teams</h1>
+                <t t-call="portal.portal_table">
+                    <thead>
+                        <tr>
+                            <th>Team Name</th>
+                            <th>Parent Organization</th>
+                            <th>Total Players</th>
+                            <th>Injured</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="teams" t-as="team">
+                            <tr>
+                                <td>
+                                    <strong>
+                                        <a t-attf-href="/my/team/{{ team.id }}"
+                                           t-field="team.name"/>
+                                    </strong>
+                                </td>
+                                <td><span t-field="team.parent_id"/></td>
+                                <td><span t-field="team.player_count"/></td>
+                                <td><span t-field="team.injured_count"/></td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </t>
+            </t>
+        </template>
+        <template id="portal_my_team_players">
+            <t t-call="portal.portal_layout">
+                <h1><span t-field="team.name"/> Players</h1>
+                <t t-call="portal.portal_table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Play Status</th>
+                            <th>Injured</th>
+                            <th>Injured Since</th>
+                            <th>Estimated Return Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="players" t-as="player">
+                            <tr>
+                                <t t-set="injured"
+                                   t-value="'Yes' if player.is_injured else 'No'"/>
+                                <td>
+                                    <strong><span t-field="player.name"/></strong>
+                                </td>
+                                <td><span t-field="player.player_status"/></td>
+                                <td><span t-out="injured"/></td>
+                                <td>
+                                    <span t-field="player.injured_since"
+                                          t-options="{'widget': 'date'}"/>
+                                </td>
+                                <td>
+                                    <span t-field="player.predicted_return_date"
+                                          t-options="{'widget': 'date'}"/>
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </t>
+            </t>
+        </template>
+        <template id="portal_my_players">
+            <t t-call="portal.portal_layout">
+                <h1>Your Players</h1>
+                <t t-call="portal.portal_table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Teams</th>
+                            <th>Play Status</th>
+                            <th>Injured</th>
+                            <th>Injured Since</th>
+                            <th>Estimated Return Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="players" t-as="player">
+                            <tr>
+                                <t t-set="injured"
+                                   t-value="'Yes' if player.is_injured else 'No'"/>
+                                <td>
+                                    <strong><span t-field="player.name"/></strong>
+                                </td>
+                                <td>
+                                    <ul style="list-style-type: none;">
+                                        <t t-foreach="player.team_ids" t-as="team">
+                                            <li>
+                                                <a t-attf-href="/my/team/{{ team.id }}"
+                                                   t-field="team.name"/>
+                                            </li>
+                                        </t>
+                                    </ul>
+                                </td>
+                                <td><span t-field="player.player_status"/></td>
+                                <td><span t-out="injured"/></td>
+                                <td>
+                                    <span t-field="player.injured_since"
+                                          t-options="{'widget': 'date'}"/>
+                                </td>
+                                <td>
+                                    <span t-field="player.predicted_return_date"
+                                          t-options="{'widget': 'date'}"/>
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </t>
+            </t>
+        </template>
+        <template id="portal_breadcrumbs" inherit_id="portal.portal_breadcrumbs">
+            <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+                <li t-if="page_name == 'my_teams'"
+                    t-attf-class="breadcrumb-item #{'active ' if not team else ''}">
+                    <a t-if="team"
+                       t-attf-href="/my/teams?{{ keep_query() }}">Teams</a>
+                    <t t-else="">Teams</t>
+                </li>
+                <li t-if="team" class="breadcrumb-item active" t-esc="team.name"/>
+                <li t-if="page_name == 'my_players'"
+                    t-attf-class="breadcrumb-item #{'active ' if not player else ''}">
+                    <a t-if="player"
+                       t-attf-href="/my/players?{{ keep_query() }}">Players</a>
+                    <t t-else="">Players</t>
+                </li>
+                <li t-if="player" class="breadcrumb-item active" t-esc="player.name"/>
+            </xpath>
+        </template>
     </data>
 </odoo>
