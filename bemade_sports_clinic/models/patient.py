@@ -136,13 +136,16 @@ class PatientInjury(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        super().write(vals_list)
-        for rec in self:
+        res = super().create(vals_list)
+        for rec in res:
             to_subscribe = (rec.treatment_professional_ids
                             - rec.message_follower_ids.mapped('partner_id'))
             rec.message_subscribe(to_subscribe.ids)
+        return res
 
     @api.depends('predicted_return_date')
     def _compute_is_resolved(self):
-        for rec in self:
+        to_compute = self.filtered(lambda r: r.predicted_return_date)
+        for rec in to_compute:
             rec.is_resolved = rec.predicted_return_date < date.today()
+        (self - to_compute).is_resolved = False
