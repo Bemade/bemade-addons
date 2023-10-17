@@ -25,8 +25,7 @@ class Partner(models.Model):
                                       string='Teams')
 
     is_treatment_professional = fields.Boolean(
-        compute="_compute_is_treatment_professional",
-        store=True)
+        compute="_compute_is_treatment_professional",)
 
     def write(self, vals):
         teams = self.filtered(lambda r: r.type == 'team')
@@ -56,6 +55,7 @@ class Partner(models.Model):
         for rec in user_partners:
             rec.is_treatment_professional = group in rec.user_ids.groups_id
 
+    @api.depends('patient_ids.is_injured')
     def _compute_player_counts(self):
         for rec in self:
             rec.player_count = len(rec.patient_ids)
