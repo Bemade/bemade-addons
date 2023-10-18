@@ -11,8 +11,6 @@ class DocumentRevision(models.Model):
     name = fields.Char()
     document_id = fields.Many2one('documents.document', required=True)
     attachment_id = fields.Many2one('ir.attachment', required=True)
-    previous_revision_id = fields.Many2one('documents.revision', 'Previous Revision')
-    next_revision_id = fields.One2many('documents.revision', 'previous_revision_id')
 
     @api.model_create_multi
     def create(self, vals_list):

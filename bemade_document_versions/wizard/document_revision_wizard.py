@@ -9,14 +9,14 @@ class DocumentRevisionWizard(models.TransientModel):
     document_id = fields.Many2one('documents.document', 'Document')
     document_name = fields.Char()
     file = fields.Binary('File to upload')
-    revision_name = fields.Char(required=True)
-    revision_sequence_prefix = fields.Char(string='Sequence Prefix')
-    revision_sequence_suffix = fields.Char(string='Sequence Suffix')
-    revision_sequence_padding = fields.Integer(string='Sequence Padding',
-                                               help="Number of digits to show in the"
-                                                    " sequence number. A value of 2 will"
-                                                    " generate sequence numbers like 01,"
-                                                    " 02, 03, etc.")
+    revision_name = fields.Char(required=True, readonly=True)
+    revision_sequence = fields.Many2one('ir.sequence', required=True)
+    revision_sequence_prefix = fields.Char(related='revision_sequence.prefix',
+                                           readonly=False)
+    revision_sequence_suffix = fields.Char(related='revision_sequence.suffix',
+                                           readonly=False)
+    revision_sequence_padding = fields.Integer(related='revision_sequence.padding',
+                                               readonly=False)
 
     def default_get(self, fields_list):
         ctx = self._context
@@ -30,7 +30,7 @@ class DocumentRevisionWizard(models.TransientModel):
         sequence = document.revision_sequence or self.env.ref(
             'bemade_document_versions.document_revision_sequence_default')
         if document.revision_sequence:
-            vals['revision_name'] = self.document_id.get_next_revision_name()
+            vals['revision_name'] = document.get_next_revision_name()
         else:
             vals['revision_name'] = sequence.get_next_char(0)
         vals['revision_sequence_prefix'] = sequence.prefix
@@ -38,12 +38,17 @@ class DocumentRevisionWizard(models.TransientModel):
         vals['revision_sequence_padding'] = sequence.padding
         return vals
 
+    @api.depends('document_id', 'document_id.revision_sequence',
+                 'revision_sequence')
     def action_upload_revision(self):
         for wizard in self:
             if not wizard.file:
                 raise UserError(_('You must upload a file.'))
-            if not wizard.revision_name:
-                raise UserError(_('Revision name cannot be empty.'))
+            wizard.revision_sequence.write({
+                'prefix': wizard.revision_sequence_prefix,
+                'suffix': wizard.revision_sequence_suffix,
+                'padding': wizard.revision_sequence_padding,
+            })
             prev_attachment = wizard.document_id.attachment_id
             attachment = self.env['ir.attachment'].with_context(
                 {'no_document': True}).create({
@@ -55,14 +60,13 @@ class DocumentRevisionWizard(models.TransientModel):
                 'public': prev_attachment.public,
             })
             if not wizard.document_id.revision_sequence:
-                wizard.document_id.set_up_revisions(wizard.revision_name,
-                                                    wizard.revision_sequence_prefix,
+                wizard.document_id.set_up_revisions(wizard.revision_sequence_prefix,
                                                     wizard.revision_sequence_suffix,
                                                     wizard.revision_sequence_padding)
             else:
                 self.env['documents.revision'].create({
                     'document_id': wizard.document_id.id,
                     'attachment_id': attachment.id,
-                    'name': wizard.revision_name,
+                    'name': wizard.document_id.revision_sequence.next_by_id(),
                     'attachment_id': attachment.id,
                 })
