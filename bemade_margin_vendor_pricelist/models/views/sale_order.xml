@@ -14,7 +14,7 @@
                 </label>
                 <field name="margin_percent" position="replace">
                     <field name="margin_percent_actual" nolabel="1" class="oe_inline"
-                           widget="percentage"/>
+                           widget="percentage" groups="base.group_user"/>
                 </field>
             </field>
         </record>
@@ -40,7 +40,8 @@
                     <field name="margin_actual" optional="hide"/>
                 </field>
                 <field name="margin_percent" position="replace">
-                    <field name="margin_percent_actual" optional="hide"/>
+                    <field name="margin_percent_actual" optional="hide"
+                           widget="percentage" groups="base.group_user"/>
                 </field>
             </field>
         </record>
