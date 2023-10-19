@@ -1,0 +1,58 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* bemade_margin_vendor_pricelist
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 15.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-10-19 15:08+0000\n"
+"PO-Revision-Date: 2023-10-19 15:08+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: bemade_margin_vendor_pricelist
+#: model:ir.model.fields,field_description:bemade_margin_vendor_pricelist.field_sale_order__margin_actual
+#: model:ir.model.fields,field_description:bemade_margin_vendor_pricelist.field_sale_order_line__margin_actual
+msgid "Margin"
+msgstr "Marge"
+
+#. module: bemade_margin_vendor_pricelist
+#: model:ir.model.fields,field_description:bemade_margin_vendor_pricelist.field_sale_order__margin_percent_actual
+#: model:ir.model.fields,field_description:bemade_margin_vendor_pricelist.field_sale_order_line__margin_percent_actual
+msgid "Margin (%)"
+msgstr "Marge (%)"
+
+#. module: bemade_margin_vendor_pricelist
+#: model:ir.model.fields,field_description:bemade_margin_vendor_pricelist.field_sale_order_line__margin_percent_vendor
+msgid "Margin (%) on Vendor Price"
+msgstr "Marge (%) sur le prix du fournisseur"
+
+#. module: bemade_margin_vendor_pricelist
+#: model:ir.model.fields,field_description:bemade_margin_vendor_pricelist.field_sale_order_line__margin_vendor
+msgid "Margin on Vendor Price"
+msgstr "Marge sur le prix du fournisseur"
+
+#. module: bemade_margin_vendor_pricelist
+#: model:ir.model.fields,field_description:bemade_margin_vendor_pricelist.field_sale_order_line__purchase_price_actual
+msgid "Purchase Price"
+msgstr "Prix d'achat"
+
+#. module: bemade_margin_vendor_pricelist
+#: model:ir.model,name:bemade_margin_vendor_pricelist.model_sale_order
+msgid "Sales Order"
+msgstr "Commande de vente"
+
+#. module: bemade_margin_vendor_pricelist
+#: model:ir.model,name:bemade_margin_vendor_pricelist.model_sale_order_line
+msgid "Sales Order Line"
+msgstr "Article de commande de vente"
+
+#. module: bemade_margin_vendor_pricelist
+#: model:ir.model.fields,field_description:bemade_margin_vendor_pricelist.field_sale_order_line__purchase_price_vendor
+msgid "Vendor Price"
+msgstr "Prix du fournisseur"
