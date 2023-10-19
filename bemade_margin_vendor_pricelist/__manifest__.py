@@ -25,7 +25,7 @@
     'website': 'https://www.bemade.org',
     'license': 'OPL-1',
     'depends': ['sale_stock_margin'],
-    'data': ['models/views/sale_order.xml'],
+    'data': ['views/sale_order.xml'],
     'installable': True,
     'auto_install': False,
 }
