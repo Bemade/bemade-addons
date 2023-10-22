@@ -133,7 +133,7 @@
             <field name="predicted_resolution_date">2024-02-01</field>
             <field name="patient_id" ref="patient_1"/>
             <field name="treatment_professional_ids"
-                   eval="[Command.set([ref('base.partner_admin')])]"/>
+                   eval="[Command.set([ref('base.user_admin')])]"/>
         </record>
         <record id="injury_2" model="sports.patient.injury">
             <field name="injury_date_time">2022-03-17 19:13:00</field>
@@ -141,7 +141,7 @@
             <field name="predicted_resolution_date">2022-03-23</field>
             <field name="patient_id" ref="patient_1"/>
             <field name="treatment_professional_ids"
-                   eval="[Command.set([ref('base.partner_admin')])]"/>
+                   eval="[Command.set([ref('base.user_admin')])]"/>
         </record>
         <record id="injury_3" model="sports.patient.injury">
             <field name="injury_date_time">2023-10-15 19:55:00</field>
@@ -149,7 +149,7 @@
             <field name="predicted_resolution_date">2023-11-01</field>
             <field name="patient_id" ref="patient_3"/>
             <field name="treatment_professional_ids"
-                   eval="[Command.set([ref('base.partner_admin')])]"/>
+                   eval="[Command.set([ref('base.user_admin')])]"/>
         </record>
         <record id="stingers_coach_rel" model="sports.team.staff">
             <field name="partner_id" ref="base.partner_demo_portal"/>
@@ -176,6 +176,9 @@
         </record>
         <record id="group_sports_clinic_admin" model="res.groups">
             <field name="users" eval="[Command.link(ref('base.user_admin'))]"/>
+        </record>
+        <record id="group_sports_clinic_treatment_professional" model="res.groups">
+            <field name="users" eval="[Command.link(ref('base.user_demo'))]"/>
         </record>
     </data>
 </odoo>

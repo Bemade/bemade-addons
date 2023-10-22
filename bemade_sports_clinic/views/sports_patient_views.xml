@@ -28,6 +28,27 @@
                     <field name="team_ids" widget="many2many_tags"/>
                     <field name="match_status"/>
                     <field name="practice_status"/>
+                    <field name="predicted_return_date" widget="date"/>
+                    <field name="activity_ids" widget="list_activity"/>
+                </tree>
+            </field>
+        </record>
+        <record id="sports_patient_view_list_embedded" model="ir.ui.view">
+            <field name="name">sports.patient.view.list</field>
+            <field name="model">sports.patient</field>
+            <field name="arch" type="xml">
+                <tree string="Patients" multi_edit="True" editable="bottom">
+                    <field name="first_name"/>
+                    <field name="last_name"/>
+                    <field name="date_of_birth"/>
+                    <field name="age"/>
+                    <field name="team_ids" widget="many2many_tags"/>
+                    <field name="match_status"/>
+                    <field name="practice_status"/>
+                    <field name="predicted_return_date" widget="date"/>
+                    <field name="activity_ids" widget="list_activity"/>
+                    <button name="action_view_patient_form" type="object"
+                            class="fa fa-arrow-right"/>
                 </tree>
             </field>
         </record>
@@ -97,8 +118,9 @@
                         <group>
                             <field name="injury_date_time"/>
                             <field name="diagnosis"/>
-                            <field name="treatment_professional_ids"/>
                             <field name="internal_notes"/>
+                            <field name="treatment_professional_ids"
+                                   widget="many2many_tags_avatar"/>
                             <field name="predicted_resolution_date"/>
                         </group>
                     </sheet>
@@ -114,11 +136,16 @@
             <field name="name">sports.patient.injury.view.tree</field>
             <field name="model">sports.patient.injury</field>
             <field name="arch" type="xml">
-                <tree string="Patient Injury History">
+                <tree string="Patient Injury History" editable="bottom"
+                      multi_edit="True">
                     <field name="injury_date_time" widget="datetime"/>
                     <field name="diagnosis"/>
                     <field name="predicted_resolution_date" widget="date"/>
-                    <field name="treatment_professional_ids"/>
+                    <field name="treatment_professional_ids"
+                           widget="many2many_avatar_user"/>
+                    <field name="activity_ids" widget="list_activity"/>
+                    <button name="action_view_injury_form" type="object"
+                            class="fa fa-arrow-right"/>
                 </tree>
             </field>
         </record>

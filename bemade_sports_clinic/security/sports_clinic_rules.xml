@@ -7,18 +7,10 @@
             <field name="model_id" ref="model_sports_patient"/>
             <field name="groups" eval="[(6, 0, [ref('base.group_portal')])]"/>
             <field name="domain_force">
-                [('id', 'in', user.partner_id.staff_team_ids.mapped('patient_ids').ids)]
+                [('id', 'in',
+                  user.partner_id.team_staff_rel_ids.mapped('team_id').mapped(
+                      'patient_ids').ids)]
             </field>
-        </record>
-        <!-- Patient injury records should be on invitation only for non-admins -->
-        <record id="restrict_patient_access_to_treatment_professionals" model="ir.rule">
-            <field name="name">Access patient injury records on invitation only</field>
-            <field name="model_id" ref="model_sports_patient_injury"/>
-            <field name="groups" eval="[(6, 0, [ref('group_sports_clinic_user'), ref('group_sports_clinic_treatment_professional')])]"/>
-            <field name="domain_force">
-                [('message_partner_ids', 'in', user.partner_id.ids)]
-            </field>
-            <field name="perm_create" eval="False"/>
         </record>
     </data>
 </odoo>

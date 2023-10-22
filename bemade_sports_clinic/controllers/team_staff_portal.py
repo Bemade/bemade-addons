@@ -8,7 +8,7 @@ class TeamStaffPortal(CustomerPortal):
         rtn = super()._prepare_home_portal_values(counters)
         teams_domain = self._prepare_teams_domain()
         players_domain = self._prepare_players_domain(teams_domain)
-        rtn['teams_count'] = http.request.env['res.partner'].search_count(teams_domain)
+        rtn['teams_count'] = http.request.env['sports.team'].search_count(teams_domain)
         rtn['players_count'] = http.request.env['sports.patient'].search_count(
             players_domain)
         return rtn
@@ -18,12 +18,12 @@ class TeamStaffPortal(CustomerPortal):
         user = http.request.env.user
         partner = http.request.env.user.partner_id
         return [
-            ('staff_partner_ids', 'in', partner.id),
+            ('staff_ids', 'in', partner.team_staff_rel_ids.ids),
         ]
 
     @classmethod
     def _prepare_players_domain(cls, teams_domain):
-        team_ids = http.request.env['res.partner'].search(teams_domain).ids
+        team_ids = http.request.env['sports.team'].search(teams_domain).ids
         return [
             ('team_ids', 'in', team_ids),
         ]
@@ -31,12 +31,12 @@ class TeamStaffPortal(CustomerPortal):
     @http.route(route=['/my/teams'], type='http', auth='user', website=True)
     def view_teams(self, page=0, **kw):
         """ Display the list of teams that a portal user has access to """
-        Teams = http.request.env['res.partner']
+        Teams = http.request.env['sports.team']
         domain = self._prepare_teams_domain()
         teams_count = Teams.search_count(domain)
         pgr = pager(url='/my/teams', total=teams_count,
                     page=page, step=10, scope=10)
-        teams = http.request.env['res.partner'].search(self._prepare_teams_domain(),
+        teams = http.request.env['sports.team'].search(self._prepare_teams_domain(),
                                                        offset=pgr['offset'],
                                                        limit=teams_count)
         return http.request.render(template='bemade_sports_clinic.portal_my_teams',
@@ -50,7 +50,7 @@ class TeamStaffPortal(CustomerPortal):
     @http.route(route=['/my/team/<int:team_id>'], type='http', auth='user', website=True)
     def view_team(self, team_id, page=0, **kw):
         """ Display the information for a team including its list of players """
-        team = http.request.env['res.partner'].browse(team_id)
+        team = http.request.env['sports.team'].browse(team_id)
         if not team:
             raise UserError(_('This team could not be found.'))
         players_count = team.player_count

@@ -29,7 +29,7 @@
             <field name="name">Organizations</field>
             <field name="res_model">res.partner</field>
             <field name="view_mode">tree,kanban,form</field>
-            <field name="domain">[('is_company','=', True)]</field>
+            <field name="domain">[('is_company', '=', True)]</field>
         </record>
         <record id="action_view_patient" model="ir.actions.act_window">
             <field name="name">Patients</field>
@@ -41,22 +41,18 @@
                   name="Sports Clinic"
                   groups="bemade_sports_clinic.group_sports_clinic_user"
                   action="action_view_team">
-            <menuitem id="sports_clinic_clients"
-                      name="Contacts"
-                      groups="bemade_sports_clinic.group_sports_clinic_user">
-                <menuitem id="sports_clinic_organizations"
-                          name="Organizations"
-                          groups="bemade_sports_clinic.group_sports_clinic_user"
-                          action="action_view_organization"/>
-                <menuitem id="sports_clinic_teams"
-                          name="Teams"
-                          groups="bemade_sports_clinic.group_sports_clinic_user"
-                          action="action_view_team"/>
-                <menuitem id="sports_clinic_patients"
-                          name="Patients"
-                          groups="bemade_sports_clinic.group_sports_clinic_user"
-                          action="action_view_patient"/>
-            </menuitem>
+            <menuitem id="sports_clinic_organizations"
+                      name="Organizations"
+                      groups="bemade_sports_clinic.group_sports_clinic_user"
+                      action="action_view_organization"/>
+            <menuitem id="sports_clinic_teams"
+                      name="Teams"
+                      groups="bemade_sports_clinic.group_sports_clinic_user"
+                      action="action_view_team"/>
+            <menuitem id="sports_clinic_patients"
+                      name="Patients"
+                      groups="bemade_sports_clinic.group_sports_clinic_user"
+                      action="action_view_patient"/>
         </menuitem>
     </data>
 </odoo>

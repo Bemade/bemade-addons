@@ -20,10 +20,12 @@ class SportsTeam(models.Model):
     staff_ids = fields.One2many(comodel_name='sports.team.staff',
                                 inverse_name='team_id')
     head_coach_id = fields.Many2one(comodel_name='res.partner',
-                                    compute='_compute_head_coach')
+                                    compute='_compute_head_coach',
+                                    store=True)
     head_coach_name = fields.Char(related='head_coach_id.name')
     head_trainer_id = fields.Many2one(comodel_name='res.partner',
-                                      compute='_compute_head_trainer')
+                                      compute='_compute_head_trainer',
+                                      store=True)
     head_trainer_name = fields.Char(related='head_trainer_id.name')
     website = fields.Char()
 

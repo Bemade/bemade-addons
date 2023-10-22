@@ -23,12 +23,10 @@ class Patient(models.Model):
                         tracking=True)
     email = fields.Char(groups="bemade_sports_clinic.group_sports_clinic_user",
                         tracking=True)
-    contact_ids = fields.Many2many(comodel_name='sports.patient.contact',
-                                   relation="patient_contact_rel",
-                                   column1="patient_id",
-                                   column2="contact_id",
-                                   string='Patient Contacts',
-                                   groups="bemade_sports_clinic.group_sports_clinic_user")
+    contact_ids = fields.One2many(comodel_name='sports.patient.contact',
+                                  inverse_name='patient_id',
+                                  string='Patient Contacts',
+                                  groups="bemade_sports_clinic.group_sports_clinic_user")
     team_ids = fields.Many2many(comodel_name='sports.team',
                                 relation='sports_team_patient_rel',
                                 column1='patient_id',
@@ -64,10 +62,26 @@ class Patient(models.Model):
             rec.name = ((rec.first_name or "") + " " + (rec.last_name or
                                                         "")).strip()
 
-    @api.depends('practice_status', 'match_status')
+    @api.depends('practice_status', 'match_status', 'injury_ids.injury_date_time')
     def _compute_is_injured(self):
         for rec in self:
             rec.is_injured = rec.practice_status != 'yes' or rec.match_status != 'yes'
+            if rec.is_injured:
+                rec.injured_since = \
+                rec.injury_ids.filtered(lambda r: not r.is_resolved).sorted(
+                    'injury_date_time')[0].injury_date_time
+            else:
+                rec.injured_since = False
+
+    def action_view_patient_form(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'view_mode': 'form',
+            'res_model': 'sports.patient',
+            'res_id': self.id,
+            'context': self._context,
+        }
 
 
 class PatientContact(models.Model):
@@ -77,22 +91,19 @@ class PatientContact(models.Model):
     sequence = fields.Integer(required=True, default=0)
     name = fields.Char(unaccent=False)
     contact_type = fields.Selection(selection=[
-        ('Mother', 'mother'),
-        ('Father', 'father'),
+        ('mother', 'Mother'),
+        ('father', 'Father'),
         ('other', 'Other'),
     ], required=True)
     phone = fields.Char(unaccent=False, required=True)
-    patient_id = fields.Many2many(comodel_name='sports.patient', string="Patient",
-                                  relation="patient_contact_rel",
-                                  column1="contact_id", column2="patient_id",
-                                  groups="bemade_sports_clinic.group_sports_clinic_user",
-                                  required=True)
+    patient_id = fields.Many2one(comodel_name='sports.patient', string='Patient')
 
 
 class PatientInjury(models.Model):
     _name = 'sports.patient.injury'
     _description = "A patient's injury."
     _inherit = ['mail.thread', 'mail.activity.mixin']
+    _rec_name = 'diagnosis'
 
     patient_id = fields.Many2one(comodel_name='sports.patient',
                                  string="Patient",
@@ -103,7 +114,7 @@ class PatientInjury(models.Model):
     injury_date_time = fields.Datetime(string='Date and Time of Injury', required=True,
                                        default=datetime.now())
     internal_notes = fields.Html(tracking=True)
-    treatment_professional_ids = fields.Many2many(comodel_name='res.partner',
+    treatment_professional_ids = fields.Many2many(comodel_name='res.users',
                                                   relation='patient_injury_treatment_pro_rel',
                                                   column1='patient_injury_id',
                                                   column2='treatment_pro_id',
@@ -117,7 +128,7 @@ class PatientInjury(models.Model):
     def write(self, vals):
         super().write(vals)
         if 'treatment_professional_ids' in vals:
-            to_subscribe = (self.treatment_professional_ids
+            to_subscribe = (self.treatment_professional_ids.mapped('partner_id')
                             - self.message_follower_ids.mapped('partner_id'))
             self.message_subscribe(to_subscribe.ids)
 
@@ -125,7 +136,17 @@ class PatientInjury(models.Model):
     def create(self, vals_list):
         res = super().create(vals_list)
         for rec in res:
-            to_subscribe = (rec.treatment_professional_ids
+            to_subscribe = (rec.treatment_professional_ids.mapped('partner_id')
                             - rec.message_follower_ids.mapped('partner_id'))
             rec.message_subscribe(to_subscribe.ids)
         return res
+
+    def action_view_injury_form(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'view_mode': 'form',
+            'res_model': 'sports.patient.injury',
+            'res_id': self.id,
+            'context': self._context,
+        }

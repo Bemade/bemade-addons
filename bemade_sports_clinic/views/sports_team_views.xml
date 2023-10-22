@@ -111,7 +111,8 @@
                             </group>
                         </group>
                         <separator string="Players"/>
-                        <field name="patient_ids" editable="bottom" nolabel="1"/>
+                        <field name="patient_ids" nolabel="1"
+                               context="{'tree_view_ref': 'bemade_sports_clinic.sports_patient_view_list_embedded'}"/>
                     </sheet>
                 </form>
             </field>

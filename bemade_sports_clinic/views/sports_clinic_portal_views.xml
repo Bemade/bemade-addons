@@ -52,9 +52,10 @@
                     <thead>
                         <tr>
                             <th>Name</th>
-                            <th>Play Status</th>
                             <th>Injured</th>
                             <th>Injured Since</th>
+                            <th>Match Status</th>
+                            <th>Practice Status</th>
                             <th>Estimated Return Date</th>
                         </tr>
                     </thead>
@@ -66,12 +67,13 @@
                                 <td>
                                     <strong><span t-field="player.name"/></strong>
                                 </td>
-                                <td><span t-field="player.player_status"/></td>
                                 <td><span t-out="injured"/></td>
                                 <td>
                                     <span t-field="player.injured_since"
                                           t-options="{'widget': 'date'}"/>
                                 </td>
+                                <td><span t-field="player.match_status"/></td>
+                                <td><span t-field="player.practice_status"/></td>
                                 <td>
                                     <span t-field="player.predicted_return_date"
                                           t-options="{'widget': 'date'}"/>
@@ -90,9 +92,10 @@
                         <tr>
                             <th>Name</th>
                             <th>Teams</th>
-                            <th>Play Status</th>
                             <th>Injured</th>
                             <th>Injured Since</th>
+                            <th>Match Status</th>
+                            <th>Practice Status</th>
                             <th>Estimated Return Date</th>
                         </tr>
                     </thead>
@@ -114,12 +117,13 @@
                                         </t>
                                     </ul>
                                 </td>
-                                <td><span t-field="player.player_status"/></td>
                                 <td><span t-out="injured"/></td>
                                 <td>
                                     <span t-field="player.injured_since"
                                           t-options="{'widget': 'date'}"/>
                                 </td>
+                                <td><span t-field="player.match_status"/></td>
+                                <td><span t-field="player.practice_status"/></td>
                                 <td>
                                     <span t-field="player.predicted_return_date"
                                           t-options="{'widget': 'date'}"/>
