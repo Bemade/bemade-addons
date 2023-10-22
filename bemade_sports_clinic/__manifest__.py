@@ -42,7 +42,7 @@
         'security/sports_clinic_groups.xml',
         'security/ir.model.access.csv',
         'security/sports_clinic_rules.xml',
-        'views/res_partner_views.xml',
+        'views/sports_team_views.xml',
         'views/sports_clinic_menus.xml',
         'views/patient_views.xml',
         'views/sports_clinic_portal_views.xml',

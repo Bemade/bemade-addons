@@ -1,6 +1,6 @@
 from odoo import models, fields, _, api
 from odoo.exceptions import ValidationError
-from datetime import date
+from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
 
 
@@ -9,46 +9,46 @@ class Patient(models.Model):
     _description = "Patient at a sports medicine clinic."
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    first_name = fields.Char(required=True)
-    last_name = fields.Char(required=True)
+    first_name = fields.Char(required=True, tracking=True)
+    last_name = fields.Char(required=True, tracking=True)
     name = fields.Char(compute="_compute_name")
     date_of_birth = fields.Date(
-        groups="bemade_sports_clinic.group_sports_clinic_treatment_professional")
+        groups="bemade_sports_clinic.group_sports_clinic_treatment_professional",
+        tracking=True)
     age = fields.Integer(compute='_compute_age',
-                         groups="bemade_sports_clinic.group_sports_clinic_treatment_professional")
+                         groups="bemade_sports_clinic.group_sports_clinic_treatment_professional",
+                         tracking=True)
     phone = fields.Char(unaccent=False,
-                        groups="bemade_sports_clinic.group_sports_clinic_user")
-    email = fields.Char(groups="bemade_sports_clinic.group_sports_clinic_user")
-    contact_ids = fields.One2many(comodel_name='sports.patient.contact',
-                                  inverse_name='patient_id', string='Patient Contacts',
-                                  groups="bemade_sports_clinic.group_sports_clinic_user")
-    team_ids = fields.Many2many(comodel_name='res.partner',
+                        groups="bemade_sports_clinic.group_sports_clinic_user",
+                        tracking=True)
+    email = fields.Char(groups="bemade_sports_clinic.group_sports_clinic_user",
+                        tracking=True)
+    contact_ids = fields.Many2many(comodel_name='sports.patient.contact',
+                                   relation="patient_contact_rel",
+                                   column1="patient_id",
+                                   column2="contact_id",
+                                   string='Patient Contacts',
+                                   groups="bemade_sports_clinic.group_sports_clinic_user")
+    team_ids = fields.Many2many(comodel_name='sports.team',
                                 relation='sports_team_patient_rel',
                                 column1='patient_id',
                                 column2='team_id',
-                                string='Teams',
-                                domain=[('type', '=', 'team')])
-    player_status = fields.Selection([
-        ('practice', 'Practice'),
-        ('match', 'Match'),
-    ])
+                                string='Teams', )
+    match_status = fields.Selection([  # Selection for easy expansion later
+        ('yes', 'Yes'),
+        ('no', 'No'),
+    ], required=True, default='yes', tracking=True)
+    practice_status = fields.Selection([
+        ('yes', 'Yes'),
+        ('no_contact', 'Yes, no contact'),
+        ('no', 'No')], tracking=True, required=True, default='yes')
+
     injury_ids = fields.One2many(comodel_name='sports.patient.injury',
                                  inverse_name='patient_id',
                                  string='Injuries', )
-    predicted_return_date = fields.Date(compute='_compute_predicted_return_date', )
-    is_injured = fields.Boolean(compute='_compute_is_injured')
     injured_since = fields.Date(compute='_compute_is_injured')
-
-    # authorized_users = fields.One2many(compute='_compute_authorized_users', store=True)
-    #
-    # @api.depends('injury_ids.treatment_professional_ids', 'team_ids.staff_team_ids',
-    #              'message_follower_ids')
-    # def _compute_authorized_users(self):
-    #     for rec in self:
-    #         auth_users = self.env['res.users'].search(['|', ('partner_id', 'in',
-    #             rec.injury_ids.mapped('treatment_professional_ids').ids),
-    #             '|', ('partner_id', 'in', rec.team_ids.mapped('staff_team_ids').ids),
-    #                  ('partner_id', 'in', rec.message_follower_ids.ids)])
+    predicted_return_date = fields.Date()
+    is_injured = fields.Boolean(compute="_compute_is_injured")
 
     @api.depends('date_of_birth')
     def _compute_age(self):
@@ -58,35 +58,16 @@ class Patient(models.Model):
             else:
                 rec.age = relativedelta(date.today(), rec.date_of_birth).years
 
-    @api.depends('injury_ids.predicted_return_date')
-    def _compute_predicted_return_date(self):
-        for rec in self:
-            ongoing_injuries = rec.injury_ids.filtered(
-                lambda r: r.predicted_return_date > date.today()).sorted(
-                'predicted_return_date')
-            if ongoing_injuries:
-                rec.predicted_return_date = ongoing_injuries[-1]. \
-                    predicted_return_date
-            else:
-                rec.predicted_return_date = False
-
     @api.depends('first_name', 'last_name')
     def _compute_name(self):
         for rec in self:
             rec.name = ((rec.first_name or "") + " " + (rec.last_name or
                                                         "")).strip()
 
-    @api.depends('injury_ids.is_resolved')
+    @api.depends('practice_status', 'match_status')
     def _compute_is_injured(self):
-        injured = self.filtered(
-            lambda r: r.injury_ids.filtered(lambda i: not i.is_resolved))
-        for rec in injured:
-            rec.is_injured = True
-            rec.injured_since = rec.injury_ids.sorted('injury_date_time')[
-                -1].injury_date_time.date()
-        for rec in self - injured:
-            rec.is_injured = False
-            rec.injured_since = False
+        for rec in self:
+            rec.is_injured = rec.practice_status != 'yes' or rec.match_status != 'yes'
 
 
 class PatientContact(models.Model):
@@ -99,9 +80,13 @@ class PatientContact(models.Model):
         ('Mother', 'mother'),
         ('Father', 'father'),
         ('other', 'Other'),
-    ])
-    phone = fields.Char(unaccent=False)
-    patient_id = fields.Many2one(comodel_name='sports.patient', string="Patient")
+    ], required=True)
+    phone = fields.Char(unaccent=False, required=True)
+    patient_id = fields.Many2many(comodel_name='sports.patient', string="Patient",
+                                  relation="patient_contact_rel",
+                                  column1="contact_id", column2="patient_id",
+                                  groups="bemade_sports_clinic.group_sports_clinic_user",
+                                  required=True)
 
 
 class PatientInjury(models.Model):
@@ -111,10 +96,12 @@ class PatientInjury(models.Model):
 
     patient_id = fields.Many2one(comodel_name='sports.patient',
                                  string="Patient",
-                                 readonly=True)
+                                 readonly=True,
+                                 required=True)
     patient_name = fields.Char(related="patient_id.name")
     diagnosis = fields.Char(tracking=True)
-    injury_date_time = fields.Datetime(string='Date and Time of Injury')
+    injury_date_time = fields.Datetime(string='Date and Time of Injury', required=True,
+                                       default=datetime.now())
     internal_notes = fields.Html(tracking=True)
     treatment_professional_ids = fields.Many2many(comodel_name='res.partner',
                                                   relation='patient_injury_treatment_pro_rel',
@@ -123,9 +110,9 @@ class PatientInjury(models.Model):
                                                   string='Treatment Professionals',
                                                   domain=[
                                                       ('is_treatment_professional', '=',
-                                                       True)], )
-    predicted_return_date = fields.Date(tracking=True)
-    is_resolved = fields.Boolean(compute="_compute_is_resolved")
+                                                       True)], tracking=True)
+    predicted_resolution_date = fields.Date(tracking=True)
+    is_resolved = fields.Boolean(tracking=True, required=True, default=False)
 
     def write(self, vals):
         super().write(vals)
@@ -142,10 +129,3 @@ class PatientInjury(models.Model):
                             - rec.message_follower_ids.mapped('partner_id'))
             rec.message_subscribe(to_subscribe.ids)
         return res
-
-    @api.depends('predicted_return_date')
-    def _compute_is_resolved(self):
-        to_compute = self.filtered(lambda r: r.predicted_return_date)
-        for rec in to_compute:
-            rec.is_resolved = rec.predicted_return_date < date.today()
-        (self - to_compute).is_resolved = False

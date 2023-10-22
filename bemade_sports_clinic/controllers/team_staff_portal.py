@@ -19,7 +19,6 @@ class TeamStaffPortal(CustomerPortal):
         partner = http.request.env.user.partner_id
         return [
             ('staff_partner_ids', 'in', partner.id),
-            ('type', '=', 'team'),
         ]
 
     @classmethod

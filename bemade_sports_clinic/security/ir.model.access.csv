@@ -6,3 +6,8 @@ access_patient_portal,Portal Access for Patients,model_sports_patient,base.group
 access_patient_contact_user,User Access for Patient Contacts,model_sports_patient_contact,group_sports_clinic_user,1,1,1,1
 access_injury_treatment_pro,Treatment Professional Access for Injuries,model_sports_patient_injury,group_sports_clinic_treatment_professional,1,1,1,1
 access_injury_portal,Portal Access for Injuries,model_sports_patient_injury,base.group_portal,1,0,0,0
+access_team_user,User Access for Teams,model_sports_team,group_sports_clinic_user,1,1,1,0
+access_team_admin,Admin Access for Teams,model_sports_team,group_sports_clinic_admin,1,1,1,1
+access_team_portal,Portal Access for Teams,model_sports_team,base.group_portal,1,0,0,0
+access_team_staff_user,User Access for Team Staff,model_sports_team_staff,group_sports_clinic_user,1,1,1,1
+access_team_staff_portal,Portal Access for Team Staff,model_sports_team_staff,base.group_portal,1,0,0,0
