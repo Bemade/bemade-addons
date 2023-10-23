@@ -4,7 +4,7 @@
     'name': 'Bemade Sethy',
     'version': '1.0',
     'category': 'Specific Module Category',  # Specify your module's category here
-    'summary': 'This module is developped by Bemade to instantiate the Sethy Odoo',  # Provide a brief summary of the module
+    'summary': 'This module is developed by Bemade to instantiate the Sethy Odoo',  # Provide a brief summary of the module
     'author': 'Bemade',
     'website': 'https://bemade.org',
     'email': 'it@bemade.org',
@@ -15,7 +15,7 @@
         'contact',
         'crm',
         'membership',
-        'partner_multi_relation'
+        'partner_multi_relation',
         'web_responsive'
     ],
     'data': [
@@ -31,10 +31,10 @@
     'description': """
 Main module for Fondation Séthy
 ==================================
-This module install base componnent and will also setup default value according to the Fedation Séthy.
+This module installs base components and will also set up default values according to the Fondation Séthy.
 
-This will allow to put all the customisation here and add other module from Oca or our repos if needed.
+This will allow us to put all the customization here and add other modules from Oca or our repos if needed.
 
-Only code specific to Fondation Sethy reside in this module, the reusable stuff should be put in small deicatede module elsewhere
+Only code specific to Fondation Sethy resides in this module, the reusable stuff should be put in other small dedicated modules elsewhere
 """,
 }
