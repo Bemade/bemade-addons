@@ -3,7 +3,7 @@
     <data noupdate="0"> <!-- noupdate="1" means the data won't be updated when the module is upgraded -->
         <!-- Assuming 'base.main_company' is the external ID for the main company -->
         <record id="base.main_company" model="res.company">
-            <field name="name">Fondation Séthy Coordonnées</field>
+            <field name="name">Fondation Séthy</field>
             <field name="email">info@fondationsethy.org</field>
             <field name="street">164, rue Cowie</field>
             <field name="street2">local 335</field>
