@@ -1,2 +1,2 @@
-"ID","Name","Left partner type","Left partner category","Inverse name","Right partner type","Right partner category","Reflexive","Symmetric"
+"id","name","contact_type_left","partner_category_left","inverse_name","contact_type_right","partner_category_right","allow_self","is_symmetric"
 "2","Owner","p","Owner","Property","c","Property","",""
