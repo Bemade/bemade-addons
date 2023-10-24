@@ -22,7 +22,7 @@
         # Reference to XML, CSV, and other data files
         'data/company_data.xml',
         'data/partner_tags_data.xml',
-        'data/partner_relations_data.csv'
+        'data/partner_relations_data.xml'
     ],
     'demo': [
         # Reference to demo data files
