@@ -12,7 +12,7 @@
     'depends': [
         # List of module dependencies
         'base',
-        'contact',
+        'contacts',
         'crm',
         'membership',
         'partner_multi_relation',
