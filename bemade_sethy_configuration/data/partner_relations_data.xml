@@ -3,11 +3,11 @@
     <data noupdate="1"> <!-- noupdate="1" means the data won't be updated when the module is upgraded -->
         <record id="partner_relation_property" model="res.partner.relation.type">
             <field name="name">Owner</field>
-            <field name="contact_type_left">7</field>
-            <field name="partner_category_left">7</field>
+            <field name="contact_type_left">p</field>
+            <field name="partner_category_left" ref="bemade_sethy_configuration.partner_tag_owner"/>
             <field name="name_inverse">Property</field>
-            <field name="contact_type_right">7</field>
-            <field name="partner_category_right">7</field>
+            <field name="contact_type_right" ref="bemade_sethy_configuration.partner_tag_property"/>
+            <field name="partner_category_right">c</field>
         </record>
     </data>
 </odoo>
