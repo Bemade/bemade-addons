@@ -9,5 +9,5 @@ class ResPartner(models.Model):
 
     surface = fields.Float(string='Surface')
     ref_project = fields.Text(string='Project')
-    intent = fields.Bollean(string='Intent')
+    intent = fields.Boolean(string='Intent')
     
