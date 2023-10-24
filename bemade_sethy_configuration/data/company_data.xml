@@ -8,7 +8,7 @@
             <field name="street">164, rue Cowie</field>
             <field name="street2">local 335</field>
             <field name="city">Granby</field>
-            <field name="state_id" ref="base.state_qc"/> <!-- Assuming 'base.state_qc' is the external ID for Québec -->
+            <field name="state_id" ref="base.state_qc"/> <!-- Assuming 'base.state_ca_qc' is the external ID for Québec -->
             <field name="zip">J2G 3V3</field>
             <field name="country_id" ref="base.ca"/> <!-- Assuming 'base.ca' is the external ID for Canada -->
             <field name="phone">450 994-3173</field>
