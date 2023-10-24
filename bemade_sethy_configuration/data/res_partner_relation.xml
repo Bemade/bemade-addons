@@ -1,1 +1,13 @@
-
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1"> <!-- noupdate="1" means the data won't be updated when the module is upgraded -->
+        <record id="partner_tag_property" model="res.partner_tag">
+            <field name="name">Property</field>
+            <field name="color">7</field>
+        </record>
+        <record id="partner_tag_owner" model="res.partner_tag">
+            <field name="name">Owner</field>
+            <field name="color">4</field>
+        </record>
+    </data>
+</odoo>
