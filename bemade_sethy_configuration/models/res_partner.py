@@ -13,11 +13,11 @@ class ResPartner(models.Model):
     intent_signing = fields.Boolean(string='Intent to sign')
     cyberimpact = fields.Boolean(string='Cyberimpact')
     specification_date = fields.Date(string='Specification date')
-    crm_stage_activity = fields.Text(string='Project No')
+    crm_stage_activity = fields.Text(string='Activity Stage')
     interest_level = fields.Selection(selection=[('1','None'),
                                                  ('2','Low'),
                                                  ('3','Average'),
                                                  ('4','High')], string='Interest Level')
-    company_use = fields.Text(string='Company')
+    company_use = fields.Text(string='Company related')
 
 
