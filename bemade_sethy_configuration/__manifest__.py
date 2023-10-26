@@ -15,14 +15,14 @@
         'contacts',
         'crm',
         'membership',
-        'partner_multi_relation',
-        'web_responsive'
+        'partner_multi_relation'
     ],
     'data': [
         # Reference to XML, CSV, and other data files
         'data/company_data.xml',
         'data/partner_tags_data.xml',
-        'data/partner_relations_data.xml'
+        'data/partner_relations_data.xml',
+        'views/res_partner_relation.xml'
     ],
     'demo': [
         # Reference to demo data files
