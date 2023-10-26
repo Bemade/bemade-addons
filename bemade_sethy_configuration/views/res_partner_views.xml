@@ -10,7 +10,7 @@
                 <page string="Property" name="bemade_sethy_configuration.res_partner.defaults.form">
                     <group string="All relations">
                         <field name="relation_all_ids">
-                            <tree editable="top">
+                            <tree editable="top" string="">
                                 <field name="this_partner_id" required="True" options="{'no_create': True}" attrs="{}" invisible="1"/>
                                 <field name="type_selection_id" required="True" options="{'no_create': True}"/>
                                 <field name="other_partner_id" required="True" options="{'no_create': True}"/>
@@ -21,11 +21,11 @@
                         </field>
                     </group>
                     <group string="All Owners">
-                        <field name="relation_property_ids">
+                        <field name="relation_property_ids" string="">
                             <tree editable="top">
                                 <field name="this_partner_id" required="True" options="{'no_create': True}" attrs="{}" invisible="1"/>
                                 <field name="type_selection_id" required="True" options="{'no_create': True}" invisible="1"/>
-                                <field name="other_partner_id" required="True" options="{'no_create': True}"/>
+                                <field name="other_partner_id" required="True" options="{'no_create': True}" string="Owner"/>
                                 <field name="date_start"/>
                                 <field name="date_end"/>
                                 <field name="active" invisible="1"/>
@@ -33,11 +33,11 @@
                         </field>
                     </group>
                     <group string="All Properties">
-                        <field name="relation_owner_ids">
+                        <field name="relation_owner_ids" string="">
                             <tree editable="top">
                                 <field name="this_partner_id" required="True" options="{'no_create': True}" attrs="{}" invisible="1"/>
                                 <field name="type_selection_id" required="True" options="{'no_create': True}" invisible="1"/>
-                                <field name="other_partner_id" required="True" options="{'no_create': True}"/>
+                                <field name="other_partner_id" required="True" options="{'no_create': True}" string="Property"/>
                                 <field name="date_start"/>
                                 <field name="date_end"/>
                                 <field name="active" invisible="1"/>
