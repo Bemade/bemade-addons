@@ -22,7 +22,8 @@
         'data/company_data.xml',
         'data/partner_tags_data.xml',
         'data/partner_relations_data.xml',
-        'views/res_partner_relation.xml'
+        'views/res_partner_views.xml',
+        'views/res_partner_relation_views.xml'
     ],
     'demo': [
         # Reference to demo data files
