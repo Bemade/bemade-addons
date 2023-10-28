@@ -12,6 +12,8 @@
                     <field name="date_of_birth" widget="date"/>
                     <field name="email" widget="email"/>
                     <field name="phone" widget="phone"/>
+                    <field name="predicted_return_date"/>
+                    <field name="return_date"/>
                     <filter name="groupby_team_ids" context="{'group_by': 'team_ids'}"/>
                 </search>
             </field>
@@ -24,7 +26,7 @@
                       decoration-danger="match_status == 'no'
                                          and practice_status == 'no'"
                       decoration-warning="match_status == 'no'
-                                          and practice_status == 'no_contact'">
+                                          and practice_status != 'no'">
                     <field name="first_name"/>
                     <field name="last_name"/>
                     <field name="date_of_birth"/>
@@ -33,12 +35,13 @@
                     <field name="match_status"/>
                     <field name="practice_status"/>
                     <field name="predicted_return_date" widget="date"/>
+                    <field name="return_date" widget="date"/>
                     <field name="activity_ids" widget="list_activity"/>
                 </tree>
             </field>
         </record>
         <record id="sports_patient_view_list_embedded" model="ir.ui.view">
-            <field name="name">sports.patient.view.list</field>
+            <field name="name">sports.patient.view.list.embedded</field>
             <field name="model">sports.patient</field>
             <field name="arch" type="xml">
                 <tree string="Patients" multi_edit="True" editable="bottom"
@@ -52,12 +55,13 @@
                     <field name="age"/>
                     <field name="team_ids" widget="many2many_tags"/>
                     <field name="match_status"
-                           />
+                    />
                     <field name="practice_status"/>
                     <field name="predicted_return_date" widget="date"/>
+                    <field name="return_date" widget="date"/>
                     <field name="activity_ids" widget="list_activity"/>
                     <button name="action_view_patient_form" type="object"
-                            class="fa fa-arrow-right" title="Details"/>
+                            title="Details" string="Details"/>
                 </tree>
             </field>
         </record>
@@ -66,17 +70,26 @@
             <field name="model">sports.patient</field>
             <field name="arch" type="xml">
                 <form>
-                    <header></header>
+                    <header>
+                        <field name="stage" widget="statusbar" options="{'clickable': '1'}" />
+                    </header>
                     <sheet>
                         <div class="oe_button_box"></div>
                         <div class="oe_title"><h1>Patient Record</h1></div>
                         <group>
-                            <group>
+                            <group col="3">
                                 <separator string="Patient Information"/>
-                                <field name="first_name"/>
-                                <field name="last_name"/>
-                                <field name="date_of_birth"/>
-                                <field name="age"/>
+                                <field name="first_name" colspan="3"/>
+                                <field name="last_name" colspan="3"/>
+                                <field name="date_of_birth" colspan="3"/>
+                                <field name="age" colspan="3"/>
+                                <label for="last_consultation_date" colspan="1"/>
+                                <span colspan="2">
+                                    <field name="last_consultation_date" widget="date" class="oe_inline"/>
+                                    <button type="object" name="action_consulted_today"
+                                            class="fa fa-refresh" title="Set to Today's Date"/>
+                                </span>
+
                             </group>
                             <group>
                                 <separator string="Team Information"/>
@@ -85,6 +98,7 @@
                                 <field name="match_status"/>
                                 <field name="practice_status"/>
                                 <field name="predicted_return_date"/>
+                                <field name="return_date"/>
                             </group>
                             <notebook>
                                 <page string="Injuries">
@@ -117,20 +131,29 @@
             <field name="model">sports.patient.injury</field>
             <field name="arch" type="xml">
                 <form>
-                    <header></header>
+                    <header>
+                        <field name="stage" widget="statusbar" options="{'clickable': '1'}"/>
+                    </header>
                     <sheet>
                         <div class="oe_title">
                             <h1>
-                                <field name="patient_name"/>
+                                Injury Details for
+                                <field name="patient_name" class="oe_inline"/>
                             </h1>
                         </div>
                         <group>
-                            <field name="injury_date_time"/>
-                            <field name="diagnosis"/>
-                            <field name="internal_notes"/>
-                            <field name="treatment_professional_ids"
-                                   widget="many2many_tags_avatar"/>
-                            <field name="predicted_resolution_date"/>
+                            <group>
+                                <field name="injury_date_time"/>
+                                <field name="diagnosis"/>
+                                <field name="predicted_resolution_date"/>
+                                <field name="resolution_date"/>
+                            </group>
+                            <group>
+                                <field name="internal_notes" widget="html"/>
+                                <field name="external_notes" widget="html"/>
+                                <field name="treatment_professional_ids"
+                                       widget="many2many_tags_avatar"/>
+                            </group>
                         </group>
                     </sheet>
                     <div class="oe_chatter">
@@ -150,11 +173,12 @@
                     <field name="injury_date_time" widget="datetime"/>
                     <field name="diagnosis"/>
                     <field name="predicted_resolution_date" widget="date"/>
+                    <field name="resolution_date" widget="date"/>
                     <field name="treatment_professional_ids"
                            widget="many2many_avatar_user"/>
                     <field name="activity_ids" widget="list_activity"/>
                     <button name="action_view_injury_form" type="object"
-                            class="fa fa-arrow-right" title="Details"/>
+                            title="Details" string="Details"/>
                 </tree>
             </field>
         </record>

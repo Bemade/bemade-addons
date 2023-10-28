@@ -1,122 +1,142 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <data>
-        <record id="teams_view_search" model="ir.ui.view">
-            <field name="name">teams.view.search</field>
-            <field name="model">sports.team</field>
-            <field name="arch" type="xml">
-                <search>
-                    <field name="name"/>
-                    <field name="parent_id" string="Parent Organization"/>
-                    <field name="head_coach_id"/>
-                    <field name="head_trainer_id"/>
-                    <filter name="groupby_parent_id"
-                            context="{'group_by': 'parent_id'}"/>
-                    <filter name="groupby_head_coach_id"
-                            context="{'group_by': 'head_coach_id'}"/>
-                    <filter name="groupby_head_trainer_id"
-                            context="{'group_by': 'head_trainer_id'}"/>
-                </search>
-            </field>
-        </record>
-        <record id="sports_team_view_kanban" model="ir.ui.view">
-            <field name="name">sports.team.view.kanban</field>
-            <field name="model">sports.team</field>
-            <field name="arch" type="xml">
-                <kanban default_group_by="parent_id" default_order="name"
-                        group_create="false" group_delete="false" archivable="false">
-                    <field name="name"/>
-                    <field name="parent_id"/>
-                    <field name="head_coach_name"/>
-                    <field name="head_trainer_name"/>
-                    <field name="injured_count"/>
-                    <field name="healthy_count"/>
-                    <templates>
-                        <t t-name="kanban-box">
-                            <div t-attf-class="oe_kanban_content oe_kanban_global_click">
-                                <div>
-                                    <strong class="o_kanban_record_title">
-                                        <span><field name="name"/></span>
-                                    </strong>
-                                </div>
-                                <div>
-                                    <span class="o_kanban_record_subtitle">
-                                        <field name="parent_id"/>
+    <record id="teams_view_search" model="ir.ui.view">
+        <field name="name">teams.view.search</field>
+        <field name="model">sports.team</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="parent_id" string="Parent Organization"/>
+                <field name="head_coach_id"/>
+                <field name="head_trainer_id"/>
+                <filter name="groupby_parent_id"
+                        context="{'group_by': 'parent_id'}"/>
+                <filter name="groupby_head_coach_id"
+                        context="{'group_by': 'head_coach_id'}"/>
+                <filter name="groupby_head_trainer_id"
+                        context="{'group_by': 'head_trainer_id'}"/>
+            </search>
+        </field>
+    </record>
+    <record id="sports_team_view_kanban" model="ir.ui.view">
+        <field name="name">sports.team.view.kanban</field>
+        <field name="model">sports.team</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="parent_id" default_order="name"
+                    group_create="false" group_delete="false" archivable="false">
+                <field name="name"/>
+                <field name="parent_id"/>
+                <field name="head_coach_name"/>
+                <field name="head_trainer_name"/>
+                <field name="injured_count"/>
+                <field name="healthy_count"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_content oe_kanban_global_click">
+                            <div>
+                                <strong class="o_kanban_record_title">
+                                    <span><field name="name"/></span>
+                                </strong>
+                            </div>
+                            <div>
+                                <span class="o_kanban_record_subtitle">
+                                    <field name="parent_id"/>
+                                </span>
+                            </div>
+                            <div>
+                                <span>Head coach: <field
+                                        name="head_coach_name"/></span>
+                            </div>
+                            <div>
+                                <span>Head trainer: <field
+                                        name="head_trainer_name"/></span>
+                            </div>
+                            <div class="o_kanban_record_bottom">
+                                <div class="oe_kanban_bottom_left">
+                                    <span class="text-success">Healthy:
+                                        <field name="healthy_count"/>
                                     </span>
                                 </div>
-                                <div>
-                                    <span>Head coach: <field
-                                            name="head_coach_name"/></span>
-                                </div>
-                                <div>
-                                    <span>Head trainer: <field
-                                            name="head_trainer_name"/></span>
-                                </div>
-                                <div class="o_kanban_record_bottom">
-                                    <div class="oe_kanban_bottom_left">
-                                        <span class="text-success">Healthy:
-                                            <field name="healthy_count"/>
-                                        </span>
-                                    </div>
-                                    <div class="oe_kanban_bottom_right">
-                                        <span t-attf-class="{{record.injured_count.value != 0 ? 'text-danger' : ''}}">
-                                            Injured:
-                                            <field name="injured_count"/>
-                                        </span>
-                                    </div>
+                                <div class="oe_kanban_bottom_right">
+                                    <span t-attf-class="{{record.injured_count.value != 0 ? 'text-danger' : ''}}">
+                                        Injured:
+                                        <field name="injured_count"/>
+                                    </span>
                                 </div>
                             </div>
-                        </t>
-                    </templates>
-                </kanban>
-            </field>
-        </record>
-        <record id="sports_team_view_list" model="ir.ui.view">
-            <field name="name">sports.team.view.list</field>
-            <field name="model">sports.team</field>
-            <field name="arch" type="xml">
-                <tree string="Sports Teams">
-                    <field name="name"/>
-                    <field name="parent_id"/>
-                    <field name="head_coach_id"/>
-                    <field name="head_trainer_id"/>
-                    <field name="player_count"/>
-                    <field name="injured_count"/>
-                </tree>
-            </field>
-        </record>
-        <record id="sports_team_view_form" model="ir.ui.view">
-            <field name="name">sports.team.view.form</field>
-            <field name="model">sports.team</field>
-            <field name="arch" type="xml">
-                <form>
-                    <header></header>
-                    <sheet>
-                        <div class="oe_button_box"></div>
-                        <div class="oe_title"><h1><field name="name"/></h1></div>
-                        <group string="Team Information">
-                            <group>
-                                <field name="parent_id"/>
-                                <field name="player_count"/>
-                                <field name="injured_count"/>
-                            </group>
-                            <group>
-                                <field name="staff_ids">
-                                    <tree>
-                                        <field name="sequence" widget="handle"/>
-                                        <field name="partner_id"/>
-                                        <field name="role"/>
-                                    </tree>
-                                </field>
-                            </group>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    <record id="sports_team_view_list" model="ir.ui.view">
+        <field name="name">sports.team.view.list</field>
+        <field name="model">sports.team</field>
+        <field name="arch" type="xml">
+            <tree string="Sports Teams">
+                <field name="name"/>
+                <field name="parent_id"/>
+                <field name="head_coach_id"/>
+                <field name="head_trainer_id"/>
+                <field name="player_count"/>
+                <field name="injured_count"/>
+            </tree>
+        </field>
+    </record>
+    <record id="sports_team_view_form" model="ir.ui.view">
+        <field name="name">sports.team.view.form</field>
+        <field name="model">sports.team</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="id" invisible="1"/>
+                <header></header>
+                <sheet>
+                    <div class="oe_button_box"></div>
+                    <div class="oe_title"><h1><field name="name"/></h1></div>
+                    <group string="Team Information">
+                        <group>
+                            <field name="parent_id"/>
+                            <field name="player_count"/>
+                            <field name="injured_count"/>
                         </group>
-                        <separator string="Players"/>
-                        <field name="patient_ids" nolabel="1"
-                               context="{'tree_view_ref': 'bemade_sports_clinic.sports_patient_view_list_embedded'}"/>
-                    </sheet>
-                </form>
-            </field>
-        </record>
-
-    </data>
+                        <group>
+                            <field name="staff_ids">
+                                <tree>
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="role"/>
+                                    <field name="phone" widget="phone"/>
+                                </tree>
+                            </field>
+                        </group>
+                    </group>
+                    <separator string="Players"/>
+                    <field name="patient_ids" nolabel="1"
+                           context="{'tree_view_ref': 'bemade_sports_clinic.sports_patient_view_list_embedded'}"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="sports_team_staff_view_form" model="ir.ui.view">
+        <field name="name">sports.team.staff.view.form</field>
+        <field name="model">sports.team.staff</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="parent_id"/>
+                            <field name="role"/>
+                        </group>
+                        <group>
+                            <field name="phone" widget="phone"/>
+                            <field name="email" widget="email"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
 </odoo>

@@ -45,8 +45,26 @@ class Patient(models.Model):
                                  inverse_name='patient_id',
                                  string='Injuries', )
     injured_since = fields.Date(compute='_compute_is_injured')
-    predicted_return_date = fields.Date()
+    predicted_return_date = fields.Date(tracking=True)
+    return_date = fields.Date(tracking=True,
+                              help="When the player was cleared by medical staff to "
+                                   "return to match play.")
     is_injured = fields.Boolean(compute="_compute_is_injured")
+    stage = fields.Selection(
+        selection=[('no_play', 'Injured'), ('practice_ok', 'Cleared for Practice'), ('healthy', 'Cleared to Play')],
+        compute='_compute_stage')
+
+    last_consultation_date = fields.Date()
+
+    @api.depends('match_status', 'practice_status')
+    def _compute_stage(self):
+        for rec in self:
+            if rec.match_status == 'yes' and rec.practice_status == 'yes':
+                rec.stage = 'healthy'
+            elif rec.match_status == 'no' and rec.practice_status == 'no_contact':
+                rec.stage = 'practice_ok'
+            else:
+                rec.stage = 'no_play'
 
     @api.depends('date_of_birth')
     def _compute_age(self):
@@ -68,8 +86,8 @@ class Patient(models.Model):
             rec.is_injured = rec.practice_status != 'yes' or rec.match_status != 'yes'
             if rec.is_injured:
                 rec.injured_since = \
-                rec.injury_ids.filtered(lambda r: not r.is_resolved).sorted(
-                    'injury_date_time')[0].injury_date_time
+                    rec.injury_ids.filtered(lambda r: not r.stage == 'resolved').sorted(
+                        'injury_date_time')[0].injury_date_time
             else:
                 rec.injured_since = False
 
@@ -81,6 +99,16 @@ class Patient(models.Model):
             'res_model': 'sports.patient',
             'res_id': self.id,
             'context': self._context,
+        }
+
+    def action_consulted_today(self):
+        self.ensure_one()  # should just be called from form view
+        self.last_consultation_date = date.today()
+        return {
+            'view_mode': 'form',
+            'res_model': 'sports.patient',
+            'context': self._context,
+            'res_id': self.id,
         }
 
 
@@ -114,6 +142,7 @@ class PatientInjury(models.Model):
     injury_date_time = fields.Datetime(string='Date and Time of Injury', required=True,
                                        default=datetime.now())
     internal_notes = fields.Html(tracking=True)
+    external_notes = fields.Html(tracking=True)
     treatment_professional_ids = fields.Many2many(comodel_name='res.users',
                                                   relation='patient_injury_treatment_pro_rel',
                                                   column1='patient_injury_id',
@@ -123,7 +152,18 @@ class PatientInjury(models.Model):
                                                       ('is_treatment_professional', '=',
                                                        True)], tracking=True)
     predicted_resolution_date = fields.Date(tracking=True)
-    is_resolved = fields.Boolean(tracking=True, required=True, default=False)
+    resolution_date = fields.Date(tracking=True,
+                                  help="The date when the injury was actually resolved.")
+    stage = fields.Selection(selection=[('active', 'Active'), ('resolved', 'Resolved')], tracking=True, required=True,
+                             default='active', readonly=False)
+
+    @api.constrains('stage')
+    def constrain_stage_on_resolution_date(self):
+        for rec in self:
+            if rec.stage == 'resolved' and not rec.resolution_date:
+                raise ValidationError(_('Cannot set an injury as resolved without setting the resolution date first.'))
+
+
 
     def write(self, vals):
         super().write(vals)

@@ -64,6 +64,10 @@ class TeamStaff(models.Model):
         ('trainer', 'Trainer'),
         ('other', 'Other')
     ], required=True)
+    phone = fields.Char(related='partner_id.phone', readonly=False)
+    name = fields.Char(related='partner_id.name', readonly=False)
+    parent_id = fields.Many2one(related='partner_id.parent_id', readonly=False, string="Organization")
+    email = fields.Char(related='parent_id.email', readonly=False)
 
     _sql_constraints = [('team_staff_unique', 'unique(team_id, partner_id)',
                          'Each partner can only be related to a given team once.')]
@@ -76,3 +80,8 @@ class TeamStaff(models.Model):
                 raise ValidationError(_("A team can have only one head coach."))
             if len(team.staff_ids.filtered(lambda r: r.role == 'head_trainer')) > 1:
                 raise ValidationError(_("A team can have only one head trainer."))
+
+    @api.onchange('phone')
+    def _onchange_phone_validation(self):
+        if self.phone:
+            self.phone = self.partner_id._phone_format(self.phone, force_format='INTERNATIONAL')
