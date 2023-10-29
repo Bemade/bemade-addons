@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="res_partner_view_form_sports_teams" model="ir.ui.view">
+        <field name="name">res.partner.view.form.sports.teams</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <page name="contact_addresses" position="after">
+                <page name="teams" attrs="{'invisible': [('owned_team_ids', '=', False)]}" string="Teams">
+                    <field name="owned_team_ids"/>
+                </page>
+            </page>
+        </field>
+    </record>
+</odoo>

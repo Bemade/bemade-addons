@@ -18,6 +18,7 @@
             <field name="zip">H3C 3J7</field>
             <field name="phone">+1 (514) 343-6111</field>
             <field name="website">https://www.umontreal.ca</field>
+            <field name="is_company" eval="True"/>
         </record>
         <record id="team_carabins" model="sports.team">
             <field name="name">Carabins (Football masculin)</field>
@@ -103,6 +104,7 @@
             <field name="country_id" ref="base.ca"/>
             <field name="zip">H3G 1M8</field>
             <field name="website">https://www.concordia.ca</field>
+            <field name="is_company" eval="True"/>
         </record>
         <record id="team_stingers" model="sports.team">
             <field name="name">Stingers (Hockey masculin)</field>
@@ -155,6 +157,9 @@
             <field name="partner_id" ref="base.partner_demo_portal"/>
             <field name="team_id" ref="team_stingers"/>
             <field name="role">head_coach</field>
+        </record>
+        <record id="base.partner_demo_portal" model="res.partner">
+            <field name="parent_id" ref="partner_org_2"/>
         </record>
         <record id="carabins_trainer_user" model="res.users" context="{'no_reset_password': True}">
             <field name="partner_id" ref="partner_trainer_team_carabins"/>

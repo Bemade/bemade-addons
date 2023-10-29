@@ -46,6 +46,7 @@
         'views/sports_clinic_menus.xml',
         'views/sports_patient_views.xml',
         'views/sports_clinic_portal_views.xml',
+        'views/res_partner_views.xml',
     ],
     'demo': ['data/demo/sports_clinic_demo_data.xml'],
     'installable': True,

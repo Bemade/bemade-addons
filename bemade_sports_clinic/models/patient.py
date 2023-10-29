@@ -8,6 +8,7 @@ class Patient(models.Model):
     _name = 'sports.patient'
     _description = "Patient at a sports medicine clinic."
     _inherit = ['mail.thread', 'mail.activity.mixin']
+    _order = 'last_name, first_name'
 
     first_name = fields.Char(required=True, tracking=True)
     last_name = fields.Char(required=True, tracking=True)
@@ -53,8 +54,13 @@ class Patient(models.Model):
     stage = fields.Selection(
         selection=[('no_play', 'Injured'), ('practice_ok', 'Cleared for Practice'), ('healthy', 'Cleared to Play')],
         compute='_compute_stage')
-
     last_consultation_date = fields.Date()
+    active_injury_count = fields.Integer(compute='_compute_active_injury_count')
+
+    @api.depends('injury_ids.stage')
+    def _compute_active_injury_count(self):
+        for rec in self:
+            rec.active_injury_count = len(rec.injury_ids.filtered(lambda r: r.stage == 'active'))
 
     @api.depends('match_status', 'practice_status')
     def _compute_stage(self):

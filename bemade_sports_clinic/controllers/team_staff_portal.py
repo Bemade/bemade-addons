@@ -87,3 +87,19 @@ class TeamStaffPortal(CustomerPortal):
                                        'pager': pgr,
                                        'page_name': 'my_players',
                                    })
+
+    @http.route(route=['/my/players/<int:player_id>'], type='http', auth='user', website=True)
+    def view_player(self, player_id, **kw):
+        """ Display the active injuries for a given player. """
+        player = http.request.env['sports.patient'].browse(player_id)
+        if not player:
+            raise UserError(_('This player could not be found.'))
+        injuries = player.injury_ids.filtered(lambda r: r.stage == 'active')
+        return http.request.render(
+            template='bemade_sports_clinic.portal_my_player_injuries',
+            qcontext={
+                'player': player,
+                'injuries': injuries,
+                'page_name': 'my_player_injuries',
+            }
+        )
