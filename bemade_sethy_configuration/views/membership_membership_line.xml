@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="tree_res_partner_relation" model="ir.ui.view">
+        <field name="model">membership.membership_line</field>
+        <field name="arch" type="xml">
+            <tree editable="top">
+                <field
+                    name="partner"
+                    required="True"
+                />
+                <field
+                    name="date"
+                />
+                <field
+                    name="date_from"
+                />
+                <field name="date_to" />
+                <field name="membership_id" />
+            </tree>
+        </field>
+    </record>
+<!--    <record id="search_res_partner_relation_all" model="ir.ui.view">-->
+<!--        <field name="model">res.partner.relation.all</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <search string="Search Relations">-->
+<!--                <field name="any_partner_id" widget="many2one" />-->
+<!--                <field name="this_partner_id" />-->
+<!--                <field name="other_partner_id" />-->
+<!--                <field name="type_selection_id" />-->
+<!--                <filter-->
+<!--                    name="left_to_right"-->
+<!--                    string="Left to right"-->
+<!--                    domain="[('is_inverse', '=', False)]"-->
+<!--                />-->
+<!--                <filter-->
+<!--                    name="right_to_left"-->
+<!--                    string="Right to left"-->
+<!--                    domain="[('is_inverse', '=', True)]"-->
+<!--                />-->
+<!--                <filter-->
+<!--                    name="include_part_records"-->
+<!--                    string="Include past records"-->
+<!--                    context="{'active_test': False}"-->
+<!--                />-->
+<!--                <group expand="0" string="Group By">-->
+<!--                    <filter-->
+<!--                        name="group_by_this_partner_id"-->
+<!--                        string="One Partner"-->
+<!--                        context="{'group_by': 'this_partner_id'}"-->
+<!--                    />-->
+<!--                    <filter-->
+<!--                        name="group_by_type_selection_id"-->
+<!--                        string="Relationship Type"-->
+<!--                        context="{'group_by': 'type_selection_id'}"-->
+<!--                    />-->
+<!--                    <filter-->
+<!--                        name="group_by_other_partner_id"-->
+<!--                        string="Other Partner"-->
+<!--                        context="{'group_by': 'other_partner_id'}"-->
+<!--                    />-->
+<!--                </group>-->
+<!--            </search>-->
+<!--        </field>-->
+<!--    </record>-->
+    <record id="action_membership_membership_line" model="ir.actions.act_window">
+        <field name="name">Membership line</field>
+        <field name="res_model">membership.membership_line</field>
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="tree_res_partner_relation" />
+<!--        <field name="search_view_id" ref="search_res_partner_relation_all" />-->
+<!--        <field name="context">{'active_test': 0}</field>-->
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Record and track your partners'membership
+            </p>
+        </field>
+    </record>
+
+    <menuitem
+        id="menu_membership_membership_line"
+        sequence="3"
+        parent="membership.menu_association"
+        action="action_membership_membership_line"
+    />
+</odoo>
