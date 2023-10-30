@@ -69,12 +69,6 @@ class ResPartner(models.Model):
                         line.type_id.name == 'Owner' and line.is_inverse)
             )
 
-    # @api.depends('is_property')
-    # def _forcing_company(self):
-    #     for record in self:
-    #         if record.is_property:
-    #             record.is_company = True
-
     @api.onchange('is_property')
     def _onchange_is_property(self):
         """ Set is_company to True when is_property is set to True. """
@@ -98,3 +92,37 @@ class ResPartner(models.Model):
         for record in self:
             record.property_count = len(record.relation_property_ids)
             record.is_owner = record.property_count > 0
+
+    def write(self, vals):
+        property_tag = self.env.ref('bemade_sethy_configuration.partner_tag_property', raise_if_not_found=False)
+        owner_tag = self.env.ref('bemade_sethy_configuration.partner_tag_owner', raise_if_not_found=False)
+        if 'is_property' in vals:
+            if vals['is_property'] and property_tag:
+                vals['category_id'] = [(4, property_tag.id)]
+            elif not vals['is_property'] and property_tag:
+                vals['category_id'] = [(3, property_tag.id)]
+        if len(self.relation_owner_ids) > 0:
+            vals['category_id'] = [(4, owner_tag.id)]
+        else:
+            vals['category_id'] = [(3, owner_tag.id)]
+        return super(ResPartner, self).write(vals)
+
+    @api.model
+    def create(self, vals):
+        property_tag = self.env.ref('bemade_sethy_configuration.partner_tag_property', raise_if_not_found=False)
+        if 'is_property' in vals:
+            if vals['is_property'] and property_tag:
+                vals['category_id'] = [(4, property_tag.id)]
+            elif not vals['is_property'] and property_tag:
+                vals['category_id'] = [(3, property_tag.id)]
+        return super(ResPartner, self).create(vals)
+
+    @api.onchange('is_property')
+    def _inverse_is_property(self):
+        property_tag = self.env.ref('bemade_sethy_configuration.partner_tag_property', raise_if_not_found=False)
+        for partner in self:
+            if partner.is_property:
+                partner.category_id |= property_tag
+            else:
+                partner.category_id -= property_tag
+

@@ -4,7 +4,7 @@
     'name': 'Bemade Sethy',
     'version': '1.0',
     'category': 'Specific Module Category',  # Specify your module's category here
-    'summary': 'This module is developed by Bemade to instantiate the Sethy Odoo',  # Provide a brief summary of the module
+    'summary': "This module is developed by Bemade to instantiate the Sethy's Odoo",
     'author': 'Bemade',
     'website': 'https://bemade.org',
     'email': 'it@bemade.org',
@@ -14,15 +14,20 @@
         'base',
         'contacts',
         'crm',
+        'l10n_ca',
         'membership',
-        'partner_multi_relation'
+        'membership_extension',
+        'membership_variable_period',
+        'partner_multi_relation',
+        'sale_management'
     ],
     'data': [
         # Reference to XML, CSV, and other data files
+        'data/membership_category_data.xml',
+        'data/product_template_data.xml',
+        'data/partner_category_data.xml',
+        'data/partner_relation_type_data.xml',
         'data/company_data.xml',
-        'data/partner_tags_data.xml',
-        'data/partner_relations_data.xml',
-        'views/res_partner_views.xml',
         'views/res_partner_relation_views.xml',
         'views/membership_membership_line.xml'
 
