@@ -16,8 +16,8 @@ class ResPartner(models.Model):
     specification_date = fields.Date(string='Specification date')  # proprio
     crm_stage_activity = fields.Text(string='Activity Stage')  # proprio
 
-    property_count = fields.Integer(string='Property count', compute='_compute_property_count')
-    is_owner = fields.Boolean(string='Is Owner', compute='_compute_property_count')
+    property_count = fields.Integer(string='Property count', compute='_compute_property_count', store=True)
+    is_owner = fields.Boolean(string='Is Owner', compute='_compute_property_count', store=True)
 
     sethy_firs_tdate = fields.Date(string='First membership date')  # member
     sethy_last_date = fields.Date(string='Last membership date')  # member
