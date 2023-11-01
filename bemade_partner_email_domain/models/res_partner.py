@@ -8,6 +8,8 @@ class Partner(models.Model):
     @api.onchange('email')
     def _check_parent_from_email_domain(self):
         for rec in self:
+            if rec.parent_id:
+                continue
             try:
                 # Split the email address on '@' and get the domain part
                 if rec.email:
