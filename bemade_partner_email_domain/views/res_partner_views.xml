@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="partner_email_domain_form" model="ir.ui.view">
+        <field name="name">bemade_partner_email_domain.partner.email.domain.form</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <field name="email" position="after">
+                <label for="email_domain" string="Domain"/>
+                <field name="email_domain"/>
+            </field>
+        </field>
+    </record>
+</odoo>
