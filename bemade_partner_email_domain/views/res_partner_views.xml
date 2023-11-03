@@ -5,9 +5,14 @@
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
-            <field name="email" position="after">
-                <label for="email_domain" string="Domain"/>
-                <field name="email_domain"/>
+            <field name="company_type" position="after">
+                <label for="domain_identifier" string="Domain identifier" attrs="{'invisible': ['|', ('is_company', '=', False), ('is_subdivision', '=', True)]}"/>
+                <field name="domain_identifier" attrs="{'invisible': ['|', ('is_company', '=', False), ('is_subdivision', '=', True)]}"/>
+                <label for="is_subdivision" string="Division" attrs="{'invisible': ['|', ('is_company', '=', False), ('domain_identifier', '=', True)]}"/>
+                <field name="is_subdivision" attrs="{'invisible': ['|', ('is_company', '=', False), ('domain_identifier', '=', True)]}"/>
+            </field>
+            <field name="website" position="before">
+                <field name="email_domain" attrs="{'invisible': [('is_company', '=', False)]}"/>
             </field>
         </field>
     </record>

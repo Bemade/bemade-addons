@@ -7,10 +7,12 @@
         This module allows users to automatically link a partner to a company based on the email domain.
     """,
     'depends': [
-        'base'
+        'base',
+        'mail'
     ],
     'data': [
-        'views/res_partner_views.xml'
+        'views/res_partner_views.xml',
+        'data/mail_template.xml'
     ],
     'license': 'AGPL-3',
     'author': 'Bemade',
