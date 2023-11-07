@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data noupdate="1">
+        <record id="email_template_select_parent" model="mail.template">
+            <field name="name">Division Selection: Choose Your Division</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="email_from">{{object.company_id.email_formatted or user.email_formatted}}</field>
+            <field name="partner_to">{{object.id}}</field>
+            <field name="subject">Select Your Division at {{object.company_id.name}}</field>
+            <field name="body_html" type="html">
+                <table border="0" cellpadding="0" cellspacing="0"
+                       style="padding-top: 16px; background-color: #F1F1F1; font-family:Verdana, Arial, sans-serif; color: #454748; width: 100%; border-collapse:separate;">
+                    <tbody>
+                        <tr>
+                            <td align="center">
+                                <table border="0" cellpadding="0" cellspacing="0" width="590"
+                                       style="padding: 16px; background-color: white; color: #454748; border-collapse:separate;">
+                                    <tbody>
+                                        <!-- HEADER -->
+                                        <tr>
+                                            <td align="center" style="min-width: 590px;">
+                                                <!-- Content here -->
+                                            </td>
+                                        </tr>
+                                        <!-- CONTENT -->
+                                        <tr>
+                                            <td align="center" style="min-width: 590px;">
+                                                <table border="0" cellpadding="0" cellspacing="0" width="590"
+                                                       style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td valign="top" style="font-size: 13px;">
+                                                                <p>Hello <t t-out="object.name or ''">Brandon Freeman</t>,</p>
+                                                                <p>We noticed that you have registered with our company by sending an email or using our website.  To provide you with the best possible service, we need you to confirm the division of your company that you are working for.</p>
+                                                                <p>Please click on the link below to select your division:</p>
+                                                                <ul>
+                                                                    <t t-foreach="ctx.get('links', {}).items()" t-as="company_name">
+                                                                        <li>
+                                                                            <a t-attf-href="{{ company_name[1] }}" style="font-size:12px">
+                                                                                <t t-esc="company_name[0]"/>
+                                                                            </a>
+                                                                        </li>
+                                                                    </t>
+                                                                </ul>
+                                                                <p>If you have any questions or did not register with us, please disregard this email or contact us directly.</p>
+                                                                <p>Best regards,</p>
+                                                                <p>The Durpro team.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <!-- More content can be added here -->
+                                                    </tbody>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <!-- FOOTER -->
+                                        <tr>
+                                            <td align="center" style="min-width: 590px;">
+                                                <table border="0" cellpadding="0" cellspacing="0" width="590"
+                                                       style="min-width: 590px; background-color: white; font-size: 11px; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td valign="middle" align="left">
+                                                                <t t-out="object.company_id.name or ''"/>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td valign="middle" align="left" style="opacity: 0.7;">
+                                                                <t t-out="object.company_id.phone or ''"/>
+                                                                <t t-if="object.company_id.email">
+                                                                    | <a t-att-href="'mailto:%s' % object.company_id.email" style="text-decoration:none; color: #454748;" t-out="object.company_id.email or ''"></a>
+                                                                </t>
+                                                                <t t-if="object.company_id.website">
+                                                                    | <a t-att-href="'%s' % object.company_id.website" style="text-decoration:none; color: #454748;" t-out="object.company_id.website or ''"></a>
+                                                                </t>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                        <!-- POWERED BY -->
+                        <tr>
+                            <td align="center" style="min-width: 590px;">
+                                <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: #F1F1F1; color: #454748; padding: 8px; border-collapse:separate;">
+                                    <tbody>
+                                        <tr>
+                                            <td style="text-align: center; font-size: 13px;">
+                                                Powered by <a target="_blank" href="https://www.odoo.com?utm_source=db&amp;utm_medium=auth" style="color: #875A7B;">Odoo</a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </field>
+            <field name="lang">{{ object.lang }}</field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+    </data>
+</odoo>
+
