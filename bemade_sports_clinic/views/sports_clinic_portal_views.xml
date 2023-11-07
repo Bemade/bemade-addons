@@ -63,7 +63,7 @@
                     <tbody>
                         <t t-foreach="players" t-as="player">
                             <t t-set="stage" t-value="player.stage"/>
-                            <t t-set="url" t-value="'/my/players/' + str(player.id)"/>
+                            <t t-set="url" t-value="'/my/players/' + str(player.id) + '/' + str(team.id)"/>
                             <tr t-attf-class="{{ ('text-danger' if stage == 'no_play'
                                                  else 'text-warning') if stage != 'healthy'
                                                  else '' }}">
@@ -191,12 +191,25 @@
                        t-attf-href="/my/teams?{{ keep_query() }}">Teams</a>
                     <t t-else="">Teams</t>
                 </li>
-                <li t-if="team" class="breadcrumb-item active" t-esc="team.name"/>
+                <li t-if="page_name == 'my_teams' and team" class="breadcrumb-item active" t-esc="team.name"/>
                 <li t-if="page_name == 'my_players'"
                     t-attf-class="breadcrumb-item #{'active ' if not player else ''}">
                     <a t-if="player"
                        t-attf-href="/my/players?{{ keep_query() }}">Players</a>
                     <t t-else="">Players</t>
+                </li>
+                <li t-if="player and page_name == 'my_player'" class="breadcrumb-item active">
+                    <a t-attf-href="/my/players?{{ keep_query() }}">Players</a>
+                    <span t-field="player.name"/>
+                </li>
+                <li t-if="player and team" class="breadcrumb-item">
+                    <a href="/my/teams">Teams</a>
+                </li>
+                <li t-if="player" class="breadcrumb-item">
+                    <a t-if="team" t-attf-href="/my/team/{{ team.id }}?{{ keep_query() }}">
+                        <span t-field="team.name"/>
+                    </a>
+                    <a t-else="" t-attf-href="/my/players/{{ keep_query() }}">Players</a>
                 </li>
                 <li t-if="player" class="breadcrumb-item active">
                     <span t-field="player.name"/>

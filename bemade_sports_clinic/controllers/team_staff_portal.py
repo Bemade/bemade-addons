@@ -88,10 +88,12 @@ class TeamStaffPortal(CustomerPortal):
                                        'page_name': 'my_players',
                                    })
 
-    @http.route(route=['/my/players/<int:player_id>'], type='http', auth='user', website=True)
-    def view_player(self, player_id, **kw):
+    @http.route(route=['/my/players/<int:player_id>', '/my/players/<int:player_id>/<int:team_id>'], type='http',
+                auth='user', website=True)
+    def view_player(self, player_id, team_id=None,**kw):
         """ Display the active injuries for a given player. """
         player = http.request.env['sports.patient'].browse(player_id)
+        team = team_id and http.request.env['sports.team'].browse(player_id)
         if not player:
             raise UserError(_('This player could not be found.'))
         injuries = player.injury_ids.filtered(lambda r: r.stage == 'active')
@@ -100,6 +102,6 @@ class TeamStaffPortal(CustomerPortal):
             qcontext={
                 'player': player,
                 'injuries': injuries,
-                'page_name': 'my_player_injuries',
+                'team': team
             }
         )

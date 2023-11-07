@@ -57,6 +57,18 @@ class Patient(models.Model):
     last_consultation_date = fields.Date()
     active_injury_count = fields.Integer(compute='_compute_active_injury_count')
 
+    @api.constrains('match_status', 'practice_status')
+    def constrain_match_and_practice_status(self):
+        """ Avoid invalid combinations of match and practice status:
+                - Yes (match), No (practice)
+                - Yes (match), No Contact (practice)
+        """
+        # combinations of (match_status, practice_status) that are valid
+        valid_combinations = [('yes', 'yes'), ('no', 'yes'), ('no', 'no_contact'), ('no', 'no')]
+        for rec in self:
+            if (rec.match_status, rec.practice_status) not in valid_combinations:
+                raise ValidationError(_("Invalid combination of match and practice status."))
+
     @api.depends('injury_ids.stage')
     def _compute_active_injury_count(self):
         for rec in self:
@@ -64,13 +76,17 @@ class Patient(models.Model):
 
     @api.depends('match_status', 'practice_status')
     def _compute_stage(self):
+        stage_map = {
+            ('yes', 'yes'): 'healthy',
+            ('no', 'yes'): 'practice_ok',
+            ('no', 'no_contact'): 'practice_ok',
+            ('no', 'no'): 'no_play',
+        }
         for rec in self:
-            if rec.match_status == 'yes' and rec.practice_status == 'yes':
-                rec.stage = 'healthy'
-            elif rec.match_status == 'no' and rec.practice_status == 'no_contact':
-                rec.stage = 'practice_ok'
-            else:
-                rec.stage = 'no_play'
+            if (rec.match_status, rec.practice_status) not in stage_map:
+                rec.stage = False  # not a valid combination, will be caught by constraint if save is attempted
+                continue
+            rec.stage = stage_map[(rec.match_status, rec.practice_status)]
 
     @api.depends('date_of_birth')
     def _compute_age(self):
@@ -91,9 +107,8 @@ class Patient(models.Model):
         for rec in self:
             rec.is_injured = rec.practice_status != 'yes' or rec.match_status != 'yes'
             if rec.is_injured:
-                rec.injured_since = \
-                    rec.injury_ids and rec.injury_ids.filtered(lambda r: not r.stage == 'resolved').sorted(
-                        'injury_date_time')[0].injury_date_time
+                unresolved_injuries = rec.injury_ids.filtered(lambda r: not r.stage == 'resolved')
+                rec.injured_since = unresolved_injuries and unresolved_injuries[0].injury_date_time
             else:
                 rec.injured_since = False
 
@@ -160,14 +175,15 @@ class PatientInjury(models.Model):
     predicted_resolution_date = fields.Date(tracking=True)
     resolution_date = fields.Date(tracking=True,
                                   help="The date when the injury was actually resolved.")
-    stage = fields.Selection(selection=[('active', 'Active'), ('resolved', 'Resolved')], tracking=True, required=True,
-                             default='active', readonly=False)
+    stage = fields.Selection(selection=[('active', 'Active'), ('resolved', 'Resolved')], compute='_compute_stage')
 
-    @api.constrains('stage')
-    def constrain_stage_on_resolution_date(self):
+    @api.depends('resolution_date')
+    def _compute_stage(self):
         for rec in self:
-            if rec.stage == 'resolved' and not rec.resolution_date:
-                raise ValidationError(_('Cannot set an injury as resolved without setting the resolution date first.'))
+            if rec.resolution_date and rec.resolution_date <= date.today():
+                rec.stage = 'resolved'
+            else:
+                rec.stage = 'active'
 
     def write(self, vals):
         super().write(vals)

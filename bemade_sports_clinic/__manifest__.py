@@ -37,7 +37,7 @@
     'author': 'Bemade Inc.',
     'website': 'https://www.bemade.org',
     'license': 'OPL-1',
-    'depends': ['base', 'mail', 'portal'],
+    'depends': ['portal', 'contacts'],
     'data': [
         'security/sports_clinic_groups.xml',
         'security/ir.model.access.csv',

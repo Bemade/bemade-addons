@@ -1,4 +1,4 @@
-from odoo import models, fields, api, _
+from odoo import models, fields, api, _, Command
 from odoo.exceptions import ValidationError
 
 
@@ -56,7 +56,7 @@ class TeamStaff(models.Model):
     sequence = fields.Integer()
     team_id = fields.Many2one(comodel_name='sports.team', string='Team', required=True)
     partner_id = fields.Many2one(comodel_name='res.partner', string='Staff Member',
-                                 required=True)
+                                 required=True, domain=[('is_company', '=', False)])
     role = fields.Selection(selection=[
         ('head_coach', 'Head Coach'),
         ('head_trainer', 'Head Trainer'),
@@ -66,8 +66,11 @@ class TeamStaff(models.Model):
     ], required=True)
     phone = fields.Char(related='partner_id.phone', readonly=False)
     name = fields.Char(related='partner_id.name', readonly=False)
-    parent_id = fields.Many2one(related='partner_id.parent_id', readonly=False, string="Organization")
+    parent_id = fields.Many2one(related='partner_id.parent_id', readonly=False, string="Organization",
+                                domain=[('is_company', '=', True)])
     email = fields.Char(related='parent_id.email', readonly=False)
+    user_ids = fields.One2many(related='partner_id.user_ids', readonly=True)
+    has_portal_access = fields.Boolean(compute='_compute_has_portal_access')
 
     _sql_constraints = [('team_staff_unique', 'unique(team_id, partner_id)',
                          'Each partner can only be related to a given team once.')]
@@ -85,3 +88,21 @@ class TeamStaff(models.Model):
     def _onchange_phone_validation(self):
         if self.phone:
             self.phone = self.partner_id._phone_format(self.phone, force_format='INTERNATIONAL')
+
+    @api.depends('user_ids', 'user_ids.groups_id')
+    def _compute_has_portal_access(self):
+        for rec in self:
+            rec.has_portal_access = bool(rec.user_ids.filtered(lambda r: r.has_group('base.group_portal'))) or bool(
+                rec.user_ids.filtered(lambda r: r.has_group('base.group_user'))) or bool(rec.partner_id.signup_token)
+
+    def action_revoke_portal_access(self):
+        group_portal = self.env.ref('base.group_portal')
+        group_public = self.env.ref('base.group_public')
+        self.user_ids.write(
+            {'groups_id': [Command.unlink(group_portal.id), Command.link(group_public.id)], 'active': False})
+        # Remove the signup token, so it cannot be used
+        self.partner_id.sudo().signup_token = False
+
+    def action_grant_portal_access(self):
+        wiz = self.env['portal.wizard'].create({'partner_ids': [(4, self.partner_id.id)]})
+        return wiz._action_open_modal()

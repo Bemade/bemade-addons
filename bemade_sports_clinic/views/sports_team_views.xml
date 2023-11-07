@@ -107,6 +107,20 @@
                                     <field name="name"/>
                                     <field name="role"/>
                                     <field name="phone" widget="phone"/>
+                                    <field name="has_portal_access" invisible="1"/>
+                                    <field name="partner_id" invisible="1"/>
+                                    <button name="action_grant_portal_access"
+                                            type="object" icon="fa-user-plus"
+                                            class="oe_highlight"
+                                            attrs="{'invisible': [('has_portal_access', '=', True)]}"
+                                            title="Grant Portal Access"
+                                            groups="bemade_sports_clinic.group_sports_clinic_admin,base.group_system"/>
+                                    <button name="action_revoke_portal_access" type="object" icon="fa-ban"
+                                            class="oe_highlight"
+                                            attrs="{'invisible': [('has_portal_access', '=', False)]}"
+                                            title="Revoke Portal Access"
+                                            groups="bemade_sports_clinic.group_sports_clinic_admin,base.group_system"/>
+
                                 </tree>
                             </field>
                         </group>
@@ -126,7 +140,7 @@
                 <sheet>
                     <group>
                         <group>
-                            <field name="name"/>
+                            <field name="partner_id"/>
                             <field name="parent_id"/>
                             <field name="role"/>
                         </group>
