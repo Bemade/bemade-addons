@@ -23,17 +23,16 @@
             <field name="model">sports.patient</field>
             <field name="arch" type="xml">
                 <tree string="Patients"
-                      decoration-danger="match_status == 'no'
-                                         and practice_status == 'no'"
-                      decoration-warning="match_status == 'no'
-                                          and practice_status != 'no'">
+                      decoration-danger="stage == 'no_play'"
+                      decoration-warning="stage == 'practice_ok'">
                     <field name="first_name"/>
                     <field name="last_name"/>
                     <field name="date_of_birth"/>
                     <field name="age"/>
                     <field name="team_ids" widget="many2many_tags"/>
-                    <field name="match_status"/>
-                    <field name="practice_status"/>
+                    <field name="match_status" optional="hide"/>
+                    <field name="practice_status" optional="hide"/>
+                    <field name="stage" optional="show"/>
                     <field name="predicted_return_date" widget="date"/>
                     <field name="return_date" widget="date"/>
                     <field name="activity_ids" widget="list_activity"/>
@@ -45,18 +44,16 @@
             <field name="model">sports.patient</field>
             <field name="arch" type="xml">
                 <tree string="Patients" multi_edit="True" editable="bottom"
-                      decoration-danger="match_status == 'no'
-                                         and practice_status == 'no'"
-                      decoration-warning="match_status == 'no'
-                                          and practice_status == 'no_contact'">
+                      decoration-danger="stage == 'no_play'"
+                      decoration-warning="stage == 'practice_ok'">
                     <field name="first_name"/>
                     <field name="last_name"/>
                     <field name="date_of_birth"/>
                     <field name="age"/>
                     <field name="team_ids" widget="many2many_tags"/>
-                    <field name="match_status"
-                    />
-                    <field name="practice_status"/>
+                    <field name="match_status" optional="hide"/>
+                    <field name="practice_status" optional="hide"/>
+                    <field name="stage" optional="show"/>
                     <field name="predicted_return_date" widget="date"/>
                     <field name="return_date" widget="date"/>
                     <field name="activity_ids" widget="list_activity"/>

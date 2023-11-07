@@ -68,12 +68,18 @@
                                                  else 'text-warning') if stage != 'healthy'
                                                  else '' }}">
                                 <td>
-                                    <strong><a t-attf-href="{{ url }}" t-field="player.last_name"/></strong>
+                                    <strong><span t-field="player.last_name"/></strong>
                                 </td>
                                 <td>
-                                    <strong><a t-attf-href="{{ url }}" t-field="player.first_name"/></strong>
+                                    <strong><span t-field="player.first_name"/></strong>
                                 </td>
-                                <td><span t-field="player.active_injury_count"/></td>
+                                <td class="text-center">
+                                    <a t-if="player.active_injury_count" t-attf-href="{{ url }}">
+                                        <span t-field="player.active_injury_count"/>
+                                        <span class="fa fa-external-link"></span>
+                                    </a>
+                                    <span t-else="">0</span>
+                                </td>
                                 <td><span t-field="player.match_status"/></td>
                                 <td><span t-field="player.practice_status"/></td>
                                 <td>
@@ -114,10 +120,10 @@
                                                  else 'text-warning') if stage != 'healthy'
                                                  else '' }}">
                                 <td>
-                                    <strong><a t-attf-href="{{ url }}" t-field="player.last_name"/></strong>
+                                    <strong><span t-field="player.last_name"/></strong>
                                 </td>
                                 <td>
-                                    <strong><a t-attf-href="{{ url }}" t-field="player.first_name"/></strong>
+                                    <strong><span t-field="player.first_name"/></strong>
                                 </td>
                                 <td>
                                     <ul class="list-unstyled">
@@ -129,7 +135,13 @@
                                         </t>
                                     </ul>
                                 </td>
-                                <td><span t-field="player.active_injury_count"/></td>
+                                <td class="text-center">
+                                    <a t-if="player.active_injury_count" t-attf-href="{{ url }}">
+                                        <span t-field="player.active_injury_count"/>
+                                        <span class="fa fa-external-link"></span>
+                                    </a>
+                                    <span t-else="">0</span>
+                                </td>
                                 <td><span t-field="player.match_status"/></td>
                                 <td><span t-field="player.practice_status"/></td>
                                 <td>
