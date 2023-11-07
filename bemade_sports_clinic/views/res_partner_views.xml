@@ -6,8 +6,13 @@
         <field name="model">res.partner</field>
         <field name="arch" type="xml">
             <page name="contact_addresses" position="after">
-                <page name="teams" attrs="{'invisible': [('owned_team_ids', '=', False)]}" string="Teams">
-                    <field name="owned_team_ids"/>
+                <page name="Teams">
+                    <field name="owned_team_ids"
+                           attrs="{'invisible': [('is_company', '=', False)]}"
+                           string="Teams"/>
+                    <field name="teams_served_ids"
+                           attrs="{'invisible': [('is_company', '=', True)]}"
+                           string="Teams Served"/>
                 </page>
             </page>
         </field>

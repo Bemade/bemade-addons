@@ -13,4 +13,9 @@ class Partner(models.Model):
                                          inverse_name='partner_id',
                                          string='Teams Served',
                                          help='The teams this person works for.')
+    teams_served_ids = fields.One2many(comodel_name='sports.team', compute='_compute_teams_served')
 
+    @api.depends('team_staff_rel_ids.team_id')
+    def _compute_teams_served(self):
+        for rec in self:
+            rec.teams_served_ids = rec.team_staff_rel_ids.mapped('team_id')
