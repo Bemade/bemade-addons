@@ -5,6 +5,7 @@ import logging
 # Set up logging
 _logger = logging.getLogger(__name__)
 
+
 # Define a new class that inherits from 'mail.thread'
 class MailThread(models.AbstractModel):
     _inherit = 'mail.thread'
@@ -14,9 +15,13 @@ class MailThread(models.AbstractModel):
         # Call the parent class's method and get the recipients
         recipients = super(MailThread, self)._notify_compute_recipients(message, msg_vals)
 
+        # Get the current datetime
+        now = fields.Datetime.now()
+
         # Loop through each recipient
         for recipient in recipients:
             # Search for a user with the same partner_id as the recipient
+
             user = self.env['res.users'].search([('partner_id', '=', recipient['id'])], limit=1)
             # If a user is found, search for an employee with the same user_id
             if user:
@@ -30,9 +35,9 @@ class MailThread(models.AbstractModel):
                 # Search for leaves that are validated, within the date range, and belong to the employee
                 leaves = self.sudo().env['hr.leave'].search([
                     ('state', '=', 'validate'),
-                    ('date_from', '<=', fields.Date.today()),
+                    ('date_from', '<=', now),
+                    ('date_to', '>', now),
                     ('employee_id', '=', employee_id),
-                    ('date_to', '>=', fields.Date.today()),
                 ])
                 # Loop through each leave
                 for leave in leaves:
