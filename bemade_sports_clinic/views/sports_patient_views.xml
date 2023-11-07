@@ -140,6 +140,7 @@
                         </div>
                         <group>
                             <group>
+                                <field name="patient_id" invisible="1"/>
                                 <field name="injury_date_time"/>
                                 <field name="diagnosis"/>
                                 <field name="predicted_resolution_date"/>
@@ -167,6 +168,7 @@
             <field name="arch" type="xml">
                 <tree string="Patient Injury History" editable="bottom"
                       multi_edit="True">
+                    <field name="patient_id" invisible="1"/>
                     <field name="injury_date_time" widget="datetime"/>
                     <field name="diagnosis"/>
                     <field name="predicted_resolution_date" widget="date"/>
@@ -175,7 +177,8 @@
                            widget="many2many_avatar_user"/>
                     <field name="activity_ids" widget="list_activity"/>
                     <button name="action_view_injury_form" type="object"
-                            title="Details" string="Details"/>
+                            title="Details" string="Details"
+                            context="{'default_patient_id': patient_id}"/>
                 </tree>
             </field>
         </record>
