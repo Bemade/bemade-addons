@@ -1,0 +1,27 @@
+
+To modify the sale.order.line view so that the sequence field is shown twice, once as a widget and once as a regular number field, you would need to modify the form view of the sale.order model where the sale.order.line is defined as a One2many field (usually with a tree view inside a form view).
+
+Here is an example of how you can extend the view in an XML file within your custom module:
+
+xml
+Copy code
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Inherit the view where you want to make changes -->
+        <record id="view_order_form_inherit_sequence" model="ir.ui.view">
+            <field name="name">sale.order.form.inherit.sequence</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <!-- Locate the tree view of the sale order line you want to modify -->
+                <xpath expr="//field[@name='order_line']/tree" position="inside">
+                    <!-- Add the sequence field as a widget handle -->
+                    <field name="sequence" widget="handle"/>
+                    <!-- Add the sequence field again as a number -->
+                    <field name="sequence" string="Sequence Number"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -28,7 +28,7 @@
     'data': [
         'views/res_partner_views.xml',
         'data/mail_template_data.xml',
-        'data/template_data'
+        'data/template_data.xml'
     ],
     'license': 'AGPL-3',
     'author': 'Bemade',
