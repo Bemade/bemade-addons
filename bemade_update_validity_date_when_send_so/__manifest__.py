@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 {
-    "name": "Update sale quotation date when sent",
+    "name": "Automatic Quotation Date and Validity Updater",
     "version": "15.0.0.0.1",
     "category": "Extra Tools",
-    'summary': 'Update sale quotation date and validity when pressing send button',
+    'summary': 'Automatically updates the sale quotation date and validity date upon sending the quotation',
     "description": """
-        Update sale quotation date and validity when pressing send button
+        This module automatically updates the sale quotation date and its validity date upon sending the quotation. 
+        The order date is set to the current date and time, while the validity date is set to 30 days from the current date and time. 
+        This ensures your sale quotations always reflect the most accurate and up-to-date information.
     """,
     "author": "Bemade",
     'website': 'https://www.bemade.org',
