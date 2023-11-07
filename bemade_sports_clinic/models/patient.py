@@ -92,7 +92,7 @@ class Patient(models.Model):
             rec.is_injured = rec.practice_status != 'yes' or rec.match_status != 'yes'
             if rec.is_injured:
                 rec.injured_since = \
-                    rec.injury_ids.filtered(lambda r: not r.stage == 'resolved').sorted(
+                    rec.injury_ids and rec.injury_ids.filtered(lambda r: not r.stage == 'resolved').sorted(
                         'injury_date_time')[0].injury_date_time
             else:
                 rec.injured_since = False
@@ -168,8 +168,6 @@ class PatientInjury(models.Model):
         for rec in self:
             if rec.stage == 'resolved' and not rec.resolution_date:
                 raise ValidationError(_('Cannot set an injury as resolved without setting the resolution date first.'))
-
-
 
     def write(self, vals):
         super().write(vals)
