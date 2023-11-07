@@ -1,4 +1,4 @@
-from odoo import models, fields, _, api
+from odoo import models, fields, _, api, Command
 from odoo.exceptions import ValidationError
 from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
@@ -56,6 +56,16 @@ class Patient(models.Model):
         compute='_compute_stage')
     last_consultation_date = fields.Date()
     active_injury_count = fields.Integer(compute='_compute_active_injury_count')
+
+    def default_get(self, fields_list):
+        res = super().default_get(fields_list)
+        if 'team_ids' in fields_list and 'params' in self.env.context \
+                and self.env.context.get('params')['model'] == 'sports.team':
+            team = self.env['sports.team'].browse(self.env.context.get('params')['id'])
+            team_ids = [Command.set([team.id])]
+            if team_ids:
+                res.update({'team_ids': team_ids})
+        return res
 
     @api.constrains('match_status', 'practice_status')
     def constrain_match_and_practice_status(self):
