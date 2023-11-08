@@ -68,7 +68,7 @@ class TeamStaff(models.Model):
     name = fields.Char(related='partner_id.name', readonly=False)
     parent_id = fields.Many2one(related='partner_id.parent_id', readonly=False, string="Organization",
                                 domain=[('is_company', '=', True)])
-    email = fields.Char(related='parent_id.email', readonly=False)
+    email = fields.Char(related='partner_id.email', readonly=False)
     user_ids = fields.One2many(related='partner_id.user_ids', readonly=True)
     has_portal_access = fields.Boolean(compute='_compute_has_portal_access')
 
