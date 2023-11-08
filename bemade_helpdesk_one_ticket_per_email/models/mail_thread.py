@@ -12,6 +12,6 @@ class MailThread(models.AbstractModel):
         helpdesk_routes = [r for r in routes if r[0] in ('helpdesk.ticket', 'helpdesk.team')]
         if len(helpdesk_routes) > 1:
             _logger.info("Messages contained multiple helpdesk routes. Only the first one will be used.")
-            helpdesk_routes.remove(0)
-            routes.remove(helpdesk_routes)
+            helpdesk_routes.pop(0)
+            routes = routes - helpdesk_routes
         return super()._message_route_process(message, message_dict, routes)
