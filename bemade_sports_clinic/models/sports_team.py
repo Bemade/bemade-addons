@@ -71,7 +71,7 @@ class TeamStaff(models.Model):
                                 domain=[('is_company', '=', True)])
     email = fields.Char(related='partner_id.email', readonly=False)
     user_ids = fields.One2many(related='partner_id.user_ids', readonly=True)
-    has_portal_access = fields.Boolean(compute='_compute_has_portal_access')
+    has_portal_access = fields.Boolean(compute='_compute_has_portal_access', compute_sudo=True)
 
     _sql_constraints = [('team_staff_unique', 'unique(team_id, partner_id)',
                          'Each partner can only be related to a given team once.')]
