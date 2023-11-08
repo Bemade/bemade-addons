@@ -24,7 +24,7 @@
     'author': 'Bemade Inc.',
     'website': 'http://www.bemade.org',
     'license': 'OPL-1',
-    'depends': ['helpdesk'],
+    'depends': ['mail'],
     'data': [],
     'installable': True,
     'auto_install': False
