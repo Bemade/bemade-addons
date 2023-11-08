@@ -19,7 +19,7 @@ class Patient(models.Model):
     age = fields.Integer(compute='_compute_age',
                          groups="bemade_sports_clinic.group_sports_clinic_treatment_professional",
                          tracking=True)
-    phone = fields.Char(unaccent=False,
+    mobile = fields.Char(unaccent=False,
                         groups="bemade_sports_clinic.group_sports_clinic_user",
                         tracking=True)
     email = fields.Char(groups="bemade_sports_clinic.group_sports_clinic_user",
@@ -154,7 +154,7 @@ class PatientContact(models.Model):
         ('father', 'Father'),
         ('other', 'Other'),
     ], required=True)
-    phone = fields.Char(unaccent=False, required=True)
+    mobile = fields.Char(unaccent=False, required=True)
     patient_id = fields.Many2one(comodel_name='sports.patient', string='Patient')
 
 

@@ -41,7 +41,7 @@ msgstr "Une équipe ne peut avoir qu'un seul entraineur chef."
 #. odoo-python
 #: code:addons/bemade_sports_clinic/models/sports_team.py:0
 #, python-format
-msgid "A team can have only one head trainer."
+msgid "A team can have only one head therapist."
 msgstr "Une équipe ne peut avoir qu'un seul thérapeute en chef."
 
 #. module: bemade_sports_clinic
@@ -269,9 +269,9 @@ msgid "Head Coach"
 msgstr "Entraîneur chef"
 
 #. module: bemade_sports_clinic
-#: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_team__head_trainer_id
-#: model:ir.model.fields.selection,name:bemade_sports_clinic.selection__sports_team_staff__role__head_trainer
-msgid "Head Trainer"
+#: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_team__head_therapist_id
+#: model:ir.model.fields.selection,name:bemade_sports_clinic.selection__sports_team_staff__role__head_therapist
+msgid "Head Therapist"
 msgstr "Thérapeute en chef"
 
 #. module: bemade_sports_clinic
@@ -281,7 +281,7 @@ msgstr "Entraîneur chef :"
 
 #. module: bemade_sports_clinic
 #: model_terms:ir.ui.view,arch_db:bemade_sports_clinic.sports_team_view_kanban
-msgid "Head trainer:"
+msgid "Head therapist:"
 msgstr "Thérapeute en chef :"
 
 #. module: bemade_sports_clinic
@@ -481,7 +481,7 @@ msgstr "Date limite de mon activité"
 #: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient_contact__name
 #: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient_injury__patient_name
 #: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_team__head_coach_name
-#: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_team__head_trainer_name
+#: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_team__head_therapist_name
 #: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_team__name
 #: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_team_staff__name
 msgid "Name"
@@ -615,11 +615,11 @@ msgid "Patients"
 msgstr "Patients"
 
 #. module: bemade_sports_clinic
-#: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient__phone
-#: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient_contact__phone
-#: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_team_staff__phone
-msgid "Phone"
-msgstr "Téléphone"
+#: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient__mobile
+#: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient_contact__mobile
+#: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_team_staff__mobile
+msgid "Mobile"
+msgstr "Mobile"
 
 #. module: bemade_sports_clinic
 #: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_team__player_count
@@ -824,9 +824,14 @@ msgid "Total Players"
 msgstr "Total des joueurs"
 
 #. module: bemade_sports_clinic
-#: model:ir.model.fields.selection,name:bemade_sports_clinic.selection__sports_team_staff__role__trainer
-msgid "Trainer"
+#: model:ir.model.fields.selection,name:bemade_sports_clinic.selection__sports_team_staff__role__therapist
+msgid "Therapist"
 msgstr "Thérapeute"
+
+#. module: bemade_sports_clinic
+#: model:ir.model.fields.selection,name:bemade_sports_clinic.selection__sports_team_staff__role__doctor
+msgid "Doctor"
+msgstr "Docteur"
 
 #. module: bemade_sports_clinic
 #: model:res.groups,name:bemade_sports_clinic.group_sports_clinic_treatment_professional

@@ -23,10 +23,10 @@ class SportsTeam(models.Model):
                                     compute='_compute_head_coach',
                                     store=True)
     head_coach_name = fields.Char(related='head_coach_id.name')
-    head_trainer_id = fields.Many2one(comodel_name='res.partner',
-                                      compute='_compute_head_trainer',
+    head_therapist_id = fields.Many2one(comodel_name='res.partner',
+                                      compute='_compute_head_therapist',
                                       store=True)
-    head_trainer_name = fields.Char(related='head_trainer_id.name')
+    head_therapist_name = fields.Char(related='head_therapist_id.name')
     website = fields.Char()
 
     @api.depends('patient_ids.is_injured')
@@ -43,10 +43,10 @@ class SportsTeam(models.Model):
             rec.head_coach_id = staff.partner_id if staff else False
 
     @api.depends('staff_ids.role')
-    def _compute_head_trainer(self):
+    def _compute_head_therapist(self):
         for rec in self:
-            staff = rec.staff_ids.filtered(lambda r: r.role == 'head_trainer')
-            rec.head_trainer_id = staff.partner_id if staff else False
+            staff = rec.staff_ids.filtered(lambda r: r.role == 'head_therapist')
+            rec.head_therapist_id = staff.partner_id if staff else False
 
 
 class TeamStaff(models.Model):
@@ -59,12 +59,13 @@ class TeamStaff(models.Model):
                                  required=True, domain=[('is_company', '=', False)])
     role = fields.Selection(selection=[
         ('head_coach', 'Head Coach'),
-        ('head_trainer', 'Head Trainer'),
+        ('head_therapist', 'Head Therapist'),
         ('coach', 'Coach'),
-        ('trainer', 'Trainer'),
+        ('therapist', 'Therapist'),
+        ('doctor', 'Doctor'),
         ('other', 'Other')
     ], required=True)
-    phone = fields.Char(related='partner_id.phone', readonly=False)
+    mobile = fields.Char(related='partner_id.mobile', readonly=False)
     name = fields.Char(related='partner_id.name', readonly=False)
     parent_id = fields.Many2one(related='partner_id.parent_id', readonly=False, string="Organization",
                                 domain=[('is_company', '=', True)])
@@ -74,20 +75,19 @@ class TeamStaff(models.Model):
 
     _sql_constraints = [('team_staff_unique', 'unique(team_id, partner_id)',
                          'Each partner can only be related to a given team once.')]
-
     @api.constrains('role')
     def _constrain_role(self):
         teams = self.mapped('team_id')
         for team in teams:
             if len(team.staff_ids.filtered(lambda r: r.role == 'head_coach')) > 1:
                 raise ValidationError(_("A team can have only one head coach."))
-            if len(team.staff_ids.filtered(lambda r: r.role == 'head_trainer')) > 1:
-                raise ValidationError(_("A team can have only one head trainer."))
+            if len(team.staff_ids.filtered(lambda r: r.role == 'head_therapist')) > 1:
+                raise ValidationError(_("A team can have only one head therapist."))
 
-    @api.onchange('phone')
-    def _onchange_phone_validation(self):
-        if self.phone:
-            self.phone = self.partner_id._phone_format(self.phone, force_format='INTERNATIONAL')
+    @api.onchange('mobile')
+    def _onchange_mobile_validation(self):
+        if self.mobile:
+            self.mobile = self.partner_id._phone_format(self.mobile, force_format='INTERNATIONAL')
 
     @api.depends('user_ids', 'user_ids.groups_id')
     def _compute_has_portal_access(self):

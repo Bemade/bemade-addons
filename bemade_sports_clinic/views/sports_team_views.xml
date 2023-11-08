@@ -8,13 +8,13 @@
                 <field name="name"/>
                 <field name="parent_id" string="Parent Organization"/>
                 <field name="head_coach_id"/>
-                <field name="head_trainer_id"/>
+                <field name="head_therapist_id"/>
                 <filter name="groupby_parent_id"
                         context="{'group_by': 'parent_id'}"/>
                 <filter name="groupby_head_coach_id"
                         context="{'group_by': 'head_coach_id'}"/>
-                <filter name="groupby_head_trainer_id"
-                        context="{'group_by': 'head_trainer_id'}"/>
+                <filter name="groupby_head_therapist_id"
+                        context="{'group_by': 'head_therapist_id'}"/>
             </search>
         </field>
     </record>
@@ -27,7 +27,7 @@
                 <field name="name"/>
                 <field name="parent_id"/>
                 <field name="head_coach_name"/>
-                <field name="head_trainer_name"/>
+                <field name="head_therapist_name"/>
                 <field name="injured_count"/>
                 <field name="healthy_count"/>
                 <templates>
@@ -48,8 +48,8 @@
                                         name="head_coach_name"/></span>
                             </div>
                             <div>
-                                <span>Head trainer: <field
-                                        name="head_trainer_name"/></span>
+                                <span>Head therapist: <field
+                                        name="head_therapist_name"/></span>
                             </div>
                             <div class="o_kanban_record_bottom">
                                 <div class="oe_kanban_bottom_left">
@@ -78,7 +78,7 @@
                 <field name="name"/>
                 <field name="parent_id"/>
                 <field name="head_coach_id"/>
-                <field name="head_trainer_id"/>
+                <field name="head_therapist_id"/>
                 <field name="player_count"/>
                 <field name="injured_count"/>
             </tree>
@@ -106,7 +106,7 @@
                                     <field name="sequence" widget="handle"/>
                                     <field name="name"/>
                                     <field name="role"/>
-                                    <field name="phone" widget="phone"/>
+                                    <field name="mobile" widget="phone"/>
                                     <field name="has_portal_access" invisible="1"/>
                                     <field name="partner_id" invisible="1"/>
                                     <button name="action_grant_portal_access"
@@ -145,7 +145,7 @@
                             <field name="role"/>
                         </group>
                         <group>
-                            <field name="phone" widget="phone"/>
+                            <field name="mobile" widget="phone"/>
                             <field name="email" widget="email"/>
                         </group>
                     </group>

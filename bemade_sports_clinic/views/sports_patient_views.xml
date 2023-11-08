@@ -11,7 +11,7 @@
                     <field name="team_ids"/>
                     <field name="date_of_birth" widget="date"/>
                     <field name="email" widget="email"/>
-                    <field name="phone" widget="phone"/>
+                    <field name="mobile" widget="phone"/>
                     <field name="predicted_return_date"/>
                     <field name="return_date"/>
                     <filter name="groupby_team_ids" context="{'group_by': 'team_ids'}"/>
@@ -108,7 +108,7 @@
                                             <field name="sequence" widget="handle"/>
                                             <field name="name"/>
                                             <field name="contact_type"/>
-                                            <field name="phone" widget="phone"/>
+                                            <field name="mobile" widget="phone"/>
                                         </tree>
                                     </field>
                                 </page>
