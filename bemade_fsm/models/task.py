@@ -8,51 +8,71 @@ import re
 class Task(models.Model):
     _inherit = "project.task"
 
-    equipment_ids = fields.Many2many(comodel_name="bemade_fsm.equipment",
-                                     relation="bemade_fsm_task_equipment_rel",
-                                     column1="task_id",
-                                     column2="equipment_id",
-                                     string="Equipment to Service",
-                                     tracking=True, )
+    equipment_ids = fields.Many2many(
+        comodel_name="bemade_fsm.equipment",
+        relation="bemade_fsm_task_equipment_rel",
+        column1="task_id",
+        column2="equipment_id",
+        string="Equipment to Service",
+        tracking=True,
+    )
 
-    work_order_contacts = fields.Many2many(comodel_name="res.partner",
-                                           relation="task_work_order_contact_rel",
-                                           column1="task_id",
-                                           column2="res_partner_id",
-                                           compute="_compute_contacts",
-                                           inverse="_inverse_contacts",
-                                           store=True)
+    work_order_contacts = fields.Many2many(
+        comodel_name="res.partner",
+        relation="task_work_order_contact_rel",
+        column1="task_id",
+        column2="res_partner_id",
+        compute="_compute_contacts",
+        inverse="_inverse_contacts",
+        store=True
+    )
 
-    site_contacts = fields.Many2many(comodel_name="res.partner",
-                                     relation="task_site_contact_rel",
-                                     column1="task_id",
-                                     column2="res_partner_id",
-                                     compute="_compute_contacts",
-                                     inverse="_inverse_contacts",
-                                     store=True)
+    site_contacts = fields.Many2many(
+        comodel_name="res.partner",
+        relation="task_site_contact_rel",
+        column1="task_id",
+        column2="res_partner_id",
+        compute="_compute_contacts",
+        inverse="_inverse_contacts",
+        store=True
+    )
 
-    planned_date_begin = fields.Datetime("Start Date", tracking=True,
-                                         task_dependency_tracking=True,
-                                         compute="_compute_planned_dates",
-                                         inverse="_inverse_planned_dates",
-                                         store=True)
-    planned_date_end = fields.Datetime("End Date", tracking=True,
-                                       task_dependency_tracking=True,
-                                       compute="_compute_planned_dates",
-                                       inverse="_inverse_planned_dates",
-                                       store=True)
+    planned_date_begin = fields.Datetime(
+        string="Start Date",
+        tracking=True,
+        task_dependency_tracking=True,
+        compute="_compute_planned_dates",
+        inverse="_inverse_planned_dates",
+        store=True
+    )
+
+    planned_date_end = fields.Datetime(
+        string="End Date",
+        tracking=True,
+        task_dependency_tracking=True,
+        compute="_compute_planned_dates",
+        inverse="_inverse_planned_dates",
+        store=True
+    )
 
     # Override related field to make it return false if this is an FSM subtask
-    allow_billable = fields.Boolean(string="Can be billed",
-                                    related=False,
-                                    compute="_compute_allow_billable",
-                                    store=True)
+    allow_billable = fields.Boolean(
+        string="Can be billed",
+        related=False,
+        compute="_compute_allow_billable",
+        store=True
+    )
 
-    visit_id = fields.Many2one(comodel_name='bemade_fsm.visit')
+    visit_id = fields.Many2one(
+        comodel_name='bemade_fsm.visit',
+        string="Visit",
+    )
 
-    relevant_order_lines = fields.Many2many(comodel_name='sale.order.line',
-                                            store=False,
-                                            compute='_compute_relevant_order_lines', )
+    relevant_order_lines = fields.Many2many(
+        comodel_name='sale.order.line',
+        store=False,
+        compute='_compute_relevant_order_lines',
+    )
 
     work_order_number = fields.Char(readonly=True)
 

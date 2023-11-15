@@ -10,25 +10,62 @@ class TaskTemplate(models.Model):
         return self.env.company
 
     name = fields.Char(string="Task Title", required=True)
+
     description = fields.Html(string="Description")
-    assignees = fields.Many2many("res.users", string="Default Assignees",
-                                 help="Employees assigned to tasks created from this template.")
-    customer = fields.Many2one("res.partner", string="Default Customer",
-                               help="Default customer for tasks created from this template.")
-    project = fields.Many2one("project.project", string="Default Project",
-                              help="Default project for tasks created from this template.")
-    tags = fields.Many2many("project.tags", string="Default Tags",
-                            help="Default tags for tasks created from this template.")
-    parent = fields.Many2one("project.task.template", string="Parent Task Template", ondelete='cascade')
-    subtasks = fields.One2many("project.task.template", inverse_name="parent", string="Subtask Templates")
+
+    assignees = fields.Many2many(
+        comodel_name="res.users",
+        string="Default Assignees",
+        help="Employees assigned to tasks created from this template."
+    )
+
+    customer = fields.Many2one(
+        comodel_name="res.partner",
+        string="Default Customer",
+        help="Default customer for tasks created from this template."
+    )
+
+    project = fields.Many2one(
+        comodel_name="project.project",
+        string="Default Project",
+        help="Default project for tasks created from this template."
+    )
+
+    tags = fields.Many2many(
+        comodel_name="project.tags",
+        string="Default Tags",
+        help="Default tags for tasks created from this template."
+    )
+
+    parent = fields.Many2one(
+        comodel_name="project.task.template",
+        string="Parent Task Template",
+        ondelete='cascade'
+    )
+
+    subtasks = fields.One2many(
+        comodel_name="project.task.template",
+        inverse_name="parent",
+        string="Subtask Templates"
+    )
     sequence = fields.Integer(string="Sequence")
-    company_id = fields.Many2one("res.company", string="Company", index=1, default=_current_company)
+
+    company_id = fields.Many2one(
+        comodel_name="res.company",
+        string="Company",
+        index=1,
+        default=_current_company
+    )
+
     planned_hours = fields.Float("Initially Planned Hours")
-    equipment_ids = fields.Many2many(comodel_name="bemade_fsm.equipment",
-                                     relation="bemade_fsm_task_template_equipment_rel",
-                                     column1="task_template_id",
-                                     column2="equipment_id",
-                                     string="Equipment to Service",)
+
+    equipment_ids = fields.Many2many(
+        comodel_name="bemade_fsm.equipment",
+        relation="bemade_fsm_task_template_equipment_rel",
+        column1="task_template_id",
+        column2="equipment_id",
+        string="Equipment to Service",
+    )
 
     def action_open_task(self):
         return {

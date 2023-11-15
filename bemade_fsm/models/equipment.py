@@ -1,26 +1,6 @@
 from odoo import api, fields, models
 
 
-class EquipmentTag(models.Model):
-    _name = "bemade_fsm.equipment.tag"
-    _description = 'Field service equipment category'
-
-    name = fields.Char('Name', required=True, translate=True)
-    color = fields.Integer('Color Index', default=10)
-
-    _sql_constraints = [
-        ('name_uniq', 'unique (name)', "Tag name already exists !"),
-    ]
-
-
-class EquipmentType(models.Model):
-    _name = 'bemade_fsm.equipment.type'
-    _description = 'Field service equipment type'
-    _order = 'id'
-
-    name = fields.Char(string='Intervention Name', required=True, translate=True)
-
-
 class Equipment(models.Model):
     _name = 'bemade_fsm.equipment'
     _rec_name = 'complete_name'
@@ -33,26 +13,30 @@ class Equipment(models.Model):
 
     complete_name = fields.Char(string="Equipment Name", compute="_compute_complete_name", store=True)
 
-    tag_ids = fields.Many2many('bemade_fsm.equipment.tag',
-                               string='Application',
-                               help="Classify and analyze your equipment categories like: Boiler, Laboratory, "
-                                    "Waste water, Pure water")
+    tag_ids = fields.Many2many(
+        comodel_name='bemade_fsm.equipment.tag',
+        string='Application',
+        help="Classify and analyze your equipment categories like: Boiler, Laboratory, Waste water, Pure water"
+    )
 
-    description = fields.Text(string="Description",
-                              tracking=True)
+    description = fields.Text(string="Description", tracking=True)
 
-    partner_location_id = fields.Many2one('res.partner',
-                                          string="Physical Address",
-                                          tracking=True,
-                                          ondelete='cascade')
+    partner_location_id = fields.Many2one(
+        comodel_name='res.partner',
+        string="Physical Address",
+        tracking=True,
+        ondelete='cascade'
+    )
 
-    location_notes = fields.Text(string="Physical Location Notes",
-                                 tracking=True)
-    task_ids = fields.Many2many(comodel_name='project.task',
-                                relation="bemade_fsm_task_equipment_rel",
-                                column1="equipment_id",
-                                column2="task_id",
-                                string='Interventions')
+    location_notes = fields.Text(string="Physical Location Notes", tracking=True)
+
+    task_ids = fields.Many2many(
+        comodel_name='project.task',
+        relation="bemade_fsm_task_equipment_rel",
+        column1="equipment_id",
+        column2="task_id",
+        string='Interventions'
+    )
 
     @api.depends('partner_location_id')
     def _compute_partner(self):
