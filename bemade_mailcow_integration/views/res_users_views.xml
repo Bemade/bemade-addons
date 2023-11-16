@@ -5,15 +5,12 @@
         <field name="model">res.users</field>
         <field name="inherit_id" ref="base.view_users_form"/>
         <field name="arch" type="xml">
-            <data>
-                <xpath expr="//notebook" position="inside">
-                    <page string="Mailcow" name="mailcow">
-                        <group>
-                            <field name="mailcow_mailbox"/>
-                        </group>
-                    </page>
-                </xpath>
-            </data>
+            <field name="email" position="before">
+                <div id="mailcow_mailcow" attrs="{'invisible': [('id', '!=', False)]}">
+                    <label for="mailcow_mailbox" string="Create mailbox on Mailcow"/>
+                    <field name="mailcow_mailbox"/>
+                </div>
+            </field>
         </field>
     </record>
 </odoo>

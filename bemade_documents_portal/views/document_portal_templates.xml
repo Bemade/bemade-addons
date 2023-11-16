@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <template id="portal_my_home" inherit_id="portal.portal_my_home">
+            <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="title">Documents</t>
+                    <t t-set="url">/my/documents</t>
+                    <t t-set="placeholder_count">documents_count</t>
+                </t>
+            </xpath>
+        </template>
+        <template id="portal_my_documents" name="My Documents">
+            <t t-call="portal.portal_layout">
+                <t t-call="portal.portal_table">
+                    <thead>
+                        <tr class="active">
+                            <th>Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="documents" t-as="document">
+                            <tr>
+                                <td>
+                                    <a t-att-href="document.get_portal_url()">
+                                        <t t-esc="document.name"/>
+                                    </a>
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </t>
+            </t>
+        </template>
+        <template id="document_portal_template" name="Document Portal Template">
+            <t t-call="portal.portal_layout">
+                <t t-set="o_portal_fullwidth_alert"
+                   groups="documents.group_documents_user">
+                    <t t-call="portal.portal_back_in_edit_mode">
+                        <t t-set="backend_url"
+                           t-value="'/web#model=%s&amp;id=%s&amp;action=%s&amp;view_type=form' % (document._name, document.id, action.id)"/>
+                    </t>
+                </t>
+                <t t-call="portal.portal_record_layout">
+                    <t t-set="card_header">
+                        <div class="row no-gutters">
+                            <h5 class="mb-1 mb-md-0">
+                                <span t-field="document.name"/>
+                            </h5>
+                        </div>
+                    </t>
+                    <t t-set="card_body">
+                        <!-- Main Document Contents -->
+                        <div id="document_content"
+                             class="col-12 col-lg justify-content-end w-100 h-100">
+                            <div t-if="'image' in document.mimetype"
+                                 class="o_attachment_preview_img">
+                                <img id="attachment_img"
+                                     class="img img-fluid d-block"
+                                     t-attf-src="/documents/content/{{document.id}}"/>
+                            </div>
+                            <iframe t-if="document.mimetype == 'application/pdf'"
+                                    class="mb48 w-100 min-vh-100"
+                                    t-attf-src="/web/static/lib/pdfjs/web/viewer.html?file=/documents/content/{{document.id}}&amp;filename={{document.name}}"/>
+                            <ul class="list-group list-group-flush flex-wrap flex-row flex-lg-column">
+                                <li class="list-group-item flex-grow-1 b-0">
+                                    <a class="btn btn-secondary btn-block o_download_btn"
+                                       t-att-href="document.get_portal_url(download=True)">
+                                        Download</a>
+                                </li>
+                                <li class="list-group-item flex-grow-1 b-0">
+                                    <strong class="text-muted">File Size:
+                                        <t t-call="documents.format_file_size"/>
+                                    </strong>
+                                </li>
+                                <li class="list-group-item flex-grow-1 b-0">
+                                    <strong class="text-muted">File Type:
+                                        <t t-esc="document.mimetype"/>
+                                    </strong>
+                                </li>
+                                <li class="list-group-item flex-grow-1 b-0">
+                                    <strong class="text-muted">Attachment Type:
+                                        <t t-esc="document.attachment_type"/>
+                                    </strong>
+                                </li>
+                            </ul>
+                        </div>
+                    </t>
+                </t>
+                <!-- Chatter -->
+                <div id="document_communication" class="card-body">
+                    <h2>History</h2>
+                    <t t-call="portal.message_thread">
+                        <t t-set="object" t-value="document"/>
+                    </t>
+                </div>
+            </t>
+        </template>
+        <template id="portal_breadcrumbs" inherit_id="portal.portal_breadcrumbs">
+            <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+                <li t-if="page_name == 'my_documents'"
+                    t-attf-class="breadcrumb-item #{'active ' if not document else ''}">
+                    <a t-if="document"
+                       t-attf-href="/my/documents?{{ keep_query() }}">Documents</a>
+                    <t t-else="">Documents</t>
+                </li>
+                <li t-if="document" class="breadcrumb-item active" t-esc="document.name">
+                </li>
+            </xpath>
+        </template>
+    </data>
+</odoo>

@@ -27,12 +27,12 @@ class IrUiMenu(models.Model):
                     })
         return records
 
-    # def unlink(self):
-    #     # Override the unlink method to delete associated 'res.users.menu.order' records
-    #     self.env['res.users.menu.order'].search([
-    #         ('menu_id', 'in', self.ids)
-    #     ]).unlink()
-    #     return super(IrUiMenu, self).unlink()
+    def unlink(self):
+        # Override the unlink method to delete associated 'res.users.menu.order' records
+        self.env['res.users.menu.order'].search([
+            ('menu_id', 'in', self.ids)
+        ]).unlink()
+        return super(IrUiMenu, self).unlink()
 
     def write(self, vals):
         # Call the super method to perform the default write operation

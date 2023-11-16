@@ -34,9 +34,11 @@ class TestBillingContacts(TransactionCase):
             'parent_id': cls.parent_co.id,
             'type': 'contact',
         })
-        cls.product = cls.env['product.product'].with_company(cls.parent_co.company_id).create({
+        cls.product = cls.env['product.product'].with_company(
+            cls.parent_co.company_id).create({
             'name': 'Product',
-            'categ_id': cls.env['product.category'].create({'name': 'Product Category'}).id,
+            'categ_id': cls.env['product.category'].create(
+                {'name': 'Product Category'}).id,
             'list_price': 100.0,
             'type': 'service',
             'uom_id': cls.env.ref('uom.product_uom_unit').id,
@@ -70,19 +72,23 @@ class TestBillingContacts(TransactionCase):
         self.assertTrue(self.non_billing_contact not in self.parent_co.billing_contacts)
 
     def test_sale_order_default_billing_contacts(self):
-        self.assertTrue(self.sale_order.billing_contacts == self.parent_co.billing_contacts)
+        self.assertTrue(
+            self.sale_order.billing_contacts == self.parent_co.billing_contacts)
 
     def test_sale_order_change_contacts(self):
         # Test that changing the billing contacts on an SO doesn't change them on the partner
-        self.sale_order.write({'billing_contacts': [Command.link(self.non_billing_contact.id)]})
-        self.assertTrue(all([c in self.sale_order.billing_contacts for c in self.parent_co.billing_contacts]))
+        self.sale_order.write(
+            {'billing_contacts': [Command.link(self.non_billing_contact.id)]})
+        self.assertTrue(all([c in self.sale_order.billing_contacts for c in
+                             self.parent_co.billing_contacts]))
         self.assertTrue(self.non_billing_contact not in self.parent_co.billing_contacts)
         self.assertTrue(self.non_billing_contact in self.sale_order.billing_contacts)
 
     def test_sale_order_to_invoice_contacts(self):
         # Test that the invoices created from sales orders take the billing contacts configured on the SO
 
-        self.sale_order.write({'billing_contacts': [Command.link(self.non_billing_contact.id)]})
+        self.sale_order.write(
+            {'billing_contacts': [Command.link(self.non_billing_contact.id)]})
         self.sale_order.action_confirm()
 
         wiz = self.env['sale.advance.payment.inv'].create({})
@@ -99,10 +105,12 @@ class TestBillingContacts(TransactionCase):
         self.assertTrue(self.parent_co.billing_contacts == invoice.billing_contacts)
 
     def test_invoice_followers_on_validate(self):
+        # Make sure all billing contacts get added as followers upon validating the invoice
         self.sale_order.action_confirm()
         wiz = self.env['sale.advance.payment.inv'].create({})
         invoice = wiz._create_invoice(self.sale_order, self.sale_order.order_line[0],
                                       self.sale_order.order_line.price_total)
         invoice.write({'date': datetime.date.today()})
         invoice.action_post()
-        self.assertTrue(all([r in invoice.message_partner_ids for r in self.parent_co.billing_contacts]))
+        self.assertTrue(all([r in invoice.message_partner_ids for r in
+                             self.parent_co.billing_contacts]))

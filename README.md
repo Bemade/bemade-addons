@@ -1,2 +1,2 @@
-# bemade-addons Branch 16.0
+# bemade-addons
 Odoo Addons made by Bemade

@@ -13,10 +13,7 @@ class ResUsersMenuOrder(models.Model):
     _name = 'res.users.menu.order'
     _description = 'User Menu Order'
 
-    def _get_user_id(self):
-        return self.env.uid
-
-    user_id = fields.Many2one('res.users', string='User', required=True, default=_get_user_id)
+    user_id = fields.Many2one('res.users', string='User', required=True, )
     # The user who has set a preferred order for their apps.
 
     menu_id = fields.Many2one('ir.ui.menu', string='Menu', required=True)

@@ -1,0 +1,14 @@
+/* This prevents repeating the header, which overlaps with the body due to a bug in
+   wkhtmltopdf rendering.
+ */
+thead {
+  display: table-row-group;
+}
+
+tfoot {
+  display: table-row-group;
+}
+
+tr {
+  page-break-inside: avoid;
+}

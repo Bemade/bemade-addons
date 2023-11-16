@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="sale_margin_sale_order_inherit">
+            <field name="name">sale.order.margin.view.form.inherit</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale_margin.sale_margin_sale_order"/>
+            <field name="arch" type="xml">
+                <field name="margin" position="replace">
+                    <field name="margin_actual" class="oe_inline"/>
+                </field>
+                <label for="margin" position="replace">
+                    <label for="margin_actual" groups="base.group_user"/>
+                </label>
+                <field name="margin_percent" position="replace">
+                    <field name="margin_percent_actual" nolabel="1" class="oe_inline"
+                           widget="percentage" groups="base.group_user"/>
+                </field>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="sale_margin_sale_order_line_inherit">
+            <field name="name">sale.order.line.margin.view.form.inherit</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale_margin.sale_margin_sale_order_line"/>
+            <field name="arch" type="xml">
+                <field name="purchase_price" position="replace">
+                    <field name="purchase_price_actual" groups="base.group_user"/>
+                </field>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="sale_margin_sale_order_line_form_inherit">
+            <field name="name">sale.order.view.form</field>
+            <field name="inherit_id" ref="sale_margin.sale_margin_sale_order_line_form"/>
+            <field name="model">sale.order</field>
+            <field name="arch" type="xml">
+                <field name="purchase_price" position="replace">
+                    <field name="purchase_price_actual" optional="hide"/>
+                </field>
+                <field name="margin" position="replace">
+                    <field name="margin_actual" optional="hide"/>
+                </field>
+                <field name="margin_percent" position="replace">
+                    <field name="margin_percent_actual" optional="hide"
+                           widget="percentage" groups="base.group_user"/>
+                </field>
+            </field>
+        </record>
+        <!-- For now, we don't override the pivot and graph views because our fields
+             are not stored and this will cause performance issues. -->
+    </data>
+</odoo>
