@@ -35,8 +35,6 @@
     "assets": {
         "web.assets_backend": [
             "bemade_mailcow_integration/static/src/js/mailcow.js",
-        ],
-        "web.assets_qweb": [
             "bemade_mailcow_integration/static/src/xml/mailcow_templates.xml",
         ],
     },
