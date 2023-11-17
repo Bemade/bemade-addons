@@ -47,37 +47,44 @@ class MailcowMailbox(models.Model):
                             'active': item['active'],
                         })
 
-    @api.model
-    def create(self, vals):
+    @api.model_create_multi
+    def create(self, vals_list):
         """
-        Override the create function to create a Mailcow mailbox whenever a user is created in Odoo.
+        Overridden create method to add a new mailbox entry on the Mailcow server for each user created in Odoo.
         """
-        password = secrets.token_hex(16)
-        vals['password'] = password
 
-        # Check if email exists on Mailcow
-        endpoint = f"/api/v1/get/mailbox/{vals['local_part']}@{vals['domain']}"
-        response = self.api_request(endpoint)
+        res_list = []
 
-        if not response:
-            # If email does not exist on Mailcow, create it
-            endpoint = '/api/v1/add/mailbox'
-            data = {
-                'local_part': vals['local_part'],
-                'domain': vals['domain'],
-                'name': vals['name'],
-                'password': password,
-                'password2': password,
-                'quota': "3072",
-                'active': "1",
-                'force_pw_update': "0",
-                'tls_enforce_in': "0",
-                'tls_enforce_out': "0",
-            }
-            self.api_request(endpoint, method='POST', data=data)
-            _logger.info(f"Mailbox {vals['local_part']}@{vals['domain']} has been created on Mailcow server")
+        for vals in vals_list:
+            password = secrets.token_hex(16)
+            vals['password'] = password
 
-        return super().create(vals)
+            # Check if email exists on Mailcow
+            endpoint = f"/api/v1/get/mailbox/{vals['local_part']}@{vals['domain']}"
+            response = self.api_request(endpoint)
+
+            if not response:
+                # If email does not exist on Mailcow, create it
+                endpoint = '/api/v1/add/mailbox'
+                data = {
+                    'local_part': vals['local_part'],
+                    'domain': vals['domain'],
+                    'name': vals['name'],
+                    'password': password,
+                    'password2': password,
+                    'quota': "3072",
+                    'active': "1",
+                    'force_pw_update': "0",
+                    'tls_enforce_in': "0",
+                    'tls_enforce_out': "0",
+                }
+                self.api_request(endpoint, method='POST', data=data)
+                _logger.info(f"Mailbox {vals['local_part']}@{vals['domain']} has been created on Mailcow server")
+
+            res = super().create(vals)
+            res_list.append(res)
+
+        return res_list
 
     def write(self, vals):
         """

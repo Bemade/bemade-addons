@@ -6,6 +6,7 @@ import json
 
 _logger = logging.getLogger(__name__)
 
+
 class MailcowBlacklist(models.Model):
     _name = 'mail.mailcow.blacklist'
     _description = 'Mailcow Blacklist'
@@ -14,30 +15,26 @@ class MailcowBlacklist(models.Model):
     email = fields.Char(string='Email', required=True, tracking=True)
     mc_id = fields.Integer(string='Mailcow ID', required=True, tracking=True)
 
-    @api.model
-    def create(self, vals):
-        """
-        Overridden create method to add the new blacklist entry to the Mailcow server.
-        """
-        domain = self.env['ir.config_parameter'].sudo().get_param('mail.catchall.domain')
+    @api.model_create_multi
+    def create(self, vals_list):
+        alias_list = super().create(vals_list)
+        for alias in alias_list:
 
-        endpoint_add = '/api/v1/add/domain-policy'
-        endpoint_get_bl = f"/api/v1/get/policy_bl_domain/{domain}"
-        data = {
-            'domain': domain,
-            'object_from': vals['email'],
-            'object_list': 'bl'
-        }
+            if 'mc_id' not in alias:
+                data = {
+                    "active": bool(alias.active),
+                    "address": alias.address,
+                    "catchall": bool(alias.catchall),
+                    "goto": alias.goto,
+                    "private_comment": f"Created by {self.env.user.name} on {fields.Datetime.now()}",
+                    "public_comment": "Alias created in Odoo"
+                }
+                result = self.env['mail.mailcow'].api_request('/api/v1/add/alias', 'POST', data)
+                if not result:
+                    #pass
+                    raise ValidationError("Failed to create alias on Mailcow server.")
 
-        self.api_request(endpoint_add, 'POST', data)
-        _logger.info(f'Added {vals["email"]} to Mailcow blacklist')
-
-        bl_emails = self.api_request(endpoint_get_bl, 'GET', None)
-
-        mc_id = [d['prefid'] for d in bl_emails if d['value'] == vals['email']]
-        vals['mc_id'] = mc_id[0]
-        res = super().create(vals)
-        return res
+        return alias_list
 
     def write(self, vals):
         """

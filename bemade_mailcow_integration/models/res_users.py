@@ -25,12 +25,13 @@ class ResUsers(models.Model):
             rec.mailcow_auto_create = get_mailcow_auto_create
 
 
-    @api.model
-    def create(self, vals):
-        res = super(ResUsers, self).create(vals)
+    @api.model_create_multi
+    def create(self, vals_list):
+        res_list = super().create(vals_list)
 
-        if res.mailcow_mailbox:
-            self.env['mail.mailcow.mailbox'].create_mailbox_for_user(res)
+        for res in res_list:
+            if res.mailcow_mailbox:
+                self.env['mail.mailcow.mailbox'].create_mailbox_for_user(res)
 
-        return res
+        return res_list
 

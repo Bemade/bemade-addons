@@ -119,7 +119,7 @@ class Task(models.Model):
         ])
         return self.env['planning.slot'].search(domain)
 
-    @api.depends('forecast_hours')
+    @api.depends('planned_hours')
     def _compute_planned_dates(self):
         forecast_data = self._get_related_planning_slots()
         mapped_data = {}
