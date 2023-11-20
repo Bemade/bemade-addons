@@ -75,6 +75,7 @@ class TeamStaff(models.Model):
 
     _sql_constraints = [('team_staff_unique', 'unique(team_id, partner_id)',
                          'Each partner can only be related to a given team once.')]
+
     @api.constrains('role')
     def _constrain_role(self):
         teams = self.mapped('team_id')

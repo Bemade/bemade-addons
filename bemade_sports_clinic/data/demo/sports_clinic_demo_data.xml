@@ -130,7 +130,7 @@
             <field name="practice_status">yes</field>
         </record>
         <record id="injury_1" model="sports.patient.injury">
-            <field name="injury_date_time">2023-05-17 18:53:00</field>
+            <field name="injury_date">2023-05-17</field>
             <field name="diagnosis">Fracture du fémur</field>
             <field name="predicted_resolution_date">2024-02-01</field>
             <field name="patient_id" ref="patient_1"/>
@@ -138,7 +138,7 @@
                    eval="[Command.set([ref('base.user_admin')])]"/>
         </record>
         <record id="injury_2" model="sports.patient.injury">
-            <field name="injury_date_time">2022-03-17 19:13:00</field>
+            <field name="injury_date">2022-03-17</field>
             <field name="diagnosis">Entorse cheville droite</field>
             <field name="predicted_resolution_date">2022-03-23</field>
             <field name="patient_id" ref="patient_1"/>
@@ -146,7 +146,7 @@
                    eval="[Command.set([ref('base.user_admin')])]"/>
         </record>
         <record id="injury_3" model="sports.patient.injury">
-            <field name="injury_date_time">2023-10-15 19:55:00</field>
+            <field name="injury_date">2023-10-15</field>
             <field name="diagnosis">Commotion cérébrale mineure</field>
             <field name="predicted_resolution_date">2023-11-01</field>
             <field name="patient_id" ref="patient_3"/>
