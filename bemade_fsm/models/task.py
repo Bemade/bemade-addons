@@ -38,7 +38,7 @@ class Task(models.Model):
     )
 
     planned_date_begin = fields.Datetime(
-        string="Start Date",
+        string="Planned Start Date",
         tracking=True,
         task_dependency_tracking=True,
         compute="_compute_planned_dates",
@@ -47,7 +47,7 @@ class Task(models.Model):
     )
 
     planned_date_end = fields.Datetime(
-        string="End Date",
+        string="Planned End Date",
         tracking=True,
         task_dependency_tracking=True,
         compute="_compute_planned_dates",

@@ -16,7 +16,7 @@
                         </group>
                         <group name="right">
                             <field name="partner_location_id"
-                                   groups="sale.group_delivery_invoice_address"
+                                   groups="account.group_delivery_invoice_address"
                                    context="{'default_type': 'delivery', 'show_address': 1}"
                                    options='{"always_reload": True}'/>
                             <field name="tag_ids" widget="many2many_tags" options="{'no_open': False}"/>

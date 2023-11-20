@@ -5,48 +5,74 @@ from odoo.tools.float_utils import float_is_zero, float_compare
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
-    margin_actual = fields.Monetary("Margin", compute='_compute_margin_actual',
-                                    store=False)
-    margin_percent_actual = fields.Float('Margin (%)', compute='_compute_margin_actual',
-                                         store=False,
-                                         group_operator='avg')
+    margin_actual = fields.Monetary("Our Margin", compute='_compute_margin_actual', store=False)
+
+    margin_percent_actual = fields.Float(
+        string='Our Margin (%)',
+        compute='_compute_margin_actual',
+        store=False,
+        group_operator='avg'
+    )
 
     @api.depends('order_line.margin_actual', 'amount_untaxed')
     def _compute_margin_actual(self):
         for order in self:
             order.margin_actual = sum(order.order_line.mapped('margin_actual'))
-            order.margin_percent_actual = order.amount_untaxed \
-                                          and order.margin_actual / order.amount_untaxed
+            order.margin_percent_actual = order.amount_untaxed and order.margin_actual / order.amount_untaxed
 
 
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
 
-    purchase_price_vendor = fields.Float(compute='_compute_purchase_price_vendor',
-                                         string="Vendor Price", groups="base.group_user",
-                                         digits='Product Price')
-    margin_percent_vendor = fields.Float(string='Margin (%) on Vendor Price',
-                                         groups='base.group_user', group_operator='avg',
-                                         compute='_compute_margin_vendor')
-    margin_vendor = fields.Float(string='Margin on Vendor Price',
-                                 groups='base.group_user', digits='Product Price',
-                                 compute='_compute_margin_vendor')
+    purchase_price_vendor = fields.Float(
+        compute='_compute_purchase_price_vendor',
+        string="Vendor Price",
+        groups="base.group_user",
+        digits='Product Price'
+    )
 
-    purchase_price_actual = fields.Float(compute="_compute_actual_margins",
-                                         digits='Product Price',
-                                         groups="base.group_user",
-                                         string="Purchase Price")
-    margin_actual = fields.Float(compute="_compute_actual_margins",
-                                 digits='Product Price',
-                                 groups="base.group_user",
-                                 string="Margin")
-    margin_percent_actual = fields.Float(compute="_compute_actual_margins",
-                                         groups="base.group_user",
-                                         string="Margin (%)")
+    margin_percent_vendor = fields.Float(
+        string='Margin (%) on Vendor Price',
+        groups='base.group_user',
+        group_operator='avg',
+        compute='_compute_margin_vendor'
+    )
 
-    @api.depends('purchase_price', 'purchase_price_vendor', 'move_ids.product_id',
-                 'move_ids.product_id.qty_available', 'move_ids.state',
-                 'qty_to_deliver')
+    margin_vendor = fields.Float(
+        string='Margin on Vendor Price',
+        groups='base.group_user',
+        digits='Product Price',
+        compute='_compute_margin_vendor'
+    )
+
+    purchase_price_actual = fields.Float(
+        compute="_compute_actual_margins",
+        digits='Product Price',
+        groups="base.group_user",
+        string="Purchase Price"
+    )
+
+    margin_actual = fields.Float(
+        compute="_compute_actual_margins",
+        digits='Product Price',
+        groups="base.group_user",
+        string="Our Margin"
+    )
+
+    margin_percent_actual = fields.Float(
+        compute="_compute_actual_margins",
+        groups="base.group_user",
+        string="Our Margin (%)"
+    )
+
+    @api.depends(
+        'purchase_price',
+        'purchase_price_vendor',
+        'move_ids.product_id',
+        'move_ids.product_id.qty_available',
+        'move_ids.state',
+        'qty_to_deliver'
+    )
     def _compute_actual_margins(self):
         """ We want to use the margin based on average inventory valuation when the
         sale order line will be completely fulfilled (or has been fulfilled) from stock.
@@ -62,8 +88,7 @@ class SaleOrderLine(models.Model):
         non_product_lines.margin_percent_actual = 0.0
         for line in self - non_product_lines:
             stock_missing = line._determine_missing_stock()
-            if float_is_zero(stock_missing,
-                             precision_rounding=line.product_uom.rounding):
+            if float_is_zero(stock_missing, precision_rounding=line.product_uom.rounding):
                 # everything is coming from stock, use inventory valuation
                 line.purchase_price_actual = line.purchase_price
             elif float_compare(line.product_uom_qty, stock_missing,
@@ -79,8 +104,7 @@ class SaleOrderLine(models.Model):
                     / line.product_uom_qty
             line.margin_actual = line.price_subtotal - (
                     line.purchase_price_actual * line.product_uom_qty)
-            line.margin_percent_actual = line.price_subtotal \
-                                         and line.margin_actual / line.price_subtotal
+            line.margin_percent_actual = line.price_subtotal and line.margin_actual / line.price_subtotal
 
     def _determine_missing_stock(self) -> float:
         """ Compute how much stock is missing to meet an order line's demand.  In the

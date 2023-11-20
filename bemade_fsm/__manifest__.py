@@ -44,7 +44,7 @@
     ],
     'data': [
         # BV: FOR MIGRATION
-        # 'data/fsm_data.xml',
+        'data/fsm_data.xml',
         'views/task_template_views.xml',
         'views/equipment.xml',
         'security/ir.model.access.csv',
