@@ -6,6 +6,6 @@ def migrate(cr, version):
     patients = env['sports.patient'].search([('partner_id', '=', False)])
     for patient in patients:
         partner = env['res.partner'].create({
-            'name': patient._get_name_from_first_and_last(patient.first_name, patient.last_name)
+            'name': patient._get_name_from_first_and_last(patient.first_name, patient.last_name),
+            'patient_ids': [(4, patient.id)]
         })
-        patient.partner_id = partner
