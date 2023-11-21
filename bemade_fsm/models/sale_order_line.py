@@ -156,7 +156,7 @@ class SaleOrderLine(models.Model):
         self.ensure_one()
 
         task = self.env['project.task'].create({
-            'name': f"{self.order_id.name} - Visit {visit_no} - {self.name}",
+            'name': f"{self.order_id.name} - " + _("Visit") + f" {visit_no} - {self.name}",
             'project_id': project.id,
             'equipment_ids': self.get_section_line_ids().mapped('equipment_ids').ids,
             'sale_order_id': self.order_id.id,
