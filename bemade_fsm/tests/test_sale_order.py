@@ -287,3 +287,10 @@ class TestSalesOrder(BemadeFSMBaseTest):
         self.assertEqual(task.child_ids[0].description, template.subtasks[0].description)
         for t in task.child_ids[1:]:
             self.assertFalse(t.description)
+
+    def test_cancel_sales_order_completes_successfully(self):
+        so, *others = self._generate_so_with_one_visit_two_lines()
+        so.action_confirm()
+
+        so.action_cancel()
+        self.assertEqual(so.state, 'cancel')
