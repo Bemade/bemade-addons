@@ -184,17 +184,21 @@ class Task(models.Model):
                 rec.allow_billable = rec.project_id.allow_billable
 
     def action_fsm_validate(self):
-        visits = self.filtered(lambda t: t.visit_id)
-        non_visits = self - visits
+        # Override to make sure all descendant tasks are validated as well
+        full_hierarchy = self._get_full_hierarchy()
+        visits = self.filtered(lambda t: bool(t.visit_id))
+        non_visits = full_hierarchy - visits
         super(Task, non_visits).action_fsm_validate()
-
         visits._stop_all_timers_and_create_timesheets()
         closed_stage_by_project = visits._get_closed_stage_by_project()
-        super(Task, visits.child_ids).action_fsm_validate()
         for visit in visits:
             stage = closed_stage_by_project[visit.project_id]
             visits.write({'stage_id': stage.id, 'fsm_done': True})
 
+    def _get_full_hierarchy(self):
+        if self.child_ids:
+            return self | self.child_ids._get_full_hierarchy()
+        return self
     def synchronize_name_fsm(self):
         """ Applies naming to the entire task tree for tasks that are part of this
         recordset. Root tasks are named:

@@ -192,3 +192,16 @@ class BemadeFSMBaseTest(TransactionCase):
         sol1.sequence = 2
         sol2.sequence = 3
         return so, visit, sol1, sol2
+
+    def _generate_so_with_one_visit_two_lines_and_descendants(self):
+        so = self._generate_sale_order()
+        visit = self._generate_visit(sale_order=so)
+        task_template = self._generate_task_template(structure=[2, 2, 2],
+                                                     names=['Parent', 'Child', 'Grandchild', 'Great-grandchild'])
+        product = self._generate_product(task_template=task_template)
+        sol1 = self._generate_sale_order_line(sale_order=so, product=product)
+        sol2 = self._generate_sale_order_line(sale_order=so, product=product)
+        visit.so_section_id.sequence = 1
+        sol1.sequence = 2
+        sol2.sequence = 3
+        return so, visit, sol1, sol2

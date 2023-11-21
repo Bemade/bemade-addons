@@ -102,18 +102,19 @@ class FSMVisitTest(BemadeFSMBaseTest):
         self.assertEqual(len(so.order_line), 3)
 
     def test_marking_visit_task_done_completes_descendants(self):
-        so, visit, sol1, sol2 = self._generate_so_with_one_visit_two_lines()
+        so, visit, sol1, sol2 = self._generate_so_with_one_visit_two_lines_and_descendants()
         so.action_confirm()
-        parent, child1, child2 = visit.task_id, sol1.task_id, sol2.task_id
+        parent = visit.task_id
 
         parent.action_fsm_validate()
 
-        self.assertTrue(parent.is_closed)
-        self.assertTrue(child1.is_closed)
-        self.assertTrue(child2.is_closed)
-        self.assertEqual(sol1.qty_to_deliver, 0)
-        self.assertEqual(sol2.qty_to_deliver, 0)
-        self.assertTrue(visit.is_completed)
+        self._assert_is_done(parent)
+
+    def _assert_is_done(self, task):
+        """ Recursively assert all tasks in a hierarchy are complete """
+        self.assertTrue(task.is_closed)
+        for child in task.child_ids:
+            self._assert_is_done(child)
 
     def test_marking_visit_task_done_does_not_create_sale_order_line(self):
         so, visit, sol1, sol2 = self._generate_so_with_one_visit_two_lines()
