@@ -140,7 +140,7 @@ class SaleOrderLine(models.Model):
     def _timesheet_service_generation(self):
         super()._timesheet_service_generation()
         visit_lines = self.filtered(lambda l: l.visit_id)
-        for line in visit_lines:
+        for index, line in enumerate(visit_lines):
             task_ids = line.get_section_line_ids().mapped('task_id')
             if not task_ids:
                 continue
@@ -148,16 +148,15 @@ class SaleOrderLine(models.Model):
                 # Can't group up the tasks if they're part of different projects
                 return
             project_id = task_ids[0].project_id
-            line.visit_id.task_id = line._generate_task_for_visit_line(project_id)
+            line.visit_id.task_id = line._generate_task_for_visit_line(project_id, index+1)
             task_ids.write({'parent_id': line.visit_id.task_id.id})
-        self.mapped('task_id').synchronize_name_fsm()
+        (self.mapped('task_id') | self.visit_ids.task_id).synchronize_name_fsm()
 
-    def _generate_task_for_visit_line(self, project):
+    def _generate_task_for_visit_line(self, project, visit_no: int):
         self.ensure_one()
 
         task = self.env['project.task'].create({
-            'name': 'Temp Name',
-            'description': f"Parent task for {self.order_id.name}, visit {self.name}",
+            'name': f"{self.order_id.name} - Visit {visit_no} - {self.name}",
             'project_id': project.id,
             'equipment_ids': self.get_section_line_ids().mapped('equipment_ids').ids,
             'sale_order_id': self.order_id.id,

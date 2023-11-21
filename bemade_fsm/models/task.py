@@ -213,7 +213,7 @@ class Task(models.Model):
             template = rec.sale_line_id and rec.sale_line_id.product_id.task_template_id
             name_parts = rec.sale_line_id and rec.sale_line_id.name.split('\n')
             title = name_parts and name_parts[0] or rec.sale_line_id.product_id.name
-            if not rec.parent_id:
+            if not rec.parent_id and not rec.visit_id:
                 rec.name = f"{rec.sale_order_id.partner_shipping_id.name} - " \
                            f"{title}"
                 if template:

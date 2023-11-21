@@ -122,3 +122,13 @@ class FSMVisitTest(BemadeFSMBaseTest):
         visit.task_id.action_fsm_validate()
 
         self.assertEqual(len(so.order_line), 3)
+
+    def test_confirming_so_names_visit_properly(self):
+        """ Visits should be named <SO NUMBER> - Visit <visit #> - <visit label>"""
+        so, visit, sol1, sol2 = self._generate_so_with_one_visit_two_lines()
+
+        so.action_confirm()
+        task = visit.task_id
+
+        supposed_name = f"{so.name} - Visit 1 - {visit.label}"
+        self.assertEqual(task.name, supposed_name)
