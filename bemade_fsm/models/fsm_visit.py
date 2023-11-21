@@ -5,9 +5,9 @@ class FSMVisit(models.Model):
     _name = "bemade_fsm.visit"
     _description = 'Represents a single visit by assigned service personnel.'
 
-    label = fields.Text(string="Label", required=True, related='so_section_id.name', readonly=False)
+    label = fields.Text(string="Label", required=True, related='so_section_id.name', readonly=False, copy=True)
 
-    approx_date = fields.Date(string='Approximate Date')
+    approx_date = fields.Date(string='Approximate Date', copy=False)
 
     so_section_id = fields.Many2one(
         comodel_name="sale.order.line",
@@ -19,7 +19,7 @@ class FSMVisit(models.Model):
     sale_order_id = fields.Many2one(
         comodel_name="sale.order",
         string="Sales Order",
-        required=True
+        readonly=True,
     )
 
     is_completed = fields.Boolean(string="Completed", related="so_section_id.is_fully_delivered")
@@ -61,10 +61,10 @@ class FSMVisit(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         recs = super().create(vals_list)
-        for i, rec in enumerate(recs):
+        for i, rec in enumerate(recs.filtered(lambda visit: not visit.so_section_id)):
             rec.so_section_id = rec.env['sale.order.line'].create({
                 'order_id': rec.sale_order_id.id,
                 'display_type': 'line_section',
-                'name': vals_list[i]['label'],
+                'name': vals_list[i].get('label', False),
             })
         return recs

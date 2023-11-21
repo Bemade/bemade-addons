@@ -14,7 +14,8 @@ class SaleOrderLine(models.Model):
     visit_ids = fields.One2many(
         comodel_name="bemade_fsm.visit",
         inverse_name="so_section_id",
-        string="Visits"
+        string="Visits",
+        copy=True,
     )
 
     visit_id = fields.Many2one(
@@ -22,7 +23,7 @@ class SaleOrderLine(models.Model):
         compute="_compute_visit_id",
         string="Visit",
         ondelete='cascade',
-        store=True
+        store=True,
     )
 
     is_fully_delivered = fields.Boolean(
@@ -73,6 +74,13 @@ class SaleOrderLine(models.Model):
             if rec.order_id.default_equipment_ids and not rec.equipment_ids:
                 rec.equipment_ids = rec.order_id.default_equipment_ids
         return recs
+
+    def copy_data(self, default=None):
+        if default is None:
+            default = {}
+        if 'visit_ids' not in default:
+            default['visit_ids'] = [(0, 0, visit.copy_data()[0]) for visit in self.visit_ids]
+        return super().copy_data(default)
 
     def _timesheet_create_task(self, project):
         """ Generate task for the given so line, and link it.
@@ -148,7 +156,7 @@ class SaleOrderLine(models.Model):
                 # Can't group up the tasks if they're part of different projects
                 return
             project_id = task_ids[0].project_id
-            line.visit_id.task_id = line._generate_task_for_visit_line(project_id, index+1)
+            line.visit_id.task_id = line._generate_task_for_visit_line(project_id, index + 1)
             task_ids.write({'parent_id': line.visit_id.task_id.id})
         (self.mapped('task_id') | self.visit_ids.task_id).synchronize_name_fsm()
 

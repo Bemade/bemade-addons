@@ -54,7 +54,7 @@ class SaleOrder(models.Model):
     def get_relevant_order_lines(self, task_id):
         self.ensure_one()
         linked_lines = self.order_line.filtered(lambda l: l.task_id == task_id
-                                                or l == task_id.visit_id.so_section_id)
+                                                          or l == task_id.visit_id.so_section_id)
         visit_lines = linked_lines.filtered(lambda l: l.visit_id)
         for line in visit_lines:
             linked_lines |= line.get_section_line_ids()
@@ -97,4 +97,7 @@ class SaleOrder(models.Model):
     def _inverse_default_equipment(self):
         pass
 
-
+    def copy(self, default=None):
+        rec = super().copy(default)
+        rec.visit_ids = [Command.set(rec.order_line.visit_ids.ids)]
+        return rec

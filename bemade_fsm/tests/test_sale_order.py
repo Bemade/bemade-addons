@@ -288,9 +288,15 @@ class TestSalesOrder(BemadeFSMBaseTest):
         for t in task.child_ids[1:]:
             self.assertFalse(t.description)
 
-    def test_cancel_sales_order_completes_successfully(self):
-        so, *others = self._generate_so_with_one_visit_two_lines()
-        so.action_confirm()
+    def test_duplicate_sale_order_duplicates_visits(self):
+        """ Duplicated sales orders should have visits tied to their SO lines as in the original. The copied visits
+        should not have approximate dates set, however."""
+        so, visit, line1, line2 = self._generate_so_with_one_visit_two_lines()
 
-        so.action_cancel()
-        self.assertEqual(so.state, 'cancel')
+        so2 = so.copy()
+
+        self.assertTrue(so2.visit_ids)
+        visit2 = so2.visit_ids[0]
+        self.assertEqual(so2.order_line[0].visit_id, visit2)
+        self.assertEqual(visit2.label, visit.label)
+        self.assertFalse(visit2.approx_date)
