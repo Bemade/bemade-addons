@@ -232,7 +232,7 @@ class PatientInjury(models.Model):
                                  required=True)
     patient_name = fields.Char(related="patient_id.name")
     diagnosis = fields.Char(tracking=True)
-    injury_date = fields.Date(string='Date and Time of Injury',
+    injury_date = fields.Date(string='Date of Injury',
                               default=date.today())
     injury_date_na = fields.Boolean(string="N/A", default=False)
     internal_notes = fields.Html(tracking=True)

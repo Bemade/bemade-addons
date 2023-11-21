@@ -47,14 +47,15 @@ class TeamStaffPortal(CustomerPortal):
                                        'page_name': 'my_teams',
                                    })
 
-    @http.route(route=['/my/team/<int:team_id>', '/my/team/<int:team_id>/page/<int:page>'], type='http', auth='user', website=True)
+    @http.route(route=['/my/team', '/my/team/page/<int:page>'], type='http', auth='user', website=True)
     def view_team(self, team_id, page=0, **kw):
         """ Display the information for a team including its list of players """
+        team_id = int(team_id)
         team = http.request.env['sports.team'].browse(team_id)
         if not team:
             raise UserError(_('This team could not be found.'))
         players_count = team.player_count
-        pgr = pager(url=f'/my/team/{team_id}', total=players_count, page=page, step=10,
+        pgr = pager(url=f'/my/team?team_id={team_id}', total=players_count, page=page, step=10,
                     scope=5)
         players = http.request.env['sports.patient'].search([
             ('team_ids', 'in', team_id),
@@ -88,12 +89,14 @@ class TeamStaffPortal(CustomerPortal):
                                        'page_name': 'my_players',
                                    })
 
-    @http.route(route=['/my/players/<int:player_id>', '/my/players/<int:player_id>/<int:team_id>'], type='http',
+    @http.route(route=['/my/player'], type='http',
                 auth='user', website=True)
     def view_player(self, player_id, team_id=None,**kw):
         """ Display the active injuries for a given player. """
+        player_id = int(player_id)
+        team_id = team_id and int(team_id)
         player = http.request.env['sports.patient'].browse(player_id)
-        team = team_id and http.request.env['sports.team'].browse(player_id)
+        team = team_id and http.request.env['sports.team'].browse(team_id)
         if not player:
             raise UserError(_('This player could not be found.'))
         injuries = player.injury_ids.filtered(lambda r: r.stage == 'active')
@@ -102,6 +105,7 @@ class TeamStaffPortal(CustomerPortal):
             qcontext={
                 'player': player,
                 'injuries': injuries,
-                'team': team
+                'team': team,
+                'page_name': 'my_player',
             }
         )
