@@ -55,7 +55,7 @@ class TeamStaffPortal(CustomerPortal):
         if not team:
             raise UserError(_('This team could not be found.'))
         players_count = team.player_count
-        pgr = pager(url=f'/my/team?team_id={team_id}', total=players_count, page=page, step=10,
+        pgr = pager(url=f'/my/team', total=players_count, page=page, step=10,
                     scope=5)
         players = http.request.env['sports.patient'].search([
             ('team_ids', 'in', team_id),
