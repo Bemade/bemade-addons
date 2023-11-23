@@ -129,5 +129,24 @@
                 </xpath>
             </field>
         </record>
+        <record id="project_task_view_list_fsm_inherit" model="ir.ui.view">
+            <field name="name">project.task.view.list.fsm.inherit</field>
+            <field name="model">project.task</field>
+            <field name="inherit_id" ref="industry_fsm.project_task_view_list_fsm"/>
+            <field name="arch" type="xml">
+                <field name="partner_id" position="after">
+                    <field name="work_order_number" optional="show"/>
+                </field>
+                <field name="company_id" position="attributes">
+                    <attribute name="optional">hide</attribute>
+                </field>
+                <field name="worksheet_template_id" position="attributes">
+                    <attribute name="optional">hide</attribute>
+                </field>
+                <field name="project_id" position="attributes">
+                    <attribute name="optional">hide</attribute>
+                </field>
+            </field>
+        </record>
     </data>
 </odoo>
