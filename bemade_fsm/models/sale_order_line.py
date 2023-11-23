@@ -57,6 +57,17 @@ class SaleOrderLine(models.Model):
         compute="_compute_task_duration"
     )
 
+    is_fsm = fields.Boolean(
+        string='Is FSM',
+        compute='_compute_is_fsm',
+        store=True,
+    )
+
+    section_line_ids = fields.One2many(
+        comodel_name='sale.order.line',
+        compute='_compute_section_line_ids',
+    )
+
     @api.depends('visit_ids')
     def _compute_visit_id(self):
         for rec in self:
@@ -214,6 +225,14 @@ class SaleOrderLine(models.Model):
                 lines.append(line)
         return self.env['sale.order.line'].union(*lines)
 
+    @api.depends('display_type', 'order_id.order_line')
+    def _compute_section_line_ids(self):
+        for rec in self:
+            if rec.display_type == 'line_section':
+                rec.section_line_ids = [Command.set(rec.get_section_line_ids().ids)]
+            else:
+                rec.section_line_ids = False
+
     def _iterate_items_compute_bool(self, single_line_func):
         if not self.display_type:
             return single_line_func(self)
@@ -251,8 +270,7 @@ class SaleOrderLine(models.Model):
         uom_hour = self.env.ref('uom.product_uom_hour')
         uom_unit = self.env.ref('uom.product_uom_unit')
         templated_lines = self.filtered(lambda l: l.product_id.task_template_id
-                                                  and l.product_id.task_template_id.
-                                        planned_hours)
+                                                  and l.product_id.task_template_id.planned_hours)
         visit_lines = self.filtered(lambda l: l.visit_id)
         regular_lines = self - templated_lines - visit_lines
         for line in regular_lines:
@@ -272,3 +290,9 @@ class SaleOrderLine(models.Model):
         for line in visit_lines:
             line.task_duration = sum(line.get_section_line_ids().
                                      mapped('task_duration'))
+
+    @api.depends('product_id.detailed_type', 'product_id.service_tracking')
+    def _compute_is_fsm(self):
+        for rec in self:
+            rec.is_fsm = (rec.product_id.detailed_type == 'service'
+                          and rec.product_id.service_tracking == 'task_global_project')

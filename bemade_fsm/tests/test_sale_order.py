@@ -300,3 +300,23 @@ class TestSalesOrder(BemadeFSMBaseTest):
         self.assertEqual(so2.order_line[0].visit_id, visit2)
         self.assertEqual(visit2.label, visit.label)
         self.assertFalse(visit2.approx_date)
+
+    def test_confirming_sale_order_creates_visit_if_none_created(self):
+        so = self._generate_sale_order()
+        product = self._generate_product()
+        sol = self._generate_sale_order_line(so, product)
+
+        so.action_confirm()
+
+        visit_line = so.order_line.sorted('sequence')[0]
+        self.assertTrue(so.visit_ids)
+        self.assertEqual(visit_line.visit_id, so.visit_ids)
+
+    def test_confirming_sale_order_with_visit_creates_no_new_lines(self):
+        so = self._generate_sale_order()
+        product = self._generate_product()
+        visit = self._generate_visit(so)
+
+        so.action_confirm()
+
+        self.assertEqual(len(so.visit_ids), 1)
