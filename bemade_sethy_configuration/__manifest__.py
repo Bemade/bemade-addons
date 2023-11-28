@@ -14,10 +14,13 @@
         'base',
         'contacts',
         'crm',
+        'document_knowledge',
+        'document_page',
+        'document_page_approval',
+        'attachment_indexation',
         'l10n_ca',
-        'membership',
-        'membership_extension',
         'membership_variable_period',
+        'membership_delegated_partner',
         'partner_multi_relation',
         'sale_management'
     ],
@@ -29,7 +32,8 @@
         'data/partner_relation_type_data.xml',
         'data/company_data.xml',
         'views/res_partner_relation_views.xml',
-        'views/membership_membership_line.xml'
+#         'views/membership_membership_line.xml',
+        'views/res_partner_views.xml',
 
     ],
     'demo': [

@@ -60,8 +60,7 @@
                 <group attrs="{'invisible': [('is_property','=', False)]}">
                     <field name="surface"/>
                     <field name="category_id" widget="many2many_tags"
-                           options="{'color_field': 'color', 'no_create_edit': True}"
-                           placeholder="e.g. &quot;B2B&quot;, &quot;VIP&quot;, &quot;Consulting&quot;, ..."/>
+                           options="{'color_field': 'color', 'no_create_edit': True}"/>
                 </group>
             </xpath>
 

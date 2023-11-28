@@ -19,7 +19,7 @@ class ResPartner(models.Model):
     property_count = fields.Integer(string='Property count', compute='_compute_property_count', store=True)
     is_owner = fields.Boolean(string='Is Owner', compute='_compute_property_count', store=True)
 
-    sethy_firs_tdate = fields.Date(string='First membership date')  # member
+    sethy_first_date = fields.Date(string='First membership date')  # member
     sethy_last_date = fields.Date(string='Last membership date')  # member
     sethy_renew_date = fields.Date(string='Next renew date date')  # member
     sethy_certification_date = fields.Date(string='Certification date date')  # member
@@ -107,15 +107,22 @@ class ResPartner(models.Model):
             vals['category_id'] = [(3, owner_tag.id)]
         return super(ResPartner, self).write(vals)
 
-    @api.model
-    def create(self, vals):
+    @api.model_create_multi
+    def create(self, vals_list):
+        # Get the property tag reference outside the loop to avoid repeated searches.
         property_tag = self.env.ref('bemade_sethy_configuration.partner_tag_property', raise_if_not_found=False)
-        if 'is_property' in vals:
-            if vals['is_property'] and property_tag:
-                vals['category_id'] = [(4, property_tag.id)]
-            elif not vals['is_property'] and property_tag:
-                vals['category_id'] = [(3, property_tag.id)]
-        return super(ResPartner, self).create(vals)
+        # Iterate over each set of values in the list.
+        for vals in vals_list:
+            # Check if 'is_property' is in the values of the current record.
+            if 'is_property' in vals:
+                if vals['is_property'] and property_tag:
+                    # Add the tag to category_id if is_property is True.
+                    vals['category_id'] = [(4, property_tag.id)]
+                elif not vals['is_property'] and property_tag:
+                    # Remove the tag from category_id if is_property is False.
+                    vals['category_id'] = [(3, property_tag.id)]
+        # Call super and pass the modified vals_list.
+        return super(ResPartner, self).create(vals_list)
 
     @api.onchange('is_property')
     def _inverse_is_property(self):
