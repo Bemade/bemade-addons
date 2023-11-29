@@ -50,9 +50,47 @@
         </record>
         <!-- Add parent_id = false to domain for My Tasks, All Tasks: To Schedule, All Tasks and To Invoice-->
         <record id="industry_fsm.project_task_action_fsm" model="ir.actions.act_window">
-            <field name="domain">[('is_fsm', '=', True),
-                                  ('display_project_id', '!=', False),
-                                  ('parent_id', '=', False)]
+            <field name="context">{'search_default_is_parent_task': True}</field>
+        </record>
+        <record id="industry_fsm.project_task_action_fsm_map"
+                model="ir.actions.act_window">
+            <field name="context">{'search_default_is_parent_task': True}</field>
+        </record>
+        <record id="industry_fsm.project_task_action_to_schedule_fsm"
+                model="ir.actions.act_window">
+            <field name="context">{'search_default_is_parent_task': True}</field>
+        </record>
+        <record id="industry_fsm.project_task_action_all_fsm"
+                model="ir.actions.act_window">
+            <field name="context">{'search_default_is_parent_task': True}</field>
+        </record>
+        <record id="industry_fsm_sale.project_task_action_to_invoice_fsm"
+                model="ir.actions.act_window">
+            <field name="context">{'search_default_is_parent_task': True}</field>
+        </record>
+        <record id="industry_fsm.project_task_action_fsm_planning_groupby_user"
+                model="ir.actions.act_window">
+            <field name="context">{'search_default_is_parent_task': True}</field>
+        </record>
+        <record id="industry_fsm.project_task_action_fsm_planning_groupby_project"
+                model="ir.actions.act_window">
+            <field name="context">{'search_default_is_parent_task': True}</field>
+        </record>
+        <record id="industry_fsm_report.project_task_action_fsm_planning_groupby_worksheet"
+                model="ir.actions.act_window">
+            <field name="context">{'search_default_is_parent_task': True}</field>
+        </record>
+        <record id="project_task_view_calendar_fsm_no_worksheet" model="ir.ui.view">
+            <field name="name">bemade_fsm.project_task_view_calendar_no_worksheet</field>
+            <field name="inherit_id"
+                   ref="industry_fsm_report.project_task_view_calendar_fsm_worksheet"/>
+            <field name="model">project.task</field>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='worksheet_template_id']"
+                       position="replace"></xpath>
+                <xpath expr="//calendar" position="attributes">
+                    <attribute name="color">user_ids</attribute>
+                </xpath>
             </field>
         </record>
         <record id="industry_fsm.project_task_action_fsm_map"

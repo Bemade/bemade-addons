@@ -97,4 +97,8 @@ class SaleOrder(models.Model):
     def _inverse_default_equipment(self):
         pass
 
+    def copy(self, default=None):
+        rec = super().copy(default)
+        rec.visit_ids = [Command.set(rec.order_line.visit_ids.ids)]
+        return rec
 
