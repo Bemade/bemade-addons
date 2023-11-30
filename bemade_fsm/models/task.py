@@ -37,23 +37,23 @@ class Task(models.Model):
         store=True
     )
 
-    planned_date_begin = fields.Datetime(
-        string="Planned Start Date",
-        tracking=True,
-        task_dependency_tracking=True,
-        compute="_compute_planned_dates",
-        inverse="_inverse_planned_dates",
-        store=True
-    )
-
-    planned_date_end = fields.Datetime(
-        string="Planned End Date",
-        tracking=True,
-        task_dependency_tracking=True,
-        compute="_compute_planned_dates",
-        inverse="_inverse_planned_dates",
-        store=True
-    )
+    # planned_date_begin = fields.Datetime(
+    #     string="Planned Start Date",
+    #     tracking=True,
+    #     task_dependency_tracking=True,
+    #     compute="_compute_planned_dates",
+    #     inverse="_inverse_planned_dates",
+    #     store=True
+    # )
+    #
+    # planned_date_end = fields.Datetime(
+    #     string="Planned End Date",
+    #     tracking=True,
+    #     task_dependency_tracking=True,
+    #     compute="_compute_planned_dates",
+    #     inverse="_inverse_planned_dates",
+    #     store=True
+    # )
 
     # Override related field to make it return false if this is an FSM subtask
     allow_billable = fields.Boolean(
@@ -112,43 +112,40 @@ class Task(models.Model):
             for project in self.project_id
         }
 
-    def _get_related_planning_slots(self):
-        domain = expression.AND([
-            self._get_domain_compute_forecast_hours(),
-            [('task_id', 'in', self.ids + self._get_all_subtasks().ids)]
-        ])
-        return self.env['planning.slot'].search(domain)
+    # def _get_related_planning_slots(self):
+    #     domain = [('task_id', 'in', self.ids + self._get_all_subtasks().ids), ('start_datetime', '!=', False)]
+    #     return self.env['planning.slot'].search(domain)
 
-    @api.depends('planned_hours')
-    def _compute_planned_dates(self):
-        forecast_data = self._get_related_planning_slots()
-        mapped_data = {}
-        TimeSpan = namedtuple('timespan', ['start', 'end'])
-        for d in forecast_data:
-            if d not in mapped_data:
-                mapped_data.update({d: TimeSpan(d.start_datetime, d.end_datetime)})
-                continue
-            if mapped_data[d].start > d.start_datetime:
-                mapped_data[d].start = d.start_datetime
-            if mapped_data[d].end < d.end_datetime:
-                mapped_data[d].end = d.end_datetime
-        for rec in self:
-            if rec not in mapped_data:
-                if not rec.planned_date_end:
-                    rec.planned_date_end = False
-                if not rec.planned_date_begin:
-                    rec.planned_date_begin = False
-                continue
-            rec.planned_date_begin, rec.planned_date_end = mapped_data[rec]
-
-    def _inverse_planned_dates(self):
-        """ Modifying the planned dates for tasks with existing planning records
-        (planning.slot) has no defined safe behaviour, so we block it."""
-        if self._get_related_planning_slots():
-            raise UserError(_("Modifying the planned start or end time on a task is not "
-                              "permitted when that task already has planning records "
-                              "associated to it. Please modify or delete the planning "
-                              "records instead."))
+    # @api.depends('planned_hours')
+    # def _compute_planned_dates(self):
+    #     forecast_data = self._get_related_planning_slots()
+    #     mapped_data = {}
+    #     TimeSpan = namedtuple('timespan', ['start', 'end'])
+    #     for d in forecast_data:
+    #         if d not in mapped_data:
+    #             mapped_data.update({d: TimeSpan(d.start_datetime, d.end_datetime)})
+    #             continue
+    #         if mapped_data[d].start > d.start_datetime:
+    #             mapped_data[d].start = d.start_datetime
+    #         if mapped_data[d].end < d.end_datetime:
+    #             mapped_data[d].end = d.end_datetime
+    #     for rec in self:
+    #         if rec not in mapped_data:
+    #             if not rec.planned_date_end:
+    #                 rec.planned_date_end = False
+    #             if not rec.planned_date_begin:
+    #                 rec.planned_date_begin = False
+    #             continue
+    #         rec.planned_date_begin, rec.planned_date_end = mapped_data[rec]
+    #
+    # def _inverse_planned_dates(self):
+    #     """ Modifying the planned dates for tasks with existing planning records
+    #     (planning.slot) has no defined safe behaviour, so we block it."""
+    #     if self._get_related_planning_slots():
+    #         raise UserError(_("Modifying the planned start or end time on a task is not "
+    #                           "permitted when that task already has planning records "
+    #                           "associated to it. Please modify or delete the planning "
+    #                           "records instead."))
 
     @api.depends('sale_line_id.order_id.site_contacts',
                  'sale_line_id.order_id.work_order_contacts')
@@ -183,17 +180,59 @@ class Task(models.Model):
             else:
                 rec.allow_billable = rec.project_id.allow_billable
 
-    def action_fsm_validate(self):
-        visits = self.filtered(lambda t: t.visit_id)
-        non_visits = self - visits
-        super(Task, non_visits).action_fsm_validate()
+    def action_fsm_validate(self, stop_running_timers=False):
+        all_tasks = self | self._get_all_subtasks()
+        non_visit_tasks = all_tasks.filtered(lambda task: not task.visit_id)
+        visit_tasks = all_tasks.filtered(lambda task: bool(task.visit_id))
+        result = visit_tasks._validate_task_without_creating_sale_order_line(stop_running_timers)
+        if isinstance(result, dict):
+            return result
+        result = super(Task, non_visit_tasks).action_fsm_validate(stop_running_timers)
+        if isinstance(result, dict):
+            return result
+        return result
 
-        visits._stop_all_timers_and_create_timesheets()
-        closed_stage_by_project = visits._get_closed_stage_by_project()
-        super(Task, visits.child_ids).action_fsm_validate()
-        for visit in visits:
-            stage = closed_stage_by_project[visit.project_id]
-            visits.write({'stage_id': stage.id, 'fsm_done': True})
+    def _validate_task_without_creating_sale_order_line(self, stop_running_timers=False):
+        # Reproduce the functionality of action_fsm_validate but don't apply logic from industry_fsm_sale
+        # so as to avoid creating order lines for visits
+        Timer = self.env['timer.timer']
+        tasks_running_timer_ids = Timer.search([('res_model', '=', 'project.task'), ('res_id', 'in', self.ids)])
+        timesheets = self.env['account.analytic.line'].sudo().search([('task_id', 'in', self.ids)])
+        timesheets_running_timer_ids = None
+        if timesheets:
+            timesheets_running_timer_ids = Timer.search([
+                ('res_model', '=', 'account.analytic.line'),
+                ('res_id', 'in', timesheets.ids)])
+        if tasks_running_timer_ids or timesheets_running_timer_ids:
+            if stop_running_timers:
+                self._stop_all_timers_and_create_timesheets(tasks_running_timer_ids, timesheets_running_timer_ids,
+                                                            timesheets)
+            else:
+                wizard = self.env['project.task.stop.timers.wizard'].create({
+                    'line_ids': [Command.create({'task_id': task.id}) for task in self],
+                })
+                return {
+                    'name': _('Do you want to stop the running timers?'),
+                    'type': 'ir.actions.act_window',
+                    'view_mode': 'form',
+                    'view_id': self.env.ref('industry_fsm.view_task_stop_timer_wizard_form').id,
+                    'target': 'new',
+                    'res_model': 'project.task.stop.timers.wizard',
+                    'res_id': wizard.id,
+                }
+        closed_stage_by_project = {
+            project.id:
+                project.type_ids.filtered(lambda stage: stage.fold)[:1] or project.type_ids[-1:]
+            for project in self.project_id
+        }
+        for task in self:
+            # determine closed stage for task
+            closed_stage = closed_stage_by_project.get(self.project_id.id)
+            values = {'fsm_done': True}
+            if closed_stage:
+                values['stage_id'] = closed_stage.id
+
+            task.write(values)
 
     def synchronize_name_fsm(self):
         """ Applies naming to the entire task tree for tasks that are part of this

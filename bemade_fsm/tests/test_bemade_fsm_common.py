@@ -69,8 +69,11 @@ class BemadeFSMBaseTest(TransactionCase):
     @classmethod
     def _generate_sale_order(cls, partner=None, client_order_ref='Test Order', equipment=None, shipping_location=None):
         partner = partner or cls._generate_partner()
-        vals = {'partner_id': partner.id,
-                'client_order_ref': client_order_ref}
+        vals = {
+            'partner_id': partner.id,
+            'client_order_ref': client_order_ref,
+            'payment_term_id': cls.env.ref('account.account_payment_term_immediate').id,
+        }
         if equipment:
             vals.update({'default_equipment_ids': [Command.set([equipment.id])]})
         if shipping_location:
@@ -98,6 +101,22 @@ class BemadeFSMBaseTest(TransactionCase):
         })
 
     @classmethod
+    def _generate_product_category(cls):
+        company_id = cls.env.company.id
+        return cls.env['product.category'].create({
+            'name': 'Test Category',
+            'parent_id': cls.env.ref('product.product_category_all', False).id or False,
+            'property_account_income_categ_id': cls.env['account.account'].search(
+                [('account_type', '=', 'income'), ('company_id', '=', company_id)],
+                limit=1
+            ).id,
+            'property_account_expense_categ_id': cls.env['account.account'].search(
+                [('account_type', '=', 'expense_direct_cost'), ('company_id', '=', company_id)],
+                limit=1
+            ).id,
+        })
+
+    @classmethod
     def _generate_product(cls, name='Test Product', product_type='service', service_tracking='task_global_project',
                           project=None, task_template=None, service_policy='delivered_manual', uom=None):
         if 'project' in service_tracking and not project:
@@ -113,6 +132,7 @@ class BemadeFSMBaseTest(TransactionCase):
             'service_policy': service_policy,
             'uom_id': uom_id,
             'uom_po_id': uom_id,
+            'categ_id': cls._generate_product_category().id,
         })
 
     @classmethod
@@ -171,7 +191,7 @@ class BemadeFSMBaseTest(TransactionCase):
 
     def _invoice_sale_order(self, so):
         wiz = self.env['sale.advance.payment.inv'].with_context(
-            {'active_ids': [so.id]}).create({})
+            {'active_ids': [so.id]}).create([{}])
         wiz.create_invoices()
         inv = so.invoice_ids[-1]
         inv.action_post()

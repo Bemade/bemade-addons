@@ -40,7 +40,7 @@ class FSMVisitTest(BemadeFSMBaseTest):
         so.action_confirm()
         task = so.order_line.filtered(lambda l: l.task_id).task_id
 
-        task.action_fsm_validate()
+        task.action_fsm_validate(stop_running_timers=True)
 
         self.assertTrue(visit.is_completed)
 
@@ -50,7 +50,7 @@ class FSMVisitTest(BemadeFSMBaseTest):
         self._generate_sale_order_line(so)
         so.action_confirm()
         task = so.order_line.filtered(lambda l: l.task_id).task_id
-        task.action_fsm_validate()
+        task.action_fsm_validate(stop_running_timers=True)
 
         self._invoice_sale_order(so)
 
@@ -106,7 +106,7 @@ class FSMVisitTest(BemadeFSMBaseTest):
         so.action_confirm()
         parent, child1, child2 = visit.task_id, sol1.task_id, sol2.task_id
 
-        parent.action_fsm_validate()
+        parent.action_fsm_validate(stop_running_timers=True)
 
         self.assertTrue(parent.is_closed)
         self.assertTrue(child1.is_closed)
@@ -119,6 +119,6 @@ class FSMVisitTest(BemadeFSMBaseTest):
         so, visit, sol1, sol2 = self._generate_so_with_one_visit_two_lines()
         so.action_confirm()
 
-        visit.task_id.action_fsm_validate()
+        visit.task_id.action_fsm_validate(stop_running_timers=True)
 
         self.assertEqual(len(so.order_line), 3)
