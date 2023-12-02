@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1"> <!-- noupdate="1" means the data won't be updated when the module is upgraded -->
+        <!-- Assuming 'base.main_company' is the external ID for the main company -->
+        <record id="base.main_company" model="res.company">
+            <field name="name">Fondation Séthy</field>
+            <field name="website">https://fondationsethy.org</field>
+            <field name="email">info@fondationsethy.org</field>
+            <field name="street">164, rue Cowie</field>
+            <field name="street2">local 335</field>
+            <field name="city">Granby</field>
+            <field name="state_id" ref="base.state_ca_qc"/>
+            <field name="zip">J2G 3V3</field>
+            <field name="country_id" ref="base.ca"/>
+            <field name="phone">450 994-3173</field>
+            <field name="account_sale_tax_id" ref="l10n_ca.1_gstqst_sale_en"/>
+            <field name="account_purchase_tax_id" ref="l10n_ca.1_gstqst_purc_en"/>
+        </record>
+    </data>
+</odoo>

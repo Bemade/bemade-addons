@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1"> <!-- noupdate="1" means the data won't be updated when the module is upgraded -->
+        <record id="membership_category_perpetual" model="membership.membership_category">
+            <field name="name">Perpetual Membership</field>
+        </record>
+        <record id="membership_extension.membership_category_member" model="membership.membership_category">
+            <field name="name">Annual Membership</field>
+        </record>
+    </data>
+</odoo>

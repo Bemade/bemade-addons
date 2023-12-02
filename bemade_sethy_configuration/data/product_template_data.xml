@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <data noupdate="1"> <!-- noupdate="1" means the data won't be updated when the module is upgraded -->
+
+        <record id="product_membership_perpetual" model="product.template">
+            <field name="membership_category_id" ref="membership_category_perpetual"/>
+            <field name="name">Perpetual Membership</field>
+            <field name="membership" eval="True" />
+            <field name="type">service</field>
+            <field name="membership_date_from">2000-01-01</field>
+            <field name="membership_date_to">2100-01-01</field>
+            <field name="list_price">225.0</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+            <field name="default_code">MBRAV</field>
+        </record>
+
+        <record id="product_membership_annual" model="product.template">
+            <field name="membership_category_id" ref="membership_extension.membership_category_member"/>
+            <field name="name">Annual Membership</field>
+            <field name="membership" eval="True" />
+            <field name="type">service</field>
+            <field name="list_price">20.0</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+            <field name="default_code">MBRAN</field>
+            <field name="membership_type">variable</field>
+        </record>
+
+
+
+    </data>
+
+</odoo>
