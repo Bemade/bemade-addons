@@ -1,109 +1,80 @@
-from .test_bemade_fsm_common import FSMManagerUserTransactionCase
-from odoo.tests.common import HttpCase, tagged
+from .test_bemade_fsm_common import BemadeFSMBaseTest
+from odoo.tests.common import HttpCase, tagged, Form
 from odoo.exceptions import MissingError
 from odoo import Command
+from odoo.tools import mute_logger
 from psycopg2.errors import ForeignKeyViolation
 
 
-@tagged("-at_install", "post_install")
-class TestTaskTemplateCommon(FSMManagerUserTransactionCase):
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.PLANNED_HOURS = 6
-        hours_uom = cls.env['uom.uom'].search([('name', '=', 'Hour')]) or False
-        # Test product to use with the various tests
-        cls.task1 = cls.env['project.task.template'].create({
-            'name': 'Template 1',
-        })
-
-        cls.project = cls.env['project.project'].create({
-            'name': 'Test Project',
-        })
-        cls.product_task_global_project = cls.env['product.product'].create({
-            'name': 'Test Product 1',
-            'type': 'service',
-            'service_tracking': 'task_global_project',
-            'project_id': cls.project.id,
-            'task_template_id': cls.task1.id,
-            'uom_id': hours_uom.id,
-            'uom_po_id': hours_uom.id,
-        })
-        cls.project_template = cls.env['project.project'].create({
-            'name': 'Test Project Template',
-        })
-        cls.product_task_in_project = cls.env['product.product'].create({
-            'name': 'Test Product 2',
-            'type': 'service',
-            'service_tracking': 'task_in_project',
-            'task_template_id': cls.task1.id,
-            'project_template_id': cls.project_template.id,
-            'uom_po_id': hours_uom.id,
-            'uom_id': hours_uom.id,
-        })
-
-        # Set up a task template tree with 2 children and 1 grandchild
-        cls.parent_task = cls.env['project.task.template'].create({
-            'name': 'Parent Template',
-            'planned_hours': cls.PLANNED_HOURS,
-        })
-        cls.child_task_1 = cls.env['project.task.template'].create({
-            'name': 'Child Template 1',
-            'parent': cls.parent_task.id,
-        })
-        cls.child_task_2 = cls.env['project.task.template'].create({
-            'name': 'Child Template 2',
-            'parent': cls.parent_task.id,
-        })
-        cls.parent_task.write({'subtasks': [Command.set([cls.child_task_1.id, cls.child_task_2.id])]})
-        cls.grandchild_task = cls.env['project.task.template'].create({
-            'name': 'Grandchild Template',
-            'parent': cls.child_task_2.id
-        })
-        cls.child_task_2.write({'subtasks': [Command.set([cls.grandchild_task.id])]})
-
-        # Create products using the task tree we just created
-        cls.product_task_tree_global_project = cls.env['product.product'].create({
-            'name': 'Test Product 3',
-            'type': 'service',
-            'service_tracking': 'task_global_project',
-            'project_id': cls.project.id,
-            'task_template_id': cls.parent_task.id,
-            'uom_id': hours_uom.id,
-            'uom_po_id': hours_uom.id,
-        })
-        cls.product_task_tree_in_project = cls.env['product.product'].create({
-            'name': 'Test Product 2',
-            'type': 'service',
-            'service_tracking': 'task_in_project',
-            'task_template_id': cls.parent_task.id,
-            'project_template_id': cls.project_template.id,
-            'uom_po_id': hours_uom.id,
-            'uom_id': hours_uom.id,
-        })
-
-
 @tagged('-at_install', 'post_install')
-class TestTaskTemplate(TestTaskTemplateCommon):
+class TestTaskTemplate(BemadeFSMBaseTest):
 
     def test_delete_task_template(self):
         """User should never be able to delete a task template used on a product"""
+        task_template = self._generate_task_template(names=['Template 1'])
+        product = self._generate_product(name="Test Product 1", task_template=task_template)
         with self.assertRaises(ForeignKeyViolation):
-            self.task1.unlink()
+            with mute_logger('odoo.sql_db'):
+                task_template.unlink()
 
     def test_delete_subtask_template(self):
         """ Deletion of a child task should be OK even if the parent is on a product. Children of the deleted
         subtask should be deleted."""
-        self.child_task_2.unlink()
+        parent_task = self._generate_task_template(structure=[2, 1],
+                                                   names=['Parent Template', 'Child Template',
+                                                          'Grandchild Template'])
+        grandchild_task = parent_task.subtasks[0].subtasks[0]
+
+        parent_task.subtasks[0].unlink()
+
         # Reading deleted child's name field should be impossible
         with self.assertRaises(MissingError):
-            test = self.grandchild_task.name
+            test = grandchild_task.name
 
+    def test_dissociating_customer_resets_equipment_appropriately(self):
+        partner1 = self._generate_partner()
+        partner2 = self._generate_partner()
+        equipment1 = self._generate_equipment(partner=partner1)
+        task = self._generate_task_template(customer=partner1, equipment=equipment1)
+        form = Form(task)
 
-@tagged('-at_install', 'post_install')
-class TestTaskTemplateTour(HttpCase, TestTaskTemplateCommon):
+        # Switching the partner should trigger on_change that makes sure equipments are linked to the new partner
+        form.customer = partner2
+        form.save()
 
-    def test_task_template_tour(self):
-        self.start_tour('/web', 'task_template_tour',
-                        login='misterpm', )
+        self.assertFalse(equipment1 in task.equipment_ids)
+
+    def test_hours_estimate_used_for_planning(self):
+        partner = self._generate_partner()
+        so = self._generate_sale_order(partner=partner)
+        task_template = self._generate_task_template(planned_hours=8)
+        product = self._generate_product(uom=self.env.ref('uom.product_uom_unit'), task_template=task_template)
+
+        sol = self._generate_sale_order_line(sale_order=so, product=product)
+
+        self.assertEqual(sol.task_duration, 8)
+
+    def test_hours_estimate_multiplied_for_multiple_units_sold(self):
+        partner = self._generate_partner()
+        so = self._generate_sale_order(partner=partner)
+        task_template = self._generate_task_template(planned_hours=8)
+        product = self._generate_product(uom=self.env.ref('uom.product_uom_unit'),
+                                         task_template=task_template)
+
+        sol = self._generate_sale_order_line(sale_order=so, product=product, qty=3.0)
+
+        self.assertEqual(sol.task_duration, 24)
+
+    def test_child_task_names_are_short_version(self):
+        so, visit, sol1, sol2 = self._generate_so_with_one_visit_two_lines()
+        template = self._generate_task_template(names=['Task'])
+        product = self._generate_product(task_template=template)
+        sol1.name = "Short Name 1"
+        sol2.name = "Short Name 2"
+        sol3 = self._generate_sale_order_line(sale_order=so, product=product)
+
+        so.action_confirm()
+
+        self.assertEqual(sol1.task_id.name, "Short Name 1")
+        self.assertEqual(sol2.task_id.name, "Short Name 2")
+        self.assertEqual(sol3.task_id.name, "Task")

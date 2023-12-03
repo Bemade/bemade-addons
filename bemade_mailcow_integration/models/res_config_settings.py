@@ -18,3 +18,8 @@ class ResConfigSettings(models.TransientModel):
         string='Sync Aliases with Odoo',
         help='Auto create Aliases in Mailcow from Odoo',
         config_parameter='mailcow.sync_alias')
+
+    mailcow_auto_create = fields.Boolean(
+        string='Create Mailboxes in Mailcow',
+        help='Auto create Mailboxes in Mailcow on creation in Odoo',
+        config_parameter='mailcow.create_mailbox')

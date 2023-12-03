@@ -38,7 +38,7 @@ tour.register('task_equipment_tour', {
         trigger: `li a.dropdown-item:contains(${TEST_COMPANY})`,
     }, {
         content: 'Save equipment',
-        trigger: 'button.o_form_button_save',
+        trigger: 'button.o_list_button_save',
     }, {
         /* Navigate to the client and make sure that there are two equipments saved (one from the Python test case) */
         content: 'Navigate to the Clients submenu',

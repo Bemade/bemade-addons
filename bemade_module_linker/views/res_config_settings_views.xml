@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_settings_module_linker" model="ir.ui.view">
+        <field name="name">Settings Module Linker</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base_setup.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='about']" position="before">
+                <div id="module_linker">
+                    <h2>Module Linker Settings</h2>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <label for="root_repos_directory" string="Root Repos Directory"/>
+                            <div class="text-muted">
+                                Directory where repos are cloned
+                            </div>
+                            <div class="content-group">
+                                <field name="root_repos_directory"/>
+                            </div>
+                            <label for="enabled_addons_directory" string="Enabled Addons Directory"/>
+                            <div class="text-muted">
+                                Enabled Addons Directory
+                            </div>
+                            <div class="content-group">
+                                <field name="enabled_addons_directory"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,41 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* bemade_partner_email_domain
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 15.0\n"
+"Report-Msgid-Bugs-To: it@bemade.org\n"
+"Last-Translator: chatgpt\n"
+"Language-Team: French (http://www.transifex.com/odoo/odoo-14-0/language/fr_CA/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#: model:ir.model.fields,field_description:bemade_partner_email_domain.field_res_partner_access_token
+msgid "Access Token"
+msgstr "Jeton d'accès"
+
+#: model:ir.model.fields,field_description:bemade_partner_email_domain.field_res_partner_email_domain
+msgid "Email Domain"
+msgstr "Domaine de courriel"
+
+#: model:ir.model.fields,field_description:bemade_partner_email_domain.field_res_partner_is_subdivision
+msgid "Subdivision"
+msgstr "Subdivision"
+
+#: code:addons/bemade_partner_email_domain/controllers/main.py:0
+#, python-format
+msgid "The requested partner is not found."
+msgstr "Le partenaire demandé n'est pas trouvé."
+
+#: code:addons/bemade_partner_email_domain/controllers/main.py:0
+#, python-format
+msgid "No Access Token found or not matching for this partner."
+msgstr "Aucun jeton d'accès trouvé ou ne correspondant pas à ce partenaire."
+
+#: code:addons/bemade_partner_email_domain/controllers/main.py:0
+#, python-format
+msgid "Partner %s is associated with the division %s."
+msgstr "Le partenaire %s est associé à la division %s."

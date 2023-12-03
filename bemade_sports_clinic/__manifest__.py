@@ -18,7 +18,7 @@
 #
 {
     'name': 'Sports Clinic Management',
-    'version': '16.0.1.1.0',
+    'version': '16.0.1.5.0',
     'summary': 'Manage the patients of a sports medicine clinic.',
     'description': """
         Adds the notion of sports teams, players (patients), coaches and treatment
@@ -37,7 +37,7 @@
     'author': 'Bemade Inc.',
     'website': 'https://www.bemade.org',
     'license': 'OPL-1',
-    'depends': ['base', 'mail', 'portal'],
+    'depends': ['portal', 'contacts'],
     'data': [
         'security/sports_clinic_groups.xml',
         'security/ir.model.access.csv',
@@ -46,6 +46,7 @@
         'views/sports_clinic_menus.xml',
         'views/sports_patient_views.xml',
         'views/sports_clinic_portal_views.xml',
+        'views/res_partner_views.xml',
     ],
     'demo': ['data/demo/sports_clinic_demo_data.xml'],
     'installable': True,

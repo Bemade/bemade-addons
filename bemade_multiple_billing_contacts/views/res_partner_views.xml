@@ -10,7 +10,9 @@
                     <page name="default_contacts" string="Default Contacts"
                           help="Settings for default contacts to whom different correspondence should be sent.">
                         <group>
-                            <field name="billing_contacts" attrs="{'invisible': [('company_type', '=', 'person')]}">
+                            <field name="billing_contacts"
+                                   domain="[('parent_id', '=', id),
+                                            ('is_company', '=', False)]">
                                 <tree editable="bottom">
                                     <field name="name" widget="res_partner_many2one" />
                                     <field name="email" widget="email"/>

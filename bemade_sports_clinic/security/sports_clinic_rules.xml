@@ -8,8 +8,7 @@
             <field name="groups" eval="[(6, 0, [ref('base.group_portal')])]"/>
             <field name="domain_force">
                 [('id', 'in',
-                  user.partner_id.team_staff_rel_ids.mapped('team_id').mapped(
-                      'patient_ids').ids)]
+                  user.partner_id.team_staff_rel_ids.team_id.patient_ids.ids)]
             </field>
         </record>
     </data>

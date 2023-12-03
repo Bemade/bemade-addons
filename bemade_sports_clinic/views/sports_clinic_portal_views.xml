@@ -32,7 +32,7 @@
                             <tr>
                                 <td>
                                     <strong>
-                                        <a t-attf-href="/my/team/{{ team.id }}"
+                                        <a t-attf-href="/my/team?team_id={{ team.id }}"
                                            t-field="team.name"/>
                                     </strong>
                                 </td>
@@ -51,31 +51,44 @@
                 <t t-call="portal.portal_table">
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Injured</th>
-                            <th>Injured Since</th>
+                            <th>Last Name</th>
+                            <th>First Name</th>
+                            <th>Active Injuries</th>
                             <th>Match Status</th>
                             <th>Practice Status</th>
                             <th>Estimated Return Date</th>
+                            <th>Last Consultation Date</th>
                         </tr>
                     </thead>
                     <tbody>
                         <t t-foreach="players" t-as="player">
-                            <tr>
-                                <t t-set="injured"
-                                   t-value="'Yes' if player.is_injured else 'No'"/>
+                            <t t-set="stage" t-value="player.stage"/>
+                            <t t-set="url"
+                               t-value="'/my/player?player_id=' + str(player.id) + '&amp;team_id=' + str(team.id)"/>
+                            <tr t-attf-class="{{ ('text-danger' if stage == 'no_play'
+                                                 else 'text-warning') if stage != 'healthy'
+                                                 else '' }}">
                                 <td>
-                                    <strong><span t-field="player.name"/></strong>
+                                    <strong><span t-field="player.last_name"/></strong>
                                 </td>
-                                <td><span t-out="injured"/></td>
                                 <td>
-                                    <span t-field="player.injured_since"
-                                          t-options="{'widget': 'date'}"/>
+                                    <strong><span t-field="player.first_name"/></strong>
+                                </td>
+                                <td class="text-center">
+                                    <a t-if="player.active_injury_count" t-attf-href="{{ url }}">
+                                        <span t-field="player.active_injury_count"/>
+                                        <span class="fa fa-external-link"></span>
+                                    </a>
+                                    <span t-else="">0</span>
                                 </td>
                                 <td><span t-field="player.match_status"/></td>
                                 <td><span t-field="player.practice_status"/></td>
                                 <td>
                                     <span t-field="player.predicted_return_date"
+                                          t-options="{'widget': 'date'}"/>
+                                </td>
+                                <td>
+                                    <span t-field="player.last_consultation_date"
                                           t-options="{'widget': 'date'}"/>
                                 </td>
                             </tr>
@@ -90,43 +103,80 @@
                 <t t-call="portal.portal_table">
                     <thead>
                         <tr>
-                            <th>Name</th>
+                            <th>Last Name</th>
+                            <th>First Name</th>
                             <th>Teams</th>
-                            <th>Injured</th>
-                            <th>Injured Since</th>
+                            <th>Active Injuries</th>
                             <th>Match Status</th>
                             <th>Practice Status</th>
                             <th>Estimated Return Date</th>
+                            <th>Last Consultation Date</th>
                         </tr>
                     </thead>
                     <tbody>
                         <t t-foreach="players" t-as="player">
-                            <tr>
-                                <t t-set="injured"
-                                   t-value="'Yes' if player.is_injured else 'No'"/>
+                            <t t-set="stage" t-value="player.stage"/>
+                            <t t-set="url" t-value="'/my/player?player_id=' + str(player.id)"/>
+                            <tr t-attf-class="{{ ('text-danger' if stage == 'no_play'
+                                                 else 'text-warning') if stage != 'healthy'
+                                                 else '' }}">
                                 <td>
-                                    <strong><span t-field="player.name"/></strong>
+                                    <strong><span t-field="player.last_name"/></strong>
                                 </td>
                                 <td>
-                                    <ul style="list-style-type: none;">
+                                    <strong><span t-field="player.first_name"/></strong>
+                                </td>
+                                <td>
+                                    <ul class="list-unstyled">
                                         <t t-foreach="player.team_ids" t-as="team">
                                             <li>
-                                                <a t-attf-href="/my/team/{{ team.id }}"
+                                                <a t-attf-href="/my/team?team_id={{ team.id }}"
                                                    t-field="team.name"/>
                                             </li>
                                         </t>
                                     </ul>
                                 </td>
-                                <td><span t-out="injured"/></td>
-                                <td>
-                                    <span t-field="player.injured_since"
-                                          t-options="{'widget': 'date'}"/>
+                                <td class="text-center">
+                                    <a t-if="player.active_injury_count" t-attf-href="{{ url }}">
+                                        <span t-field="player.active_injury_count"/>
+                                        <span class="fa fa-external-link"></span>
+                                    </a>
+                                    <span t-else="">0</span>
                                 </td>
                                 <td><span t-field="player.match_status"/></td>
                                 <td><span t-field="player.practice_status"/></td>
                                 <td>
                                     <span t-field="player.predicted_return_date"
                                           t-options="{'widget': 'date'}"/>
+                                </td>
+                                <td>
+                                    <span t-field="player.last_consultation_date"
+                                          t-options="{'widget': 'date'}"/>
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </t>
+            </t>
+        </template>
+        <template id="portal_my_player_injuries">
+            <t t-call="portal.portal_layout">
+                <h1>Injury Record for <span t-field="player.name"/></h1>
+                <t t-call="portal.portal_table">
+                    <thead>
+                        <tr>
+                            <th width="20%">Active Injury</th>
+                            <th width="80%">Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="injuries" t-as="injury">
+                            <tr>
+                                <td>
+                                    <span t-field="injury.diagnosis"/>
+                                </td>
+                                <td>
+                                    <span t-field="injury.external_notes"/>
                                 </td>
                             </tr>
                         </t>
@@ -136,20 +186,34 @@
         </template>
         <template id="portal_breadcrumbs" inherit_id="portal.portal_breadcrumbs">
             <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
-                <li t-if="page_name == 'my_teams'"
-                    t-attf-class="breadcrumb-item #{'active ' if not team else ''}">
-                    <a t-if="team"
-                       t-attf-href="/my/teams?{{ keep_query() }}">Teams</a>
-                    <t t-else="">Teams</t>
-                </li>
-                <li t-if="team" class="breadcrumb-item active" t-esc="team.name"/>
-                <li t-if="page_name == 'my_players'"
-                    t-attf-class="breadcrumb-item #{'active ' if not player else ''}">
-                    <a t-if="player"
-                       t-attf-href="/my/players?{{ keep_query() }}">Players</a>
-                    <t t-else="">Players</t>
-                </li>
-                <li t-if="player" class="breadcrumb-item active" t-esc="player.name"/>
+                <!-- Show link back to teams if team is set, otherwise just title the Teams-->
+                <t t-if="page_name == 'my_teams'">
+                    <li t-attf-class="breadcrumb-item #{'active ' if not team else ''}">
+                        <a t-if="team" t-attf-href="/my/teams">Teams</a>
+                        <t t-else="">Teams</t>
+                    </li>
+                    <!-- Show the team name as the title if we're looking at a specific team -->
+                    <li t-if="team" class="breadcrumb-item active" t-esc="team.name"/>
+                </t>
+                <!-- If just listing players, show the "Players" title -->
+                <li t-if="page_name == 'my_players'" class="breadcrumb-item active">Players</li>
+                <t t-if="page_name == 'my_player'">
+                    <!-- The single player page can be reached from the players list or the teams list.
+                         If it was reached from the teams list, the team parameter will be set and should be the first
+                         breadcrumb -->
+                    <t t-if="team">
+                        <li class="breadcrumb-item">
+                            <a href="/my/teams">Teams</a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a t-attf-href="/my/team?team_id={{ team.id }}"><span t-field="team.name"/></a>
+                        </li>
+                    </t>
+                    <li t-else="" class="breadcrumb-item">
+                        <a t-attf-href="/my/players">Players</a>
+                    </li>
+                    <li class="breadcrumb-item active"><span t-field="player.name"/></li>
+                </t>
             </xpath>
         </template>
     </data>

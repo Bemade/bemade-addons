@@ -1,0 +1,17 @@
+<odoo>
+    <data>
+        <template id="error_page">
+            <base href="/" />
+            <t t-call="website.layout">
+                <div id="wrap">
+                    <t t-if="error_message">
+                        <div class="alert alert-danger"><t t-esc="error_message"/></div>
+                    </t>
+                    <t t-if="confirmation_message">
+                        <div class="alert alert-success"><t t-esc="confirmation_message"/></div>
+                    </t>
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>

@@ -16,8 +16,9 @@
             <field name="state_id" ref="base.state_ca_qc"/>
             <field name="country_id" ref="base.ca"/>
             <field name="zip">H3C 3J7</field>
-            <field name="phone">+1 (514) 343-6111</field>
+            <field name="mobile">+1 (514) 343-6111</field>
             <field name="website">https://www.umontreal.ca</field>
+            <field name="is_company" eval="True"/>
         </record>
         <record id="team_carabins" model="sports.team">
             <field name="name">Carabins (Football masculin)</field>
@@ -34,15 +35,15 @@
             <field name="team_id" ref="team_carabins"/>
             <field name="role">head_coach</field>
         </record>
-        <record id="partner_trainer_team_carabins" model="res.partner">
+        <record id="partner_therapist_team_carabins" model="res.partner">
             <field name="name">Stretch Carabinier</field>
             <field name="email">streth.carabinier@carabins.umontreal.ca</field>
             <field name="parent_id" ref="partner_org_1"/>
         </record>
-        <record id="carabins_trainer_rel" model="sports.team.staff">
-            <field name="partner_id" ref="partner_trainer_team_carabins"/>
+        <record id="carabins_therapist_rel" model="sports.team.staff">
+            <field name="partner_id" ref="partner_therapist_team_carabins"/>
             <field name="team_id" ref="team_carabins"/>
-            <field name="role">head_trainer</field>
+            <field name="role">head_therapist</field>
         </record>
         <record id="patient_1" model="sports.patient">
             <field name="first_name">Jean</field>
@@ -72,10 +73,10 @@
             <field name="team_id" ref="team_carabins_hockey"/>
             <field name="role">head_coach</field>
         </record>
-        <record id="carabins_hockey_trainer_rel" model="sports.team.staff">
-            <field name="partner_id" ref="partner_trainer_team_carabins"/>
+        <record id="carabins_hockey_therapist_rel" model="sports.team.staff">
+            <field name="partner_id" ref="partner_therapist_team_carabins"/>
             <field name="team_id" ref="team_carabins_hockey"/>
-            <field name="role">head_trainer</field>
+            <field name="role">head_therapist</field>
         </record>
         <record id="patient_3" model="sports.patient">
             <field name="first_name">Jeanne</field>
@@ -103,6 +104,7 @@
             <field name="country_id" ref="base.ca"/>
             <field name="zip">H3G 1M8</field>
             <field name="website">https://www.concordia.ca</field>
+            <field name="is_company" eval="True"/>
         </record>
         <record id="team_stingers" model="sports.team">
             <field name="name">Stingers (Hockey masculin)</field>
@@ -128,7 +130,7 @@
             <field name="practice_status">yes</field>
         </record>
         <record id="injury_1" model="sports.patient.injury">
-            <field name="injury_date_time">2023-05-17 18:53:00</field>
+            <field name="injury_date">2023-05-17</field>
             <field name="diagnosis">Fracture du fémur</field>
             <field name="predicted_resolution_date">2024-02-01</field>
             <field name="patient_id" ref="patient_1"/>
@@ -136,7 +138,7 @@
                    eval="[Command.set([ref('base.user_admin')])]"/>
         </record>
         <record id="injury_2" model="sports.patient.injury">
-            <field name="injury_date_time">2022-03-17 19:13:00</field>
+            <field name="injury_date">2022-03-17</field>
             <field name="diagnosis">Entorse cheville droite</field>
             <field name="predicted_resolution_date">2022-03-23</field>
             <field name="patient_id" ref="patient_1"/>
@@ -144,7 +146,7 @@
                    eval="[Command.set([ref('base.user_admin')])]"/>
         </record>
         <record id="injury_3" model="sports.patient.injury">
-            <field name="injury_date_time">2023-10-15 19:55:00</field>
+            <field name="injury_date">2023-10-15</field>
             <field name="diagnosis">Commotion cérébrale mineure</field>
             <field name="predicted_resolution_date">2023-11-01</field>
             <field name="patient_id" ref="patient_3"/>
@@ -156,10 +158,13 @@
             <field name="team_id" ref="team_stingers"/>
             <field name="role">head_coach</field>
         </record>
-        <record id="carabins_trainer_user" model="res.users" context="{'no_reset_password': True}">
-            <field name="partner_id" ref="partner_trainer_team_carabins"/>
-            <field name="login">trainer</field>
-            <field name="password">trainer</field>
+        <record id="base.partner_demo_portal" model="res.partner">
+            <field name="parent_id" ref="partner_org_2"/>
+        </record>
+        <record id="carabins_therapist_user" model="res.users" context="{'no_reset_password': True}">
+            <field name="partner_id" ref="partner_therapist_team_carabins"/>
+            <field name="login">therapist</field>
+            <field name="password">therapist</field>
             <field name="groups_id" eval="[Command.clear()]"/>
         </record>
         <record id="carabins_coach_user" model="res.users" context="{'no_reset_password': True}">
@@ -169,7 +174,7 @@
             <field name="groups_id" eval="[Command.clear()]"/>
         </record>
         <record id="base.group_portal" model="res.groups">
-            <field name="users" eval="[Command.link(ref('carabins_trainer_user'))]"/>
+            <field name="users" eval="[Command.link(ref('carabins_therapist_user'))]"/>
         </record>
         <record id="base.group_portal" model="res.groups">
             <field name="users" eval="[Command.link(ref('carabins_coach_user'))]"/>

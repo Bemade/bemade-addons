@@ -24,11 +24,12 @@ class MailcowAlias(models.Model):
         ('address_unique', 'UNIQUE(address)', 'The alias address must be unique!'),
     ]
 
-    @api.model
-    def create(self, vals):
-        alias = super(MailcowAlias, self).create(vals)
+@api.model_create_multi
+def create(self, vals_list):
+    alias_list = super().create(vals_list)
+    for alias in alias_list:
 
-        if 'mc_id' not in vals:
+        if 'mc_id' not in alias:
             data = {
                 "active": bool(alias.active),
                 "address": alias.address,
@@ -42,7 +43,7 @@ class MailcowAlias(models.Model):
                 #pass
                 raise ValidationError("Failed to create alias on Mailcow server.")
 
-        return alias
+    return alias_list
 
     def unlink(self):
         for record in self:

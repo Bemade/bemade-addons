@@ -1,28 +1,77 @@
 from odoo import fields, models, api, _, Command
+from odoo.exceptions import ValidationError
+from odoo.tools import float_round
+import re
 
 
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
-    equipment_id = fields.Many2one(comodel_name="bemade_fsm.equipment",
-                                   string="Equipment to Service",
-                                   tracking=True)
+    valid_equipment_ids = fields.One2many(
+        comodel_name="bemade_fsm.equipment",
+        related="partner_id.owned_equipment_ids"
+    )
 
-    site_contacts = fields.Many2many(comodel_name='res.partner',
-                                     relation="sale_order_site_contacts_rel",
-                                     compute="_compute_default_contacts",
-                                     inverse="_inverse_default_contacts",
-                                     string='Site Contacts',
-                                     store=True)
+    default_equipment_ids = fields.Many2many(
+        comodel_name="bemade_fsm.equipment",
+        string="Default Equipment to Service",
+        help="The default equipment to service for new sale order lines.",
+        compute="_compute_default_equipment",
+        inverse="_inverse_default_equipment",
+        store=True
+    )
 
-    work_order_contacts = fields.Many2many(comodel_name='res.partner',
-                                           relation='sale_order_work_order_contacts_rel',
-                                           compute='_compute_default_contacts',
-                                           inverse='_inverse_default_contacts',
-                                           string='Work Order Recipients',
-                                           store=True)
+    summary_equipment_ids = fields.Many2many(
+        comodel_name="bemade_fsm.equipment",
+        string="Equipment Being Serviced",
+        compute="_compute_summary_equipment_ids")
 
-    @api.depends('partner_id')
+    site_contacts = fields.Many2many(
+        comodel_name='res.partner',
+        relation="sale_order_site_contacts_rel",
+        compute="_compute_default_contacts",
+        inverse="_inverse_default_contacts",
+        string='Site Contacts',
+        store=True
+    )
+
+    work_order_contacts = fields.Many2many(
+        comodel_name='res.partner',
+        relation='sale_order_work_order_contacts_rel',
+        compute='_compute_default_contacts',
+        inverse='_inverse_default_contacts',
+        string='Work Order Recipients',
+        store=True
+    )
+
+    visit_ids = fields.One2many(
+        comodel_name='bemade_fsm.visit',
+        inverse_name="sale_order_id",
+        readonly=False
+    )
+
+    @api.depends('order_line.task_id')
+    def get_relevant_order_lines(self, task_id):
+        self.ensure_one()
+        linked_lines = self.order_line.filtered(lambda l: l.task_id == task_id
+                                                or l == task_id.visit_id.so_section_id)
+        visit_lines = linked_lines.filtered(lambda l: l.visit_id)
+        for line in visit_lines:
+            linked_lines |= line.get_section_line_ids()
+        return linked_lines
+
+    @api.depends('order_line.equipment_ids')
+    def _compute_summary_equipment_ids(self):
+        for rec in self:
+            rec.summary_equipment_ids = rec.order_line.mapped('equipment_ids')
+
+    @api.onchange('partner_shipping_id')
+    def _onchange_partner_shipping_id(self):
+        super()._onchange_partner_shipping_id()
+        self._compute_default_equipment()
+        self._compute_default_contacts()
+
+    @api.depends('partner_shipping_id')
     def _compute_default_contacts(self):
         for rec in self:
             rec.site_contacts = rec.partner_shipping_id.site_contacts
@@ -31,72 +80,25 @@ class SaleOrder(models.Model):
     def _inverse_default_contacts(self):
         pass
 
-    @api.depends('partner_id')
-    def _compute_equipment(self):
+    @api.depends(
+        'partner_id',
+        'partner_shipping_id',
+        'partner_shipping_id.equipment_ids',
+        'partner_id.owned_equipment_ids'
+    )
+    def _compute_default_equipment(self):
         for rec in self:
-            rec.equipment_ids = self.partner_shipping_id.equipment_ids if len(
-                self.partner_shipping_id.equipment_ids) <= 1 else False
+            if rec.partner_shipping_id.equipment_ids:
+                ids = rec.partner_shipping_id.equipment_ids
+            else:
+                ids = rec.partner_id.owned_equipment_ids
+            rec.default_equipment_ids = ids if len(ids) < 4 else False
 
-    def _inverse_equipment(self):
+    def _inverse_default_equipment(self):
         pass
 
+    def copy(self, default=None):
+        rec = super().copy(default)
+        rec.visit_ids = [Command.set(rec.order_line.visit_ids.ids)]
+        return rec
 
-class SaleOrderLine(models.Model):
-    _inherit = 'sale.order.line'
-
-    def _timesheet_create_task(self, project):
-        """ Generate task for the given so line, and link it.
-                    :param project: record of project.project in which the task should be created
-                    :return task: record of the created task
-
-            Override to add the logic needed to implement task templates and equipment linkages."""
-
-        def _create_task_from_template(project, template, parent):
-            """ Recursively generates the task and any subtasks from a project.task.template.
-
-            :param project: project.project record to set on the task's project_id field.
-            :param template: project.task.template to use to create the task.
-            :param parent: project.task to set as the parent to this task.
-            """
-            values = _timesheet_create_task_prepare_values_from_template(project, template, parent)
-            task = self.env['project.task'].sudo().create(values)
-            subtasks = []
-            for t in template.subtasks:
-                subtask = _create_task_from_template(project, t, task)
-                subtasks.append(subtask)
-            task.write({'child_ids': [Command.set([t.id for t in subtasks])]})
-            # We don't want to see the sub-tasks on the SO
-            task.child_ids.write({'sale_order_id': None, 'sale_line_id': None, })
-            return task
-
-        def _timesheet_create_task_prepare_values_from_template(project, template, parent):
-            """ Copies the values from a project.task.template over to the set of values used to create a project.task.
-
-            :param project: project.project record to set on the task's project_id field.
-                Pass the project.project model or an empty recordset to leave task project_id blank.
-                DO NOT pass False or None as this will cause an error in _timesheet_create_task_prepare_values(project).
-            :param template: project.task.template to use to create the task.
-            :param parent: project.task to set as the parent to this task.
-            """
-            vals = self._timesheet_create_task_prepare_values(project)
-            vals['name'] = f"{vals['name']} ({template.name})" if not parent else template.name
-            vals['description'] = template.description or vals['description']
-            vals['parent_id'] = parent and parent.id
-            vals['user_ids'] = template.assignees.ids
-            vals['tag_ids'] = template.tags.ids
-            vals['planned_hours'] = template.planned_hours
-            return vals
-
-        tmpl = self.product_id.task_template_id
-        if not tmpl:
-            task = super()._timesheet_create_task(project)
-        else:
-            task = _create_task_from_template(project, tmpl, None)
-            self.write({'task_id': task.id})
-            # post message on task
-            task_msg = _(
-                "This task has been created from: <a href=# data-oe-model=sale.order data-oe-id=%d>%s</a> (%s)") % (
-                           self.order_id.id, self.order_id.name, self.product_id.name)
-            task.message_post(body=task_msg)
-        task.equipment_id = self.order_id.equipment_id
-        return task

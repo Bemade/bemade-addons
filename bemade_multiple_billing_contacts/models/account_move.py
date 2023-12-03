@@ -8,7 +8,7 @@ class AccountMove(models.Model):
                                         string="Billing Contacts",
                                         compute='_compute_billing_contacts',
                                         inverse='_inverse_billing_contacts',
-                                        store=True)
+                                        store=True,)
 
     @api.depends('line_ids.sale_line_ids.order_id', 'partner_id')
     def _compute_billing_contacts(self):
