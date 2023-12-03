@@ -13,8 +13,8 @@
             <field name="zip">J2G 3V3</field>
             <field name="country_id" ref="base.ca"/>
             <field name="phone">450 994-3173</field>
-            <field name="account_sale_tax_id" ref="l10n_ca.1_gstqst_sale_en"/>
-            <field name="account_purchase_tax_id" ref="l10n_ca.1_gstqst_purc_en"/>
+            <field name="account_sale_tax_id" ref="account.1_gstqst_sale_tax_14975"/>
+            <field name="account_purchase_tax_id" ref="account.1_gstqst_purchase_tax_14975"/>
         </record>
     </data>
 </odoo>
