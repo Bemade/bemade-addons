@@ -33,8 +33,8 @@
         'data/company_data.xml',
         'views/res_partner_relation_views.xml',
 #         'views/membership_membership_line.xml',
+        'views/property_view.xml',
         'views/res_partner_views.xml',
-
     ],
     'demo': [
         # Reference to demo data files
