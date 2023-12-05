@@ -76,6 +76,12 @@ class Task(models.Model):
 
     work_order_number = fields.Char(readonly=True)
 
+    propagate_assignment = fields.Boolean(
+        string='Propagate Assignment',
+        help='Propagate assignment of this task to all subtasks.',
+        default=True,
+    )
+
     @api.model_create_multi
     def create(self, vals):
         res = super().create(vals)
@@ -91,6 +97,16 @@ class Task(models.Model):
                 rec.work_order_number = rec.sale_order_id.name.replace('SO', 'WO', 1) \
                                         + f"-{seq}"
         return res
+
+    def write(self, vals):
+        super().write(vals)
+        if not self:  # End recursion on empty RecordSet
+            return
+        if 'user_ids' in vals:
+            to_propagate = self.filtered(lambda task: task.propagate_assignment)
+            # Here we use child_ids instead of _get_all_subtasks() so as to allow for setting propagate_assignment
+            # to false on a child task.
+            to_propagate.child_ids.write({'user_ids': vals['user_ids']})
 
     @api.depends('sale_order_id')
     def _compute_relevant_order_lines(self):

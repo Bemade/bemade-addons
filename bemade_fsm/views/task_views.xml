@@ -46,6 +46,9 @@
                 <xpath expr="//field[@name='child_ids']/tree//field[@name='name']" position="after">
                     <field name="description" string="Description/Comments"/>
                 </xpath>
+                <field name="user_ids" position="after">
+                    <field name="propagate_assignment"/>
+                </field>
             </field>
         </record>
         <!-- Add parent_id = false to domain for My Tasks, All Tasks: To Schedule, All Tasks and To Invoice-->
