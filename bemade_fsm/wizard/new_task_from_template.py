@@ -30,8 +30,7 @@ class NewTaskFromTemplateWizard(models.TransientModel):
         active_model = self.env.context.get('active_model', False)
         if not active_model:
             params = self.env.context.get('params', False)
-            active_model = params.get('model', False)
-
+            active_model = params and params.get('model', False)
         if active_model == 'project.task.template' and active_id and 'task_template_id' in fields_list:
             res.update({'task_template_id': active_id})
         if active_model == 'project.task' and 'project_id' in fields_list:
