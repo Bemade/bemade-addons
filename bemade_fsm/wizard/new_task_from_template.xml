@@ -5,10 +5,6 @@
         <field name="model">project.task.from.template.wizard</field>
         <field name="arch" type="xml">
             <form>
-                <header>
-                    <button name="action_create_task_from_template" type="object" string="Create Task"/>
-                    <button special="cancel" string="Cancel"/>
-                </header>
                 <sheet>
                     <group>
                         <field name="task_template_id"/>
@@ -16,7 +12,18 @@
                         <field name="project_id"/>
                     </group>
                 </sheet>
+                <footer>
+                    <button class='btn btn-primary' name="action_create_task_from_template" type="object" string="Create Task"/>
+                    <button class='btn btn-secondary' special="cancel" string="Cancel"/>
+                </footer>
             </form>
         </field>
+    </record>
+    <record model="ir.actions.act_window" id="action_new_task_from_template">
+        <field name="name">New Task from Template</field>
+        <field name="res_model">project.task.from.template.wizard</field>
+        <field name="binding_model_id" ref="bemade_fsm.model_project_task_template"/>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
     </record>
 </odoo>
