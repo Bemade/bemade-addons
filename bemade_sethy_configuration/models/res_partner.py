@@ -132,3 +132,4 @@ class ResPartner(models.Model):
                 partner.category_id |= property_tag
             else:
                 partner.category_id -= property_tag
+
