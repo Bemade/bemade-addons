@@ -12,7 +12,7 @@
     <t t-name='project.ListView.buttons' t-inherit="web.ListView.buttons" t-inherit-mode="primary">
         <xpath expr="//button[hasclass('o_list_button_add')]" position="after">
             <!-- Create is enabled in the parent template at this point; check is done prior -->
-            <button type="button" class="btn btn-primary o_list_button_add_from_template"
+            <button type="button" class="btn ml-1 btn-primary o_list_button_add_from_template"
                     title="Create Task from Template">
                 Create from Template
             </button>
