@@ -4,6 +4,7 @@ from odoo.exceptions import UserError
 
 class NewTaskFromTemplateWizard(models.TransientModel):
     _name = "project.task.from.template.wizard"
+    _description = "Create Task from Template Wizard"
 
     project_id = fields.Many2one(
         comodel_name='project.project',
@@ -25,9 +26,16 @@ class NewTaskFromTemplateWizard(models.TransientModel):
 
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
-        if 'project_id' in fields_list:
-            active_id = self.env.context.get('active_id', False)
-            res.update({'project_id': active_id})
+        active_id = self.env.context.get('active_id', False)
+        active_model = self.env.context.get('active_model', False)
+        if not active_model:
+            params = self.env.context.get('params', False)
+            active_model = params.get('model', False)
+
+        if active_model == 'project.task.template' and active_id and 'task_template_id' in fields_list:
+            res.update({'task_template_id': active_id})
+        if active_model == 'project.task' and 'project_id' in fields_list:
+            res.update({'project_id': self.env.ref('industry_fsm.fsm_project').id})
         return res
 
     def action_create_task_from_template(self):
