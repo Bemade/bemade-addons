@@ -17,7 +17,7 @@ const ProjectListController = ListController.extend({
             res_model: 'project.task.from.template.wizard',
             views: [[false, 'form']],
             target: 'new',
-            context: {...record.context, active_id: record.project_id},
+            context: {...record.context, res_model: 'project.task'},
         });
     },
     renderButtons ($node) {
