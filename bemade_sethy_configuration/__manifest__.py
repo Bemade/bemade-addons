@@ -41,7 +41,7 @@
     ],
     'installable': True,
     'auto_install': False,
-    'application': False,  # Set to True if the module is an app
+    'application': True,
     'description': """
 Main module for Fondation Séthy
 ==================================
@@ -49,6 +49,7 @@ This module installs base components and will also set up default values accordi
 
 This will allow us to put all the customization here and add other modules from Oca or our repos if needed.
 
-Only code specific to Fondation Sethy resides in this module, the reusable stuff should be put in other small dedicated modules elsewhere
+Only code specific to Fondation Sethy resides in this module, the reusable stuff should be put in other small dedicated 
+modules elsewhere
 """,
 }
