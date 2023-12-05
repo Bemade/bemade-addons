@@ -14,50 +14,51 @@
             <xpath expr="//field[@name='name' and @id='company']" position="replace">
                 <field id="company" class="text-break" name="name" default_focus="1"
                        placeholder="e.g. Lumber Inc"
-                       attrs="{'required' : [('type', '=', 'contact')], 'invisible': ['|', ('is_company','=', False),
-                       ('is_property','=', True)]}"/>
+                       required="type == 'contact'"
+                       invisible="is_company == False or is_property"
+                />
                 <field id="lot_number" class="text-break" name="lot_number" placeholder="123456789"
-                       attrs="{'invisible': [('is_property','=', False)]}"/>
+                       invisible="is_property == False"/>
             </xpath>
 
             <button name="schedule_meeting" position="attributes">
-                <attribute name="attrs">{'invisible': [('is_property', '=', True)]}</attribute>
+                <attribute name="invisible">is_property == True</attribute>
             </button>
 
             <button name="action_view_opportunity" position="attributes">
-                <attribute name="attrs">{'invisible': [('is_property', '=', True)]}</attribute>
+                <attribute name="invisible">is_property == True</attribute>
             </button>
 
             <button name="action_view_partner_invoices" position="attributes">
-                <attribute name="attrs">{'invisible': [('is_property', '=', True)]}</attribute>
+                <attribute name="invisible">is_property == True</attribute>
             </button>
 
             <button name="%(payment.action_payment_token)d" position="attributes">
-                <attribute name="attrs">{'invisible': ['|', ('payment_token_count', '=', 0), ('is_property', '=', True)]}</attribute>
+                <attribute name="invisible">payment_token_count ==  0 or is_property</attribute>
             </button>
 
             <xpath expr="//page[@name='contact_addresses']" position="attributes">
-                <attribute name="attrs">{'invisible': [('is_property','=', True)]}</attribute>
+                <attribute name="invisible">is_property == True</attribute>
             </xpath>
 
             <xpath expr="//page[@name='sales_purchases']" position="attributes">
-                <attribute name="attrs">{'invisible': [('is_property','=', True)]}</attribute>
+                <attribute name="invisible">is_property == True</attribute>
             </xpath>
 
             <xpath expr="//page[@name='membership']" position="attributes">
-                <attribute name="attrs">{'invisible': [('is_property','=', True)]}</attribute>
+                <attribute name="invisible">is_property == True</attribute>
             </xpath>
 
             <xpath expr="//page[@name='accounting']" position="attributes">
-                <attribute name="attrs">{'invisible': [('is_property','=', True)]}</attribute>
+                <attribute name="invisible">is_property == True</attribute>
             </xpath>
 
             <xpath expr="//field[@name='function']/ancestor::group[1]" position="attributes">
-                <attribute name="attrs">{'invisible': [('is_property','=', True)]}</attribute>
+                <attribute name="invisible">is_property == True</attribute>
             </xpath>
 
             <xpath expr="//field[@name='function']/ancestor::group[1]" position="after">
-                <group attrs="{'invisible': [('is_property','=', False)]}">
+                <group invisible="is_property == False">
                     <field name="surface"/>
                     <field name="category_id" widget="many2many_tags"
                            options="{'color_field': 'color', 'no_create_edit': True}"/>
@@ -66,11 +67,11 @@
 
             <xpath expr="//page[@name='contact_addresses']" position="after">
                 <page string="Property" name="bemade_sethy_configuration.res_partner.defaults.form">
-                    <group string="All Owners" attrs="{'invisible': [['is_property','=',False]]}">
+                    <group string="All Owners" invisible="is_property == False">
                         <field name="relation_property_ids" string="">
                             <tree editable="top">
                                 <field name="this_partner_id" required="True" options="{'no_create': True}"
-                                       attrs="{}" invisible="1"/>
+                                       invisible="1"/>
                                 <field name="type_selection_id" required="True" options="{'no_create': True}"
                                        invisible="1"/>
                                 <field name="other_partner_id" required="True" options="{'no_create': True}"
@@ -81,12 +82,12 @@
                             </tree>
                         </field>
                     </group>
-                    <group string="All Properties" attrs="{'invisible': [['is_property','=',True]]}">
+                    <group string="All Properties" invisible="is_property == True">
                         <field name="relation_owner_ids" string="">
                             <tree editable="top">
                                 <field name="this_partner_id" required="True"
                                        options="{'no_create': True}"
-                                       attrs="{}" invisible="1"
+                                       invisible="1"
                                 />
                                 <field name="type_selection_id" required="True" options="{'no_create': True}"
                                        invisible="1"/>
@@ -114,17 +115,22 @@
         </field>
     </record>
 
-<!--    <record id="view_res_partner_filter_inherit" model="ir.ui.view">-->
-<!--        <field name="name">res.partner.select.inherit</field>-->
-<!--        <field name="model">res.partner</field>-->
-<!--        <field name="inherit_id" ref="base.view_res_partner_filter"/>-->
-<!--        <field name="arch" type="xml">-->
-<!--            <xpath expr="//search" position="inside">-->
+    <record id="view_res_partner_filter_sethy" model="ir.ui.view">
+        <field name="name">res.partner.select</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='customer']" position="after">
+                 <!-- add a new filter -->
+                <filter string="Is Not Property" name="not_property" domain="[('is_property','=',False)]"/>
+                <filter string="Property" name="property" domain="[('is_property','=',True)]"/>
 <!--                <filter string="Owner" domain="[('category_id.name', '=', 'Owner')]" />-->
 <!--                <filter string="Property" domain="[('category_id.name', '=', 'Property')]" />-->
-<!--            </xpath>-->
-<!--        </field>-->
-<!--    </record>-->
+            </xpath>
+            <!-- Here we set the default domain for the search view to only show 'is_property = False' -->
+
+        </field>
+    </record>
 
 
 </odoo>

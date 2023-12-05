@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <menuitem
+        name="Property"
+        id="menu_property"
+        sequence="15"
+        groups="base.group_user"
+        web_icon="bemade_sethy_configuration,static/description/icon.png"
+    />
+
+    <record id="action_properties" model="ir.actions.act_window">
+        <field name="name">Properties</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('is_property','=',True)]</field>
+    </record>
+
+    <menuitem
+        id="menu_property_views"
+        name="Properties"
+        parent="menu_property"
+        action="action_properties"
+    />
+
+</odoo>

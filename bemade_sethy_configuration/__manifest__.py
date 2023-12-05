@@ -32,6 +32,7 @@
         'data/partner_relation_type_data.xml',
         'data/company_data.xml',
         'views/res_partner_relation_views.xml',
+        'views/property_view.xml',
 #         'views/membership_membership_line.xml',
         'views/res_partner_views.xml',
 
