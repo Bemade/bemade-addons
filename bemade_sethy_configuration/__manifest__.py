@@ -11,7 +11,6 @@
     'license': 'GPL-3',
     'depends': [
         # List of module dependencies
-        'account',
         'base',
         'contacts',
         'crm',
