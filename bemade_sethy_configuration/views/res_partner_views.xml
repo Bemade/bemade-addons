@@ -67,11 +67,11 @@
 
             <xpath expr="//page[@name='contact_addresses']" position="after">
                 <page string="Property" name="bemade_sethy_configuration.res_partner.defaults.form">
-                    <group string="All Owners" attrs="{'invisible': [['is_property','=',False]]}">
+                    <group string="All Owners" invisible="is_property == False">
                         <field name="relation_property_ids" string="">
                             <tree editable="top">
                                 <field name="this_partner_id" required="True" options="{'no_create': True}"
-                                       attrs="{}" invisible="1"/>
+                                       invisible="1"/>
                                 <field name="type_selection_id" required="True" options="{'no_create': True}"
                                        invisible="1"/>
                                 <field name="other_partner_id" required="True" options="{'no_create': True}"
@@ -82,12 +82,12 @@
                             </tree>
                         </field>
                     </group>
-                    <group string="All Properties" attrs="{'invisible': [['is_property','=',True]]}">
+                    <group string="All Properties" invisible="is_property  == True">
                         <field name="relation_owner_ids" string="">
                             <tree editable="top">
                                 <field name="this_partner_id" required="True"
                                        options="{'no_create': True}"
-                                       attrs="{}" invisible="1"
+                                       invisible="1"
                                 />
                                 <field name="type_selection_id" required="True" options="{'no_create': True}"
                                        invisible="1"/>
