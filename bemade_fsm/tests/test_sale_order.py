@@ -251,7 +251,7 @@ class TestSalesOrder(BemadeFSMBaseTest):
         self.assertFalse(visit_task.user_ids)
         self.assertFalse(subtask1.user_ids)
         self.assertFalse(subtask2.user_ids)
-
+        
     def test_long_line_name_overflows_to_task_description(self):
         so = self._generate_sale_order()
         product = self._generate_product()
