@@ -11,9 +11,6 @@ patch(Dialog.prototype, "bemade_full_formview_from_modal.Dialog", {
     init: function (parent, options) {
         this._super(...arguments);
     },
-    custom_events: _.extend({}, Dialog.prototype.custom_events, {
-        open_full_form_view: '_onOpen',
-    }),
     willStart: function () {
         const self = this;
         return this._super(...arguments).then(function () {
