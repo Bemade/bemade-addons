@@ -79,7 +79,7 @@ class Task(models.Model):
     propagate_assignment = fields.Boolean(
         string='Propagate Assignment',
         help='Propagate assignment of this task to all subtasks.',
-        default=True,
+        default=False,
     )
 
     @api.model_create_multi
