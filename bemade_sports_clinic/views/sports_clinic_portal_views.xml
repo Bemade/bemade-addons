@@ -165,18 +165,18 @@
                 <t t-call="portal.portal_table">
                     <thead>
                         <tr>
-                            <th width="20%">Active Injury</th>
-                            <th width="80%">Notes</th>
+                            <th width="30%">Active Injury</th>
+                            <th width="70%">Notes</th>
                         </tr>
                     </thead>
                     <tbody>
                         <t t-foreach="injuries" t-as="injury">
                             <tr>
                                 <td>
-                                    <span t-field="injury.diagnosis"/>
+                                    <span t-field="injury.diagnosis" class="text-wrap"/>
                                 </td>
                                 <td>
-                                    <span t-field="injury.external_notes"/>
+                                    <span t-raw="injury.external_notes" class="text-wrap"/>
                                 </td>
                             </tr>
                         </t>
