@@ -28,7 +28,7 @@
     'data': [],
     'assets': {
         'web.assets_backend': [
-            'bemade_hierarchical_tree_view/src/*/**',
+            'bemade_hierarchical_tree_view/static/src/*/**',
         ]
     },
     'installable': True,
