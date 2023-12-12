@@ -61,7 +61,7 @@ class Patient(models.Model):
                                    "return to match play.")
     is_injured = fields.Boolean(compute="_compute_is_injured")
     stage = fields.Selection(
-        selection=[('no_play', 'Injured'), ('practice_ok', 'Cleared for Practice'), ('healthy', 'Cleared to Play')],
+        selection=[('no_play', 'Injured'), ('practice_ok', 'Practice OK'), ('healthy', 'Play OK')],
         compute='_compute_stage')
     last_consultation_date = fields.Date()
     active_injury_count = fields.Integer(compute='_compute_active_injury_count')
