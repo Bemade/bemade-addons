@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="res_partner_view_htree" model="ir.ui.view">
+        <field name="name">res.partner.view.htree</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <htree>
+                <field name="name"/>
+                <field name="email" widget="email"/>
+            </htree>
+        </field>
+    </record>
+    <record id="contacts.action_contacts" model="ir.actions.act_window">
+        <field name="view_mode">kanban,tree,form,activity,htree</field>
+    </record>
+    <record id="action_contacts_view_htree" model="ir.actions.act_window.view">
+        <field name="sequence" eval="5"/>
+        <field name="view_mode">htree</field>
+        <field name="view_id" ref="res_partner_view_htree"/>
+        <field name="act_window_id" ref="contacts.action_contacts"/>
+    </record>
+</odoo>

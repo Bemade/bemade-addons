@@ -24,8 +24,8 @@
     'author': 'Bemade Inc.',
     'website': 'http://www.bemade.org',
     'license': 'OPL-1',
-    'depends': ['web'],
-    'data': [],
+    'depends': ['web', 'contacts'],
+    'data': ['views/res_partner.xml'],
     'assets': {
         'web.assets_backend': [
             'bemade_hierarchical_tree_view/static/src/*/**',
