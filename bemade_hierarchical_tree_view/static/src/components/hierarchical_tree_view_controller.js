@@ -1,10 +1,14 @@
 /** @odoo-module **/
 
 import { ListController } from "@web/views/list/list_controller";
+import { onWillRender } from "@odoo/owl";
 
 export class HierarchicalTreeViewController extends ListController {
     setup() {
         super.setup();
+        onWillRender(() => {
+            console.log("Test");
+        });
     }
 }
 
