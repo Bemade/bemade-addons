@@ -25,6 +25,8 @@ class Partner(models.Model):
             if rec.hold_bg and not (rec.postpone_hold_until and rec.postpone_hold_until > date.today()):
                 rec.on_hold = True
             else:
+                if rec.on_hold:
+                    rec.message_post(_("Credit hold lifted."))
                 rec.on_hold = False
 
     @api.autovacuum
@@ -33,10 +35,14 @@ class Partner(models.Model):
         expired_holds.write({'postpone_hold_until': False})
 
     def action_credit_hold(self):
-        message = _('Placed on credit hold')
         for rec in self:
             rec.hold_bg = True
-            rec.message_post()
+            rec.message_post(body=_('Placed on credit hold.'))
+
+    def action_lift_credit_hold(self):
+        for rec in self:
+            rec.hold_bg = False
+            rec.message_post(body=_('Credit hold lifted.'))
 
     def _execute_followup_partner(self):
         res = super()._execute_followup_partner()
@@ -45,11 +51,9 @@ class Partner(models.Model):
                 self.action_credit_hold()
         return res
 
-    # BV: FOR MIGRATION
-    #@api.depends('followup_status', 'followup_level')
+    @api.depends('followup_status', 'followup_line_id')
     def _compute_hold_bg(self):
-        first_followup_level = self.env['account_followup.followup.line'].search(
-            [('company_id', '=', self.env.company.id)], order="delay asc", limit=1)
+        first_followup_level = self._get_first_followup_level()
         for rec in self:
             prev_hold_bg = rec.hold_bg
             level = rec.followup_line_id
