@@ -81,3 +81,38 @@ class TaskTemplate(models.Model):
         for rec in self:
             new_equipment_ids = [eq.id for eq in rec.equipment_ids if eq.partner_location_id == rec.customer]
             rec.write({'equipment_ids': [Command.set(new_equipment_ids)]})
+
+    def _prepare_new_task_values_from_self(self, project, name=False, parent_id=False):
+        vals = {
+            'project_id': project.id,
+            'name': name or self.name,
+            'description': self.description,
+            'parent_id': parent_id,
+            'user_ids': self.assignees.ids,
+            'tag_ids': self.tags.ids,
+            'planned_hours': self.planned_hours,
+            'sequence': self.sequence,
+            'equipment_ids': [Command.set(self.equipment_ids.ids)] if self.equipment_ids else False,
+            'partner_id': project.partner_id and project.partner_id.id,
+            'company_id': self.company_id.id,
+        }
+        return vals
+
+    def create_task_from_self(self, project, name=False, parent_id=False):
+        """ Create a project.task from this template and return it. Can be called on a RecordSet of multiple templates.
+
+        :param project: project.project record the task should be added to
+        :param name: name for the new task (defaults to template name)
+        :param parent_id: parent task for the new task (none by default)
+        :return: project.task record created from this template
+        """
+        tasks = self.env['project.task']
+        for rec in self:
+            vals = rec._prepare_new_task_values_from_self(project, name, parent_id)
+            task = rec.env['project.task'].create(vals)
+            rec.subtasks.create_task_from_self(project, name=False, parent_id=task.id)
+            tasks |= task
+        return tasks
+
+
+
