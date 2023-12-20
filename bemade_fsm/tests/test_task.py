@@ -17,7 +17,8 @@ class TaskTest(BemadeFSMBaseTest):
         task = sol.task_id
 
         task.write({
-            'user_ids': [Command.set([user.id])]
+            'user_ids': [Command.set([user.id])],
+            'propagate_assignment': True,
         })
 
         self.assertTrue(all([t.user_ids == user for t in task | task._get_all_subtasks()]))
@@ -33,7 +34,8 @@ class TaskTest(BemadeFSMBaseTest):
         task.child_ids.write({'propagate_assignment': False})  # Stop propagation after the first level
 
         task.write({
-            'user_ids': [Command.set([user.id])]
+            'user_ids': [Command.set([user.id])],
+            'propagate_assignment': True,
         })
 
         self.assertTrue(all([t.user_ids == user for t in task | task.child_ids]))
