@@ -28,7 +28,8 @@ class ResPartner(models.Model):
 
     is_property = fields.Boolean(
         string='Is Property',
-        default=False
+        default=False,
+        compute='_compute_is_property'
     )  # True if property, False if not
 
     interest_level = fields.Selection(
@@ -52,6 +53,11 @@ class ResPartner(models.Model):
         compute="_compute_property_ids",
         string="Property ids"
     )
+
+    @api.depends('relation_owner_ids')
+    def _compute_is_property(self):
+        for partner in self:
+            partner.is_property = partner.category_id.name == 'Property'
 
     @api.depends('relation_all_ids')
     def _compute_owner_ids(self):
@@ -93,20 +99,6 @@ class ResPartner(models.Model):
             record.property_count = len(record.relation_property_ids)
             record.is_owner = record.property_count > 0
 
-    def write(self, vals):
-        property_tag = self.env.ref('bemade_sethy_configuration.partner_tag_property', raise_if_not_found=False)
-        owner_tag = self.env.ref('bemade_sethy_configuration.partner_tag_owner', raise_if_not_found=False)
-        if 'is_property' in vals:
-            if vals['is_property'] and property_tag:
-                vals['category_id'] = [(4, property_tag.id)]
-            elif not vals['is_property'] and property_tag:
-                vals['category_id'] = [(3, property_tag.id)]
-        if len(self.relation_owner_ids) > 0:
-            vals['category_id'] = [(4, owner_tag.id)]
-        else:
-            vals['category_id'] = [(3, owner_tag.id)]
-        return super(ResPartner, self).write(vals)
-
     @api.model_create_multi
     def create(self, vals_list):
         # Get the property tag reference outside the loop to avoid repeated searches.
@@ -132,4 +124,3 @@ class ResPartner(models.Model):
                 partner.category_id |= property_tag
             else:
                 partner.category_id -= property_tag
-
