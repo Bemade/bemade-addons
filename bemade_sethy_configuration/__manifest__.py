@@ -35,6 +35,8 @@
 #         'views/membership_membership_line.xml',
         'views/property_view.xml',
         'views/res_partner_views.xml',
+        'security/ir.model.access.csv',
+
     ],
     'demo': [
         # Reference to demo data files

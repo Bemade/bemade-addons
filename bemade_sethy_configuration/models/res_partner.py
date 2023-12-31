@@ -7,6 +7,10 @@ from odoo.addons.website.models import ir_http
 class ResPartner(models.Model):
     _inherit = 'res.partner'
 
+    @api.model
+    def _property_category_id(self):
+        return self.env.ref('bemade_sethy_configuration.partner_tag_property', raise_if_not_found=False)
+
     surface = fields.Float(string='Surface (ha)')  # terrain
     lot_number = fields.Text(string='Lot Number')  # terrain
 
@@ -30,6 +34,7 @@ class ResPartner(models.Model):
         string='Is Property',
         default=False,
         compute='_compute_is_property',
+        inverse='_inverse_is_property',
         store=True
     )  # True if property, False if not
 
@@ -55,18 +60,25 @@ class ResPartner(models.Model):
         string="Property ids"
     )
 
-    @api.onchange('category_id')
     @api.depends('category_id')
     def _compute_is_property(self):
         property_tag = self.env.ref('bemade_sethy_configuration.partner_tag_property', raise_if_not_found=False)
-        for record in self:
+        for partner in self:
             # Check if the property tag exists.  If it doesn't, set is_property to False.
             # Because module installation order is not guaranteed, the tag may not exist yet when this method is called.
             # This is due to store=True on the is_property field.
             if property_tag is None:
-                record.is_property = False
+                partner.is_property = False
             else:
-                record.is_property = record.category_id & property_tag
+                partner.is_property = property_tag and property_tag in partner.category_id
+
+    def _inverse_is_property(self):
+        property_tag = self.env.ref('bemade_sethy_configuration.partner_tag_property', raise_if_not_found=False)
+        for partner in self:
+            if partner.is_property and property_tag not in partner.category_id and property_tag:
+                partner.category_id |= property_tag
+            elif not partner.is_property and property_tag in partner.category_id:
+                partner.category_id -= property_tag
 
     @api.depends('relation_property_ids')
     def _compute_property_count(self):
@@ -86,7 +98,7 @@ class ResPartner(models.Model):
         for record in self:
             record.relation_property_ids = record.relation_all_ids.filtered(
                 lambda line: (
-                        line.type_id.name == 'Owner' and line.is_inverse)
+                    line.type_id.name == 'Owner' and line.is_inverse)
             )
     @api.onchange('lot_number')
     def _onchange_lot_number(self):
@@ -94,39 +106,39 @@ class ResPartner(models.Model):
             if lot.lot_number:
                 lot.name = "Lot " + str(lot.lot_number)
 
-    # @api.model_create_multi
-    # def create(self, vals_list):
-    #     # Get the property tag reference outside the loop to avoid repeated searches.
-    #     property_tag = self.env.ref('bemade_sethy_configuration.partner_tag_property', raise_if_not_found=False)
-    #     # Iterate over each set of values in the list.
-    #     for vals in vals_list:
-    #         # Check if 'is_property' is in the values of the current record.
-    #         if 'is_property' in vals:
-    #             if vals['is_property'] and property_tag:
-    #                 # Add the tag to category_id if is_property is True.
-    #                 vals['category_id'] = [(4, property_tag.id)]
-    #             elif not vals['is_property'] and property_tag:
-    #                 # Remove the tag from category_id if is_property is False.
-    #                 vals['category_id'] = [(3, property_tag.id)]
-    #     # Call super and pass the modified vals_list.
-    #     return super(ResPartner, self).create(vals_list)
-    #
-    # @api.onchange('is_property')
-    # def _inverse_is_property(self):
-    #     property_tag = self.env.ref('bemade_sethy_configuration.partner_tag_property', raise_if_not_found=False)
-    #     for partner in self:
-    #         if partner.is_property:
-    #             partner.category_id |= property_tag
-    #         else:
-    #             partner.category_id -= property_tag
-
     @api.model_create_multi
     def create(self, vals_list):
-        # if 'state_id' not in values or 'country_id' not in values, then set it from the current user's company
-        for vals in vals_list:
-            if 'state_id' not in vals or 'country_id' not in vals:
-                user_company = self.env.user.company_id
-                if 'state_id' not in vals and user_company.state_id:
-                    vals['state_id'] = user_company.state_id.id
-                    vals['country_id'] = user_company.country_id.id
-        return super(Partner, self).create(vals)
+        # Create Partner records using the super function
+        records = super().create(vals_list)
+        user_company = self.env.user.company_id
+
+        # Update the records where 'state_id' or 'country_id' isn't provided
+        for record in records:
+            if not record.state_id or not record.country_id:
+                if not record.state_id and user_company.state_id:
+                    record.write({
+                        'state_id': user_company.state_id.id,
+                    })
+                if not record.country_id and user_company.country_id:
+                    record.write({
+                        'country_id': user_company.country_id.id
+                    })
+            if record.name.startswith("Lot "):
+                record.lot_number = record.name[4:]
+            record._inverse_is_property()
+        return records
+
+    @api.onchange('name')
+    def _onchange_name(self):
+        for record in self:
+            if record.name and record.name.startswith("Lot "):
+                record.lot_number = record.name[4:]
+
+    def write(self, vals):
+        result = super(ResPartner, self).write(vals)
+        self._inverse_is_property()
+        return result
+
+    @api.onchange('category_id')
+    def _onchange_category_id(self):
+        self._compute_is_property()

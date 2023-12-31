@@ -1,6 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
 
+    <record id="tree_property" model="ir.ui.view">
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <tree string="Properties" sample="1" multi_edit="1">
+                <field name="display_name" string="Name"/>
+                <field name="lot_number" optional="show"/>
+                <field name="city" optional="show"/>
+                <field name="zip" optional="show"/>
+                <field name="state_id" optional="hide" readonly="1"/>
+                <field name="country_id" optional="show" readonly="1"/>
+                <field name="category_id" optional="hide" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                <field name="company_id" groups="base.group_multi_company" readonly="1"/>
+                <field name="active" column_invisible="True"/>
+            </tree>
+        </field>
+    </record>
+
     <menuitem
         name="Property"
         id="menu_property"
@@ -13,14 +30,16 @@
         <field name="name">Properties</field>
         <field name="res_model">res.partner</field>
         <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="tree_property"/>
         <field name="domain">[('is_property','=',True)]</field>
+        <field name="context">{'default_is_property': True}</field>
     </record>
 
     <menuitem
-        id="menu_property_views"
-        name="Properties"
-        parent="menu_property"
-        action="action_properties"
+            id="menu_property_views"
+            name="Properties"
+            parent="menu_property"
+            action="action_properties"
     />
 
 </odoo>

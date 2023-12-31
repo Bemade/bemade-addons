@@ -1,13 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
 
+    <record id="action_add_property" model="ir.actions.act_window">
+        <field name="name">Add Property</field>
+        <field name="res_model">create.property.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
     <record id="partner_default_contacts_view_form" model="ir.ui.view">
         <field name="name">bemade_sethy_configuration.res_partner.defaults.form</field>
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
             <field name="company_type" position="after">
-                <field name="is_property" invisible="True"/>
+                <field name="is_property" invisible="False"/>
             </field>
 
             <xpath expr="//field[@name='name' and @id='company']" position="replace">
@@ -65,46 +72,52 @@
 
             <xpath expr="//page[@name='contact_addresses']" position="after">
                 <page string="Property" name="bemade_sethy_configuration.res_partner.defaults.form">
-                    <group string="All Owners" invisible="is_property == False">
-                        <field name="relation_property_ids" string="">
-                            <tree editable="top">
-                                <field name="this_partner_id" required="True" options="{'no_create': True}"
-                                       invisible="1"/>
-                                <field name="type_selection_id" required="True" options="{'no_create': True}"
-                                       invisible="1"/>
-                                <field name="other_partner_id" required="True" options="{'no_create': True}"
-                                       string="Owner"/>
-                                <field name="date_start"/>
-                                <field name="date_end"/>
-                                <field name="active" invisible="1"/>
-                            </tree>
-                        </field>
-                    </group>
-                    <group string="All Properties" invisible="is_property == True">
-                        <field name="relation_owner_ids" string="">
-                            <tree editable="top">
-                                <field name="this_partner_id" required="True"
-                                       options="{'no_create': True}"
-                                       invisible="1"
-                                />
-                                <field name="type_selection_id" required="True" options="{'no_create': True}"
-                                       invisible="1"/>
-                                <field name="other_partner_id" required="True" options="{'no_create': True}"
-                                       string="Property"/>
-                                <field name="date_start"/>
-                                <field name="date_end"/>
-                                <field name="active" invisible="1"/>
-                            </tree>
-                        </field>
-                    </group>
+                    <field name="relation_property_ids" string="All Owners" invisible="is_property == False">
+                        <tree editable="top">
+                            <field name="this_partner_id"
+                                   required="True"
+                                   options="{'no_create': True}"
+                                   invisible="1"/>
+                            <field name="type_selection_id"
+                                   required="True"
+                                   options="{'no_create': True}"
+                                   invisible="1"/>
+                            <field name="other_partner_id"
+                                   required="True"
+                                   options="{'no_create': True}"
+                                   string="Owner"/>
+                            <field name="date_start"/>
+                            <field name="date_end"/>
+                            <field name="active" invisible="1"/>
+                        </tree>
+                    </field>
+                    <field name="relation_owner_ids" string="All Properties" invisible="is_property == True">
+                        <tree editable="top">
+                            <field name="this_partner_id" required="True"
+                                   options="{'no_create': True}"
+                                   invisible="1"
+                            />
+                            <field name="type_selection_id" required="True" options="{'no_create': True}"
+                                   invisible="1"/>
+                            <field name="other_partner_id" required="True" options="{'no_create': True}"
+                                   string="Property"/>
+                            <field name="date_start"/>
+                            <field name="date_end"/>
+                            <field name="active" invisible="1"/>
+                        </tree>
+                    </field>
+                    <button name="%(action_add_property)d"
+                            type="action"
+                            class="oe_highlight"
+                            string="Add Property" />
                 </page>
             </xpath>
             <xpath expr="//page[@name='contact_addresses']" position="after">
                 <page string="Sethy" name="bemade_sethy_configuration.res_partner.page.sethy">
                     <group>
                         <field name="ref_project"/>
-                        <field name="intent_signing"/>
-                        <field name="cyberimpact"/>
+                        <field name="intent_signing" invisible="is_property"/>
+                        <field name="cyberimpact" invisible="is_property"/>
                         <field name="specification_date"/>
                         <field name="crm_stage_activity"/>
                     </group>
@@ -124,6 +137,16 @@
 <!--            </xpath>-->
 <!--        </field>-->
 <!--    </record>-->
+
+    <record id="contacts.action_contacts" model="ir.actions.act_window">
+        <field name="name">Contacts</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">tree,form</field>
+        <!-- Add your domain here -->
+        <field name="domain">[('is_property','=',False)]</field>
+    </record>
+
 
 
 </odoo>
