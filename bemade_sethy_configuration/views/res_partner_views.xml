@@ -7,8 +7,7 @@
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
             <field name="company_type" position="after">
-                <label for="is_property" string="Property"/>
-                <field name="is_property"/>
+                <field name="is_property" invisible="True"/>
             </field>
 
             <xpath expr="//field[@name='name' and @id='company']" position="replace">
