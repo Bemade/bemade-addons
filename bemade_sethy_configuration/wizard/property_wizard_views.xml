@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="property_wizard_form_view" model="ir.ui.view">
+        <field name="name">property.wizard.form</field>
+        <field name="model">property.wizard</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <form string="Property Wizard">
+                <group>
+                    <field name="partner_id"/>
+                </group>
+                <footer>
+                    <button name="action_create_property" string="Create new Property" type="object" class="btn-primary"/>
+                    <button name="action_select_property" string="Select Property" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="oe_link" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>
