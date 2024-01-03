@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-inherit="web.FormViewDialog.ToMany.buttons" t-inherit-mode="extension" owl="1">
+        <xpath expr="//button[hasclass('o_form_button_save_new')]" position="after">
+            <button class="btn btn-secondary o_form_button_open" t-on-click="_onOpen">Open</button>
+        </xpath>
+    </t>
+    <t t-inherit="web.FormViewDialog.ToOne.buttons" t-inherit-mode="extension" owl="1">
+        <xpath expr="//button[hasclass('o_form_button_save')]" position="after">
+            <button class="btn btn-secondary o_form_button_open" t-on-click="onOpenButtonClicked">Open</button>
+        </xpath>
+    </t>
+</templates>
