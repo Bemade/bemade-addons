@@ -1,12 +1,12 @@
 {
     'name': 'Packing wizard',
-    'version': '15.0.1.0.0',
+    'version': '16.0.1.0.0',
     'category': 'Extra Tools',
     'summary': 'Allow automated packing type creation',
     'description': """
         This module allows users simply enter all the package dimensions on every packing and it will create the packing 
         type automatically if it not exists, use it the create the package with the weight and related package type.
-        
+
         You need to activate the auto create package feature on the delivery carrier to use this feature.
     """,
     'depends': [
