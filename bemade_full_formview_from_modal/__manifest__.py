@@ -1,8 +1,8 @@
 #
 #    Bemade Inc.
 #
-#    Copyright (C) September 2023 Bemade Inc. (<https://www.bemade.org>).
-#    Author: Marc Durepos (Contact : marc@bemade.org)
+#    Copyright (C) 2023-June Bemade Inc. (<https://www.bemade.org>).
+#    Author: Marc Durepos (Contact : mdurepos@durpro.com)
 #
 #    This program is under the terms of the Odoo Proprietary License v1.0 (OPL-1)
 #    It is forbidden to publish, distribute, sublicense, or sell copies of the Software
@@ -17,17 +17,21 @@
 #    DEALINGS IN THE SOFTWARE.
 #
 {
-    'name': 'Stock Quant Valuation',
+    'name': 'Full Form from Dialog',
     'version': '16.0.1.0.0',
-    'summary': 'Adds valuation to stock quant for better inventory adjustment management',
-    'description': '',
-    'category': 'Inventory',
+    'summary': 'Allows opening the full form view from the dialog (modal) view.',
+    'description': 'Adds a button to open the full form view when viewing the form view for a record in a dialog.',
+    'category': 'Technical',
     'author': 'Bemade Inc.',
-    'website': 'https://www.bemade.org',
+    'website': 'http://www.bemade.org',
     'license': 'OPL-1',
-    'depends': ['stock_account'],
-    'data': ['views/stock_account_views.xml'],
-    'demo': [],
+    'depends': [],
+    'data': [],
+    'assets': {
+        'web.assets_backend': [
+            'bemade_full_formview_from_modal/static/src/**/*',
+        ],
+    },
     'installable': True,
-    'auto_install': False,
+    'auto_install': False
 }

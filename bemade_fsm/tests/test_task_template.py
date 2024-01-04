@@ -78,3 +78,17 @@ class TestTaskTemplate(BemadeFSMBaseTest):
         self.assertEqual(sol1.task_id.name, "Short Name 1")
         self.assertEqual(sol2.task_id.name, "Short Name 2")
         self.assertEqual(sol3.task_id.name, "Task")
+
+    def test_task_creation_directly_from_template(self):
+        project = self.env.ref("industry_fsm.fsm_project")
+        template = self._generate_task_template(names=['Task', 'Child', 'Grandchild'], structure=[2, 1])
+
+        task = template.create_task_from_self(project, "My new task")
+
+        self.assertEqual(len(task.child_ids), len(template.subtasks))
+        self.assertEqual(len(task.child_ids[0].child_ids), len(template.subtasks[0].subtasks))
+        self.assertEqual(len(task.child_ids[1].child_ids), len(template.subtasks[1].subtasks))
+        self.assertEqual(task.name, "My new task")
+        self.assertEqual(task.child_ids[0].name, template.subtasks[0].name)
+        self.assertTrue(all([t.project_id == project for t in task | task._get_all_subtasks()]))
+

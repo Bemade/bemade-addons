@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <!-- Add a button to create a task from a template to task (project) list and kanban views -->
+    <t t-name='project.KanbanView.buttons' t-inherit="web.KanbanView.buttons" t-inherit-mode="primary">
+        <xpath expr="//button[contains(@t-attf-class, 'o-kanban-button-new')]" position="after">
+            <button title="Create Task from Template" t-if="!noCreate" type="button"
+               t-attf-class="btn {{ btnClass }} o-kanban-button-new-from-template">
+                <t t-esc="create_text &amp;&amp; (create_text + ' from Template') || _t('Create from Template')"/>
+            </button>
+        </xpath>
+    </t>
+    <t t-name='project.ListView.buttons' t-inherit="web.ListView.buttons" t-inherit-mode="primary">
+        <xpath expr="//button[hasclass('o_list_button_add')]" position="after">
+            <!-- Create is enabled in the parent template at this point; check is done prior -->
+            <button type="button" class="btn ml-1 btn-primary o_list_button_add_from_template"
+                    title="Create Task from Template">
+                Create from Template
+            </button>
+        </xpath>
+    </t>
+</templates>

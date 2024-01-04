@@ -1,7 +1,7 @@
 #
 #    Bemade Inc.
 #
-#    Copyright (C) September 2023 Bemade Inc. (<https://www.bemade.org>).
+#    Copyright (C) 2023-June Bemade Inc. (<https://www.bemade.org>).
 #    Author: Marc Durepos (Contact : marc@bemade.org)
 #
 #    This program is under the terms of the Odoo Proprietary License v1.0 (OPL-1)
@@ -17,17 +17,15 @@
 #    DEALINGS IN THE SOFTWARE.
 #
 {
-    'name': 'Stock Quant Valuation',
+    'name': 'Payslip Done as To Pay',
     'version': '16.0.1.0.0',
-    'summary': 'Adds valuation to stock quant for better inventory adjustment management',
-    'description': '',
-    'category': 'Inventory',
+    'summary': 'Payslips in "Done" state appear as "To Pay"',
+    'category': 'Human Resources/Payroll',
     'author': 'Bemade Inc.',
-    'website': 'https://www.bemade.org',
+    'website': 'http://www.bemade.org',
     'license': 'OPL-1',
-    'depends': ['stock_account'],
-    'data': ['views/stock_account_views.xml'],
-    'demo': [],
+    'depends': ['hr_payroll'],
+    'data': ['views/hr_payslip_views.xml'],
     'installable': True,
-    'auto_install': False,
+    'auto_install': True,
 }
