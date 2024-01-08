@@ -20,7 +20,8 @@
     'data': [
         # No security
         'views/res_partner_views.xml',
-        'data/res_partner_relation_type.xml'
+        # Commented for migration to 17, raises error on update
+        # 'data/res_partner_relation_type.xml'
     ],
     "assets": {
         "web.assets_backend": [

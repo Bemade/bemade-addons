@@ -250,6 +250,11 @@ class Task(models.Model):
 
             task.write(values)
 
+    def _get_full_hierarchy(self):
+        if self.child_ids:
+            return self | self.child_ids._get_full_hierarchy()
+        return self
+
     def synchronize_name_fsm(self):
         """ Applies naming to the entire task tree for tasks that are part of this
         recordset. Root tasks are named:

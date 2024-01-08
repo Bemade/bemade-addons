@@ -20,7 +20,7 @@
 ########################################################################################
 {
     'name': 'Improved Field Service Management',
-    'version': '15.0.1.0.6',
+    'version': '17.0.0.1.0',
     'summary': 'Adds functionality necessary for managing field service operations at Durpro.',
     'description': 'Adds functionality necessary for managing field service operations at Durpro.',
     'category': 'Services/Field Service',
@@ -52,8 +52,13 @@
         'views/menus.xml',
         'views/task_views.xml',
         'views/sale_order_views.xml',
+<<<<<<< HEAD
         'reports/worksheet_custom_report_templates.xml',
         'reports/worksheet_custom_reports.xml',
+=======
+        # 'reports/worksheet_custom_report_templates.xml',
+        # 'reports/worksheet_custom_reports.xml',
+>>>>>>> 5a006ec3
         'wizard/new_task_from_template.xml',
     ],
     'assets': {
