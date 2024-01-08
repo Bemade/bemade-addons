@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Bemade Odoo Partner Scrapper',
-    'version': '1.0.0',
+    'version': '17.01.0.0',
     'category': 'Administration',
     'summary': 'Module for scraping partners from odoo.com.',
     'description': """
@@ -21,12 +21,12 @@
         # No security
         'views/res_partner_views.xml',
         # Commented for migration to 17, raises error on update
-        # 'data/res_partner_relation_type.xml'
+        'data/res_partner_relation_type.xml'
     ],
     "assets": {
         "web.assets_backend": [
-            # "bemade_odoo_partner_scrapper/static/src/js/odoo_scrapper.js",
-            # "bemade_odoo_partner_scrapper/static/src/xml/odoo_scrapper_templates.xml",
+            "bemade_odoo_partner_scrapper/static/src/js/odoo_scrapper.js",
+            "bemade_odoo_partner_scrapper/static/src/xml/odoo_scrapper_templates.xml",
         ],
     },
     'demo': [],

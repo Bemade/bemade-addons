@@ -9,8 +9,9 @@
     <record id="rel_type_odoo_partner" model="res.partner.relation.type">
         <field name="name">Is Odoo Partner Of</field>
         <field name="name_inverse">Is Odoo Client Of</field>
-        <field name="contact_type_left">c</field>
-        <field name="contact_type_right">c</field>
+<!--        Commented two lines below due to data integrity issue when migrating to 17.0. Are they really needed? -->
+<!--        <field name="contact_type_left">c</field>-->
+<!--        <field name="contact_type_right">c</field>-->
     </record>
 
     <!-- Categories -->
