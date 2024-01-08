@@ -11,7 +11,7 @@
                 <field name="is_odoo_user"/>Odoo User
                 <field name="is_odoo_partner"/>Odoo Partner
                 <br/>
-                <div attrs="{'invisible': [('is_odoo_partner', '=', False)]}">
+                <div invisible="not is_odoo_partner">
                     <h3><field name="odoo_partner_type"/> Partner</h3>
                 </div>
             </field>
