@@ -20,7 +20,7 @@
 ########################################################################################
 {
     'name': 'Improved Field Service Management',
-    'version': '15.0.1.0.0',
+    'version': '17.0.0.1.0',
     'summary': 'Adds functionality necessary for managing field service operations at Durpro.',
     'description': 'Adds functionality necessary for managing field service operations at Durpro.',
     'category': 'Services/Field Service',
@@ -43,7 +43,6 @@
         'mail',
     ],
     'data': [
-        # BV: FOR MIGRATION
         'data/fsm_data.xml',
         'views/task_template_views.xml',
         'views/equipment.xml',
@@ -53,8 +52,14 @@
         'views/menus.xml',
         'views/task_views.xml',
         'views/sale_order_views.xml',
+<<<<<<< HEAD
+        'reports/worksheet_custom_report_templates.xml',
+        'reports/worksheet_custom_reports.xml',
+=======
         # 'reports/worksheet_custom_report_templates.xml',
         # 'reports/worksheet_custom_reports.xml',
+>>>>>>> 5a006ec3
+        'wizard/new_task_from_template.xml',
     ],
     'assets': {
         'web.assets_tests': [
@@ -64,6 +69,13 @@
         ],
         'web.report_assets_common': [
             'bemade_fsm/static/src/scss/bemade_fsm.scss'
+        ],
+        'web.assets_backend': [
+            'bemade_fsm/static/src/js/kanban_view.js',
+            'bemade_fsm/static/src/js/list_view.js',
+        ],
+        'web.assets_qweb': [
+            'bemade_fsm/static/src/xml/project_view_buttons.xml',
         ]
     },
     'installable': True,

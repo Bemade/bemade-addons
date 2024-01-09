@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="hr_payroll.hr_payslip_action_view_to_pay" model="ir.actions.act_window">
+        <field name="domain">[('state', 'in', ['draft', 'verify', 'done'])]</field>
+    </record>
+</odoo>

@@ -62,6 +62,49 @@
                 </tree>
             </field>
         </record>
+        <record id="sports_patient_view_kanban" model="ir.ui.view">
+            <field name="name">sports.patient.view.kanban</field>
+            <field name="model">sports.patient</field>
+            <field name="arch" type="xml">
+                <kanban>
+                    <field name="first_name"/>
+                    <field name="last_name"/>
+                    <field name="date_of_birth"/>
+                    <field name="age"/>
+                    <field name="team_ids" widget="many2many_tags"/>
+                    <field name="match_status" optional="hide"/>
+                    <field name="practice_status" optional="hide"/>
+                    <field name="stage" optional="show"/>
+                    <field name="predicted_return_date" widget="date"/>
+                    <field name="return_date" widget="date"/>
+                    <field name="activity_ids" widget="list_activity"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <t t-set="stage" t-value="record.stage.raw_value"/>
+                            <div t-attf-class="oe_kanban_global_click
+                                {{stage === 'no_play' ? 'text-danger' : stage === 'practice_ok' ? 'text-warning' : ''}}">
+
+                                <div>
+                                    <div class="o_kanban_record_top mb16">
+                                        <div class="o_kanban_record_headings mt-4">
+                                            <field name="name"/>
+                                        </div>
+                                        <div class="oe_kanban_card_header_stage">
+                                            Status: <field name="stage"/>
+                                        </div>
+                                    </div>
+                                    <div class="o_kanban_record_body">
+                                        DOB: <field name="date_of_birth" widget="date"/>
+                                        <field name="team_ids" widget="many2many_tags"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
         <record id="sports_patient_view_form" model="ir.ui.view">
             <field name="name">sports.patient.view.form</field>
             <field name="model">sports.patient</field>
