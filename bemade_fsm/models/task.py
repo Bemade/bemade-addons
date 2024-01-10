@@ -102,6 +102,9 @@ class Task(models.Model):
         super().write(vals)
         if not self:  # End recursion on empty RecordSet
             return
+        if 'propagate_assignment' in vals:
+            # When a user sets propagate assignment, it should propagate that setting all the way down the chain
+            self.child_ids.write({'propagate_assignment': vals['propagate_assignment']})
         if 'user_ids' in vals:
             to_propagate = self.filtered(lambda task: task.propagate_assignment)
             # Here we use child_ids instead of _get_all_subtasks() so as to allow for setting propagate_assignment
