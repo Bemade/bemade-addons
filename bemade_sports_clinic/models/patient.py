@@ -7,7 +7,7 @@ from odoo.addons.phone_validation.tools import phone_validation
 
 class Patient(models.Model):
     _name = 'sports.patient'
-    _description = "Patient at a sports medicine clinic."
+    _description = "Patient"
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'last_name, first_name'
 
@@ -222,7 +222,7 @@ class PatientContact(models.Model):
 
 class PatientInjury(models.Model):
     _name = 'sports.patient.injury'
-    _description = "A patient's injury."
+    _description = "Patient Injury"
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'diagnosis'
 
