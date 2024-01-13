@@ -63,7 +63,7 @@ class Patient(models.Model):
     stage = fields.Selection(
         selection=[('no_play', 'Injured'), ('practice_ok', 'Practice OK'), ('healthy', 'Play OK')],
         compute='_compute_stage')
-    last_consultation_date = fields.Date()
+    last_consultation_date = fields.Date(tracking=True)
     active_injury_count = fields.Integer(compute='_compute_active_injury_count')
     allergies = fields.Text()
     team_info_notes = fields.Html(string="Notes")
@@ -187,6 +187,22 @@ class Patient(models.Model):
             raise_exception=False
         )
 
+    def _track_subtype(self, init_values):
+        # List of fields that should result in team staff notification
+        external_values = [
+            "last_consultation_date",
+            "match_status",
+            "practice_status",
+            "predicted_return_date",
+            "return_date",
+            "external_notes",
+        ]
+        if any([v in init_values for v in external_values]):
+            return self.env.ref("bemade_sports_clinic.subtype_patient_update")
+        else:
+            return self.env.ref('mail.mt_note')
+
+
 
 class PatientContact(models.Model):
     _name = 'sports.patient.contact'
@@ -300,3 +316,11 @@ class PatientInjury(models.Model):
             'res_id': self.id,
             'context': self._context,
         }
+
+    def _track_subtype(self, init_values):
+        if 'treatment_professional_ids' in init_values \
+            and len(init_values) == 1:
+                return self.env.ref('mail.mt_note')
+        else:
+            return self.env.ref('bemade_sports_clinic.subtype_patient_injury_update')
+

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="subtype_patient_update" model="mail.message.subtype">
+            <field name="name">Patient File Update</field>
+            <field name="res_model">sports.patient</field>
+            <field name="default" eval="True"/>
+            <field name="description">Patient's file has been updated.</field>
+            <field name="internal" eval="False"/>
+            <field name="sequence" eval="4"/>
+            <field name="hidden" eval="False"/>
+        </record>
+        <record id="subtype_patient_injury_update" model="mail.message.subtype">
+            <field name="name">Patient Injury Status Update</field>
+            <field name="res_model">sports.patient.injury</field>
+            <field name="default" eval="True"/>
+            <field name="description">Patient's injury was updated.</field>
+            <field name="internal" eval="False"/>
+            <field name="sequence" eval="4"/>
+            <field name="hidden" eval="False"/>
+        </record>
+    </data>
+</odoo>
