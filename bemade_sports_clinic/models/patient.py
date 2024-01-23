@@ -1,8 +1,9 @@
 from odoo import models, fields, _, api, Command
 from odoo.exceptions import ValidationError
-from datetime import date
+from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
 from odoo.addons.phone_validation.tools import phone_validation
+import pytz
 
 
 class Patient(models.Model):
@@ -216,6 +217,7 @@ class PatientContact(models.Model):
         ('other', 'Other'),
     ], required=True)
     mobile = fields.Char(unaccent=False, required=True)
+    # TODO: add email here and on views
     patient_id = fields.Many2one(comodel_name='sports.patient', string='Patient')
 
     @api.onchange('mobile')
@@ -242,14 +244,25 @@ class PatientInjury(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'diagnosis'
 
+    @api.model
+    def _today(self):
+        """Get the current date in the user's time zone."""
+        return datetime.now(pytz.timezone(self.env.user.tz or 'GMT'))
+
+    # TODO: Find a way to improve notifications send about tracking injury details
+    # TODO: Add field consentement_parental = fields.Selection(oui, non, non-applicable)
+
     patient_id = fields.Many2one(comodel_name='sports.patient',
                                  string="Patient",
                                  readonly=True,
                                  required=True)
     patient_name = fields.Char(related="patient_id.name")
     diagnosis = fields.Char(tracking=True)
-    injury_date = fields.Date(string='Date of Injury',
-                              default=date.today())
+
+    injury_date = fields.Date(
+        string='Date of Injury',
+        default=_today,
+    )
     injury_date_na = fields.Boolean(string="N/A", default=False)
     internal_notes = fields.Html(tracking=True)
     external_notes = fields.Html(tracking=True)
