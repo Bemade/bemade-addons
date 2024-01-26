@@ -242,6 +242,20 @@
                     </t>
                 </div>
             </div>
+            <div class="row" t-if="doc.planned_date_begin or doc.planned_date_end">
+                <div t-attf-class="{{'col-6' if report_type == 'pdf' else 'col-md-6 col-12'}}">
+                    <div t-if="doc.planned_date_begin"><h6>Planned start: </h6></div>
+                    <div class="mb-3">
+                        <div t-out="doc.planned_date_begin.strftime('%Y-%m-%d %H:%M')" />
+                    </div>
+                </div>
+                <div t-attf-class="{{'col-6' if report_type == 'pdf' else 'col-md-6 col-12'}}">
+                    <div t-if="doc.planned_date_end"><h6>Planned end: </h6></div>
+                    <div class="mb-3">
+                        <div t-out="doc.planned_date_end.strftime('%Y-%m-%d %H:%M')"/>
+                    </div>
+                </div>
+            </div>
             <div class="row">
                 <div t-attf-class="{{'col-6' if report_type == 'pdf' else 'col-md-6 col-12'}}">
                     <div t-if="doc.site_contacts"><h6>Site Contacts: </h6></div>

@@ -20,7 +20,7 @@
 ########################################################################################
 {
     'name': 'Improved Field Service Management',
-    'version': '15.0.1.0.8',
+    'version': '15.0.1.0.9',
     'summary': 'Adds functionality necessary for managing field service operations at Durpro.',
     'description': 'Adds functionality necessary for managing field service operations at Durpro.',
     'category': 'Services/Field Service',
@@ -56,11 +56,6 @@
         'wizard/new_task_from_template.xml',
     ],
     'assets': {
-        'web.assets_tests': [
-            'bemade_fsm/static/tests/tours/task_template_tour.js',
-            'bemade_fsm/static/tests/tours/equipment_tour.js',
-            'bemade_fsm/static/tests/tours/sale_order_tour.js',
-        ],
         'web.report_assets_common': [
             'bemade_fsm/static/src/scss/bemade_fsm.scss'
         ],
