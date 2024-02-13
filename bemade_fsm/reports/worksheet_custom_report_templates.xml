@@ -226,7 +226,7 @@
                 <span t-else=""
                     name="date_now"
                     t-out="time.strftime('%Y-%m-%d')"
-                    />-
+                    /> -
                 <span name="work_order_number" t-out="doc.work_order_number"/>
             </h1>
             <div class="row">
