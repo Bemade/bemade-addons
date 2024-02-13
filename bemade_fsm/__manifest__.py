@@ -20,7 +20,7 @@
 ########################################################################################
 {
     'name': 'Improved Field Service Management',
-    'version': '15.0.1.0.11',
+    'version': '15.0.1.0.12',
     'summary': 'Adds functionality necessary for managing field service operations at Durpro.',
     'description': 'Adds functionality necessary for managing field service operations at Durpro.',
     'category': 'Services/Field Service',

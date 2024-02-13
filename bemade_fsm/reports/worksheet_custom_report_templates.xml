@@ -327,13 +327,13 @@
                     </t>
                 </div>
             </div>
-            <hr t-if="doc.description"/>
-            <div t-if="doc.description" class="row" name="visit_description">
+            <hr/>
+            <div t-if="not is_html_empty(doc.description)" class="row" name="visit_description">
                 <div class="col-12">
                     <span t-out="doc.description" />
                 </div>
             </div>
-            <hr t-if="doc.description"/>
+            <hr t-if="not is_html_empty(doc.description)"/>
         </template>
         <template id="workorder_equipment_summary">
             <div t-if="doc.equipment_ids and len(doc.child_ids) > 1"
