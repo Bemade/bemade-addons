@@ -219,8 +219,15 @@
         </template>
         <template id="workorder_page_info_block">
             <h1>
-                <span name="planned_date_begin" t-out="doc.planned_date_begin"/> -
-                <span name="work_order_number" t-out="doc.work_order_number"/> -
+                <span t-if="planned_date_begin"
+                    name="planned_date_begin"
+                    t-out="doc.planned_date_begin.strftime('%Y-%m-%d')"
+                    />
+                <span t-else=""
+                    name="date_now"
+                    t-out="time.strftime('%Y-%m-%d')"
+                    />-
+                <span name="work_order_number" t-out="doc.work_order_number"/>
             </h1>
             <div class="row">
                 <div t-attf-class="{{'col-6' if report_type == 'pdf' else 'col-md-6 col-12'}}">
