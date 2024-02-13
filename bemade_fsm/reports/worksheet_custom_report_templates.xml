@@ -327,20 +327,20 @@
                     </t>
                 </div>
             </div>
-            <hr/>
+            <hr t-if="doc.description"/>
             <div t-if="doc.description" class="row" name="visit_description">
                 <div class="col-12">
                     <span t-out="doc.description" />
                 </div>
             </div>
-            <hr/>
+            <hr t-if="doc.description"/>
         </template>
         <template id="workorder_equipment_summary">
             <div t-if="doc.equipment_ids and len(doc.child_ids) > 1"
                  style="page-break-inside: avoid;">
                 <h3>Equipment Serviced</h3>
                 <div class="table-responsive-sm">
-                    <table class="table table-sm o_main_table">
+                    <table class="table table-sm o_main_table overflow-hidden">
                         <thead>
                             <tr>
                                 <th>Tag</th>
