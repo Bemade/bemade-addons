@@ -227,39 +227,27 @@ class Patient(models.Model):
             raise_exception=False
         )
 
-    @api.model
-    def __get_track_internal_external(self, params: Set[str]) -> Tuple[bool, bool]:
-        """ Based on the fields being changed, determine if the notification being sent is meant for external
-        or internal followers, or neither."""
-        external = bool(external_tracking_fields & params)
-        internal = external or bool(internal_tracking_fields & params)
-        return external, internal
-
     def _track_subtype(self, init_values):
-        external, internal = self.__get_track_internal_external({key for key in init_values.keys()})
-
-        if external:
-            return self.env.ref('bemade_sports_clinic.subtype_patient_external_update')
-        elif internal:
-            return self.env.ref('bemade_sports_clinic.subtype_patient_internal_update')
-        else:
-            return self.env.ref('mail.mt_note')
+        return self.env.ref('mail.mt_note')
 
     def _track_template(self, changes):
         res = super()._track_template(changes)
-        external, internal = self.__get_track_internal_external({change for change in changes})
+        params = set(changes)
+        external = bool(external_tracking_fields & params)
         if external:
-            first_external_field = (external_tracking_fields & set(changes)).pop()
+            first_external_field = (external_tracking_fields & params).pop()
             res[first_external_field] = (
                 self.env.ref('bemade_sports_clinic.mail_template_patient_status_update'), {
                     'auto_delete_message': False,
+                    'subtype_id': self.env.ref('bemade_sports_clinic.subtype_patient_external_update').id,
                     'email_layout_xmlid': 'mail.mail_notification_light',
                 }
             )
-        if 'internal_notes' in changes:
+        if 'team_info_notes' in changes:
             res['team_info_notes'] = (
                 self.env.ref('bemade_sports_clinic.mail_template_patient_new_internal_note'), {
                     'auto_delete_message': False,
+                    'subtype_id': self.env.ref('bemade_sports_clinic.subtype_patient_internal_update').id,
                     'email_layout_xmlid': 'mail.mail_notification_light',
                 }
             )

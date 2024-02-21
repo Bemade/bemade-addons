@@ -79,7 +79,7 @@
                 </p>
                 <div>
                     <p><strong>New Note: </strong></p>
-                    <div><t t-out="object.note"/></div>
+                    <div><t t-out="object.team_info_notes"/></div>
                 </div>
             </field>
         </record>
