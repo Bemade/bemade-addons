@@ -3,6 +3,21 @@ from odoo.exceptions import ValidationError
 from datetime import date
 from dateutil.relativedelta import relativedelta
 from odoo.addons.phone_validation.tools import phone_validation
+from typing import Set, Tuple
+
+external_tracking_fields = {
+    'last_consultation_date',
+    'match_status',
+    'practice_status',
+    'predicted_return_date',
+    'return_date',
+}
+
+internal_tracking_fields = {
+    'team_info_notes',
+    'age',
+    'date_of_birth',
+}
 
 
 class Patient(models.Model):
@@ -30,43 +45,68 @@ class Patient(models.Model):
     date_of_birth = fields.Date(
         groups="bemade_sports_clinic.group_sports_clinic_treatment_professional",
         tracking=True)
-    age = fields.Integer(compute='_compute_age',
-                         groups="bemade_sports_clinic.group_sports_clinic_treatment_professional",
-                         tracking=True)
-    contact_ids = fields.One2many(comodel_name='sports.patient.contact',
-                                  inverse_name='patient_id',
-                                  string='Patient Contacts',
-                                  groups="bemade_sports_clinic.group_sports_clinic_user")
-    team_ids = fields.Many2many(comodel_name='sports.team',
-                                relation='sports_team_patient_rel',
-                                column1='patient_id',
-                                column2='team_id',
-                                string='Teams', )
-    match_status = fields.Selection([  # Selection for easy expansion later
-        ('yes', 'Yes'),
-        ('no', 'No'),
-    ], required=True, default='yes', tracking=True)
-    practice_status = fields.Selection([
-        ('yes', 'Yes'),
-        ('no_contact', 'Yes, no contact'),
-        ('no', 'No')], tracking=True, required=True, default='yes')
-
-    injury_ids = fields.One2many(comodel_name='sports.patient.injury',
-                                 inverse_name='patient_id',
-                                 string='Injuries', )
+    age = fields.Integer(
+        compute='_compute_age',
+        groups="bemade_sports_clinic.group_sports_clinic_treatment_professional"
+    )
+    contact_ids = fields.One2many(
+        comodel_name='sports.patient.contact',
+        inverse_name='patient_id',
+        string='Patient Contacts',
+        groups="bemade_sports_clinic.group_sports_clinic_user"
+    )
+    team_ids = fields.Many2many(
+        comodel_name='sports.team',
+        relation='sports_team_patient_rel',
+        column1='patient_id',
+        column2='team_id',
+        string='Teams',
+    )
+    match_status = fields.Selection(  # Selection rather than bool for easy expansion later
+        selection=[
+            ('yes', 'Yes'),
+            ('no', 'No'),
+        ],
+        required=True,
+        default='yes',
+        tracking=True)
+    practice_status = fields.Selection(
+        selection=[
+            ('yes', 'Yes'),
+            ('no_contact', 'Yes, no contact'),
+            ('no', 'No')
+        ],
+        tracking=True,
+        required=True,
+        default='yes',
+    )
+    injury_ids = fields.One2many(
+        comodel_name='sports.patient.injury',
+        inverse_name='patient_id',
+        string='Injuries',
+    )
     injured_since = fields.Date(compute='_compute_is_injured')
     predicted_return_date = fields.Date(tracking=True)
-    return_date = fields.Date(tracking=True,
-                              help="When the player was cleared by medical staff to "
-                                   "return to match play.")
+    return_date = fields.Date(
+        tracking=True,
+        help="When the player was cleared by medical staff to "
+             "return to match play."
+    )
     is_injured = fields.Boolean(compute="_compute_is_injured")
     stage = fields.Selection(
-        selection=[('no_play', 'Injured'), ('practice_ok', 'Practice OK'), ('healthy', 'Play OK')],
+        selection=[
+            ('no_play', 'Injured'),
+            ('practice_ok', 'Practice OK'),
+            ('healthy', 'Play OK')
+        ],
         compute='_compute_stage')
     last_consultation_date = fields.Date(tracking=True)
     active_injury_count = fields.Integer(compute='_compute_active_injury_count')
     allergies = fields.Text()
-    team_info_notes = fields.Html(string="Notes")
+    team_info_notes = fields.Html(
+        string="Notes",
+        tracking=True,
+    )
 
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
@@ -187,20 +227,40 @@ class Patient(models.Model):
             raise_exception=False
         )
 
+    @api.model
+    def __get_track_internal_external(self, params: Set[str]) -> Tuple[bool, bool]:
+        """ Based on the fields being changed, determine if the notification being sent is meant for external
+        or internal followers, or neither."""
+        external = bool(external_tracking_fields & params)
+        internal = external or bool(internal_tracking_fields & params)
+        return external, internal
+
     def _track_subtype(self, init_values):
-        # List of fields that should result in team staff notification
-        external_values = [
-            "last_consultation_date",
-            "match_status",
-            "practice_status",
-            "predicted_return_date",
-            "return_date",
-            "external_notes",
-        ]
-        if any([v in init_values for v in external_values]):
-            return self.env.ref("bemade_sports_clinic.subtype_patient_update")
+        external, internal = self.__get_track_internal_external({key for key in init_values.keys()})
+
+        if external:
+            return self.env.ref('bemade_sports_clinic.subtype_patient_external_update')
+        elif internal:
+            return self.env.ref('bemade_sports_clinic.subtype_patient_internal_update')
         else:
             return self.env.ref('mail.mt_note')
 
-
-
+    def _track_template(self, changes):
+        res = super()._track_template(changes)
+        external, internal = self.__get_track_internal_external({change for change in changes})
+        if external:
+            first_external_field = (external_tracking_fields & set(changes)).pop()
+            res[first_external_field] = (
+                self.env.ref('bemade_sports_clinic.mail_template_patient_status_update'), {
+                    'auto_delete_message': False,
+                    'email_layout_xmlid': 'mail.mail_notification_light',
+                }
+            )
+        if 'internal_notes' in changes:
+            res['team_info_notes'] = (
+                self.env.ref('bemade_sports_clinic.mail_template_patient_new_internal_note'), {
+                    'auto_delete_message': False,
+                    'email_layout_xmlid': 'mail.mail_notification_light',
+                }
+            )
+        return res

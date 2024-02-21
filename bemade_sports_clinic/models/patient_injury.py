@@ -2,6 +2,20 @@ from odoo import models, fields, api, _
 from datetime import datetime, date
 import pytz
 from odoo.exceptions import ValidationError
+from typing import Set, Tuple
+
+external_tracking_fields = {
+    'diagnosis',
+    'predicted_resolution_date',
+    'resolution_date',
+    'external_notes',
+}
+
+# Include only fields not already included in external_tracking_fields here
+internal_tracking_fields = {
+    'internal_notes',
+    'parental_consent',
+}
 
 
 class PatientInjury(models.Model):
@@ -112,9 +126,40 @@ class PatientInjury(models.Model):
             'context': self._context,
         }
 
+    @api.model
+    def __get_track_internal_external(self, params: Set[str]) -> Tuple[bool, bool]:
+        """ Based on the fields being changed, determine if the notification being sent is meant for external
+        or internal followers, or neither."""
+        external = bool(external_tracking_fields & params)
+        internal = external or bool(internal_tracking_fields & params)
+        return external, internal
+
     def _track_subtype(self, init_values):
-        if 'treatment_professional_ids' in init_values \
-                and len(init_values) == 1:
-            return self.env.ref('mail.mt_note')
+        external, internal = self.__get_track_internal_external({key for key in init_values.keys()})
+
+        if external:
+            return self.env.ref('bemade_sports_clinic.subtype_patient_injury_external_update')
+        elif internal:
+            return self.env.ref('bemade_sports_clinic.subtype_patient_injury_internal_update')
         else:
-            return self.env.ref('bemade_sports_clinic.subtype_patient_injury_update')
+            return self.env.ref('mail.mt_note')
+
+    def _track_template(self, changes):
+        res = super()._track_template(changes)
+        external, internal = self.__get_track_internal_external({change for change in changes})
+        if external:
+            first_external_field = (external_tracking_fields & set(changes)).pop()
+            res[first_external_field] = (
+                self.env.ref('bemade_sports_clinic.mail_template_patient_injury_status_update'), {
+                    'auto_delete_message': False,
+                    'email_layout_xmlid': 'mail.mail_notification_light',
+                }
+            )
+        if 'internal_notes' in changes:
+            res['internal_notes'] = (
+                self.env.ref('bemade_sports_clinic.mail_template_patient_injury_new_internal_note'), {
+                    'auto_delete_message': False,
+                    'email_layout_xmlid': 'mail.mail_notification_light',
+                }
+            )
+        return res
