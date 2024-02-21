@@ -1,7 +1,14 @@
+from odoo import models, fields, api
+
+
 class ProductProduct(models.Model):
     _inherit = 'product.product'
 
-    supplier_codes = fields.Char(compute='_compute_supplier_codes', string='Supplier Codes', store=False, search='_search_supplier_codes')
+    supplier_codes = fields.Char(
+        compute='_compute_supplier_codes',
+        string='Supplier Codes',
+        store=True,
+        search='_search_supplier_codes')
 
     @api.depends('variant_seller_ids', 'variant_seller_ids.product_code')
     def _compute_supplier_codes(self):
