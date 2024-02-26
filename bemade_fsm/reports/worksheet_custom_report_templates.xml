@@ -235,9 +235,8 @@
                             <thead>
                                 <tr>
                                     <th width="7%">Status</th>
-                                    <th width="30%">Task</th>
-                                    <th width="18%">Technician</th>
-                                    <th width="45%">Comments</th>
+                                    <th width="39%">Task</th>
+                                    <th width="54%">Comments</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -247,11 +246,6 @@
                                         <td>
                                             <span t-out="task.name"/>
                                         </td>
-                                        <td>
-                                            <t t-foreach="task.user_ids" t-as="user">
-                                                <span t-out="user.name + (', ' if not user_last else '')"/>
-                                            </t>
-                                        </td>
                                         <td t-out="task.description or ''"/>
                                     </tr>
                                     <tr class="mt-0 pt-0">
@@ -259,7 +253,6 @@
                                         <td>
                                             <t t-call="bemade_fsm.subtask_list"/>
                                         </td>
-                                        <td/>
                                         <td/>
                                     </tr>
                                 </t>
@@ -272,10 +265,10 @@
         </template>
         <template id="workorder_page_info_block">
             <h1>
-                <span name="work_order_number" t-out="doc.work_order_number"/>
+                <span name="work_order_number" t-out="doc.name"/>
             </h1>
-            <h4>
-                <span t-if="doc.sale_order_id and doc.sale_order_id.client_order_ref"
+            <h4 t-if="doc.sale_order_id and doc.sale_order_id.client_order_ref">
+                Purchase Order: <span
                       name="po_number"
                       t-out="doc.sale_order_id.client_order_ref"/>
             </h4>

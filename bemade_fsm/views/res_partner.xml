@@ -18,20 +18,20 @@
                     <field name="owned_equipment_ids" invisible="True"/>
                     <group>
                         <field name="site_contacts"
-                               attrs="{'invisible': [('company_type','=','person')]}"
+                               attrs="{'invisible': [('type','!=','delivery')]}"
                                context="{'tree_view_ref': 'bemade_fsm.fsm_contacts_view_tree'}"/>
                         <field name="work_order_contacts"
-                               attrs="{'invisible': [('company_type','=','person')]}"
+                               attrs="{'invisible': [('type','!=','delivery')]}"
                                context="{'tree_view_ref': 'bemade_fsm.fsm_contacts_view_tree'}"/>
-                        <field name="equipment_ids" attrs="{'invisible': [('company_type','=','person')]}"
+                        <field name="equipment_ids" attrs="{'invisible': [('type','!=','delivery')]}"
                                context="{'tree_view_ref': 'bemade_fsm.fsm_equipment_view_tree'}"
                                readonly="False"/>
-                        <field attrs="{'invisible': ['|', ('company_type','=','person'), ('owned_equipment_ids','=',False)]}"
+                        <field attrs="{'invisible': ['|', ('type','!=','delivery'), ('owned_equipment_ids','=',False)]}"
                                context="{'tree_view_ref': 'bemade_fsm.fsm_equipment_view_tree'}"
                                name="owned_equipment_ids"
                                readonly="True"/>
                         <field name="site_ids"
-                               attrs="{'invisible': [('company_type','=','company')]}">
+                               attrs="{'invisible': [('company_type','=','company'), ('type', '=', 'delivery')]}">
                             <tree editable="bottom">
                                 <field name="name" widget="res_partner_many2one"/>
                             </tree>

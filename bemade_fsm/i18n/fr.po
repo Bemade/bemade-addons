@@ -725,6 +725,11 @@ msgstr "Fin planifiée :"
 
 #. module: bemade_fsm
 #: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_info_block
+msgid "Purchase Order:"
+msgstr "Commande :"
+
+#. module: bemade_fsm
+#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_info_block
 msgid "Planned start:"
 msgstr "Début planifié :"
 
