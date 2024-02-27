@@ -72,4 +72,5 @@ class Equipment(models.Model):
     def _compute_complete_name(self):
         for rec in self:
             tag_part = "[%s] " % rec.pid_tag if rec.pid_tag else ""
-            rec.complete_name = tag_part + rec.name
+            name = rec.name or ""
+            rec.complete_name = tag_part + name

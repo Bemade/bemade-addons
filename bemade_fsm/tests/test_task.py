@@ -23,7 +23,8 @@ class TaskTest(BemadeFSMBaseTest):
         task.propagate_assignment = True
 
         task.write({
-            'user_ids': [Command.set([self.user.id])]
+            'user_ids': [Command.set([self.user.id])],
+            'propagate_assignment': True,
         })
 
         self.assertTrue(all([t.user_ids == self.user for t in task | task._get_all_subtasks()]))
@@ -31,7 +32,8 @@ class TaskTest(BemadeFSMBaseTest):
     def test_reassigning_task_doesnt_propagate_by_default(self):
         task = self.task
         task.write({
-            'user_ids': [Command.set([self.user.id])]
+            'user_ids': [Command.set([self.user.id])],
+            'propagate_assignment': True,
         })
 
         self.assertFalse(any([t.user_ids for t in task.child_ids.child_ids]))

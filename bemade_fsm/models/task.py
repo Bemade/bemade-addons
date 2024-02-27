@@ -94,7 +94,7 @@ class Task(models.Model):
                     pattern = re.compile(r"\d+$")
                     matches = map(lambda n: pattern.search(n), prev_seqs)
                     seq += max(map(lambda n: int(n.group(1)) if n else 0), matches)
-                rec.work_order_number = rec.sale_order_id.name.replace('SO', 'WO', 1) \
+                rec.work_order_number = rec.sale_order_id.name.replace('SO', 'SVR', 1) \
                                         + f"-{seq}"
         return res
 

@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-02 20:26+0000\n"
-"PO-Revision-Date: 2023-10-02 20:26+0000\n"
+"POT-Creation-Date: 2024-02-13 17:09+0000\n"
+"PO-Revision-Date: 2024-02-13 17:09+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: bemade_fsm
-#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_sale_order_table
+#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_sale_order_table_with_pricing_and_labour
 msgid ""
 "<span groups=\"account.group_show_line_subtotals_tax_excluded\">\n"
 "                                        Amount</span>\n"
@@ -24,9 +24,9 @@ msgid ""
 "                                        Total Price</span>"
 msgstr ""
 "<span groups=\"account.group_show_line_subtotals_tax_excluded\">\n"
-"                                        Prix</span>\n"
+"                                        Montant</span>\n"
 "                                    <span groups=\"account.group_show_line_subtotals_tax_included\">\n"
-"                                        Prix</span>"
+"                                        Prix Total</span>"
 
 #. module: bemade_fsm
 #: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_signature_block
@@ -40,12 +40,12 @@ msgstr ""
 "                    </span>"
 
 #. module: bemade_fsm
-#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_sale_order_table
+#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_sale_order_table_with_pricing_and_labour
 msgid "<span>Disc.%</span>"
-msgstr "<span>Escompte %</span>"
+msgstr "<span>% Escompte</span>"
 
 #. module: bemade_fsm
-#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_sale_order_table
+#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_sale_order_table_with_pricing_and_labour
 msgid ""
 "<strong class=\"mr16\">Section\n"
 "                                                Subtotal</strong>"
@@ -54,19 +54,19 @@ msgstr ""
 "                                                Sous-total</strong>"
 
 #. module: bemade_fsm
-#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_sale_order_table
+#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_sale_order_table_with_pricing_and_labour
 msgid "<strong>Taxes</strong>"
 msgstr ""
 
 #. module: bemade_fsm
-#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_sale_order_table
+#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_sale_order_table_with_pricing_and_labour
 msgid "<strong>Total</strong>"
 msgstr ""
 
 #. module: bemade_fsm
-#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_sale_order_table
+#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_sale_order_table_with_pricing_and_labour
 msgid "<strong>Untaxed amount</strong>"
-msgstr "<strong>Montant hors taxes</strong>"
+msgstr "<strong>Montant hors-taxes</strong>"
 
 #. module: bemade_fsm
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_equipment__message_needaction
@@ -79,19 +79,14 @@ msgid "Activities"
 msgstr "Activités"
 
 #. module: bemade_fsm
-#: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_equipment__activity_exception_decoration
-msgid "Activity Exception Decoration"
-msgstr ""
-
-#. module: bemade_fsm
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_equipment__activity_state
 msgid "Activity State"
-msgstr ""
+msgstr "État de l'activité"
 
 #. module: bemade_fsm
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_equipment__activity_type_icon
 msgid "Activity Type Icon"
-msgstr ""
+msgstr "Icône du type d'activité"
 
 #. module: bemade_fsm
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_equipment__tag_ids
@@ -119,14 +114,12 @@ msgstr "Bloqué"
 #. module: bemade_fsm
 #: model:ir.model.fields,field_description:bemade_fsm.field_project_task__allow_billable
 msgid "Can be billed"
-msgstr ""
+msgstr "Peut être facturé"
 
 #. module: bemade_fsm
-#: model:ir.model.fields,help:bemade_fsm.field_res_partner__is_site_contact
-#: model:ir.model.fields,help:bemade_fsm.field_res_users__is_site_contact
-msgid ""
-"Check if the contact is a site contact, otherwise it is a not in that list"
-msgstr ""
+#: model_terms:ir.ui.view,arch_db:bemade_fsm.project_task_from_template_wizard_view_form
+msgid "Cancel"
+msgstr "Annuler"
 
 #. module: bemade_fsm
 #: model:ir.model.fields,help:bemade_fsm.field_bemade_fsm_equipment__tag_ids
@@ -179,10 +172,36 @@ msgid "Contacts and Equipment"
 msgstr "Contacts et équipements"
 
 #. module: bemade_fsm
+#: model_terms:ir.ui.view,arch_db:bemade_fsm.project_task_from_template_wizard_view_form
+msgid "Create Task"
+msgstr "Créer une tâche"
+
+#. module: bemade_fsm
+#. openerp-web
+#: code:addons/bemade_fsm/static/src/xml/project_view_buttons.xml:0
+#: code:addons/bemade_fsm/static/src/xml/project_view_buttons.xml:0
+#, python-format
+msgid "Create Task from Template"
+msgstr "Créer une tâche à partir d'un gabarit"
+
+#. module: bemade_fsm
+#: model:ir.model,name:bemade_fsm.model_project_task_from_template_wizard
+msgid "Create Task from Template Wizard"
+msgstr "Assistant pour création de tâche à partir d'un gabarit"
+
+#. module: bemade_fsm
+#. openerp-web
+#: code:addons/bemade_fsm/static/src/xml/project_view_buttons.xml:0
+#, python-format
+msgid "Create from Template"
+msgstr "Créer à partir d'un gabarit"
+
+#. module: bemade_fsm
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_equipment__create_uid
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_equipment_tag__create_uid
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_equipment_type__create_uid
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_visit__create_uid
+#: model:ir.model.fields,field_description:bemade_fsm.field_project_task_from_template_wizard__create_uid
 #: model:ir.model.fields,field_description:bemade_fsm.field_project_task_template__create_uid
 msgid "Created by"
 msgstr "Créé par"
@@ -192,6 +211,7 @@ msgstr "Créé par"
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_equipment_tag__create_date
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_equipment_type__create_date
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_visit__create_date
+#: model:ir.model.fields,field_description:bemade_fsm.field_project_task_from_template_wizard__create_date
 #: model:ir.model.fields,field_description:bemade_fsm.field_project_task_template__create_date
 msgid "Created on"
 msgstr "Date de création"
@@ -205,6 +225,11 @@ msgstr "Client"
 #: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_info_block
 msgid "Customer:"
 msgstr "Client :"
+
+#. module: bemade_fsm
+#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_timesheet_entries
+msgid "Date"
+msgstr ""
 
 #. module: bemade_fsm
 #: model:ir.model.fields,field_description:bemade_fsm.field_project_task_template__assignees
@@ -247,7 +272,8 @@ msgid "Default tags for tasks created from this template."
 msgstr "Étiquettes par défaut pour tâches créées à partir de ce gabarit."
 
 #. module: bemade_fsm
-#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_sale_order_table
+#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_materials_table
+#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_sale_order_table_with_pricing_and_labour
 msgid "Delivered"
 msgstr "Livré"
 
@@ -255,7 +281,8 @@ msgstr "Livré"
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_equipment__description
 #: model:ir.model.fields,field_description:bemade_fsm.field_project_task_template__description
 #: model_terms:ir.ui.view,arch_db:bemade_fsm.task_template_form_view
-#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_sale_order_table
+#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_materials_table
+#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_sale_order_table_with_pricing_and_labour
 msgid "Description"
 msgstr ""
 
@@ -274,6 +301,7 @@ msgstr "Détails"
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_equipment_tag__display_name
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_equipment_type__display_name
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_visit__display_name
+#: model:ir.model.fields,field_description:bemade_fsm.field_project_task_from_template_wizard__display_name
 #: model:ir.model.fields,field_description:bemade_fsm.field_project_task_template__display_name
 msgid "Display Name"
 msgstr "Nom pour affichage"
@@ -286,7 +314,7 @@ msgstr "Employés assignés aux tâches créées à partir de ce gabarit."
 #. module: bemade_fsm
 #: model:ir.model.fields,field_description:bemade_fsm.field_project_task__planned_date_end
 msgid "End Date"
-msgstr ""
+msgstr "Date de fin"
 
 #. module: bemade_fsm
 #: model:ir.actions.act_window,name:bemade_fsm.action_window_equipment
@@ -302,8 +330,9 @@ msgstr "Équipement désservi"
 
 #. module: bemade_fsm
 #: model:ir.model.fields,field_description:bemade_fsm.field_res_partner__equipment_count
+#: model:ir.model.fields,field_description:bemade_fsm.field_res_users__equipment_count
 msgid "Equipment Count"
-msgstr ""
+msgstr "Nombre d'équipemenets"
 
 #. module: bemade_fsm
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_equipment__complete_name
@@ -313,7 +342,7 @@ msgstr "Nom d'équipement"
 #. module: bemade_fsm
 #: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_equipment_summary
 msgid "Equipment Serviced"
-msgstr "Équipement désservi"
+msgstr "Équipement(s) désservi"
 
 #. module: bemade_fsm
 #: model:ir.actions.act_window,name:bemade_fsm.action_window_equipment_tags
@@ -350,11 +379,6 @@ msgid "Exception"
 msgstr ""
 
 #. module: bemade_fsm
-#: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_equipment__failed_message_ids
-msgid "Failed Messages"
-msgstr "Messages échoués"
-
-#. module: bemade_fsm
 #: model_terms:ir.ui.view,arch_db:bemade_fsm.bemade_fsm_project_task_form_inherit
 #: model_terms:ir.ui.view,arch_db:bemade_fsm.partner_equipment_location_view_form
 #: model_terms:ir.ui.view,arch_db:bemade_fsm.sale_order_form_inherit
@@ -389,7 +413,7 @@ msgstr "Abonnés (partenaires)"
 #. module: bemade_fsm
 #: model:ir.model.fields,help:bemade_fsm.field_bemade_fsm_equipment__activity_type_icon
 msgid "Font awesome icon e.g. fa-tasks"
-msgstr ""
+msgstr "Icône Font Awesome p.ex. fa-tasks"
 
 #. module: bemade_fsm
 #: model:ir.model.fields,field_description:bemade_fsm.field_sale_order_line__is_fully_delivered
@@ -416,9 +440,10 @@ msgstr "A un message"
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_equipment_tag__id
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_equipment_type__id
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_visit__id
+#: model:ir.model.fields,field_description:bemade_fsm.field_project_task_from_template_wizard__id
 #: model:ir.model.fields,field_description:bemade_fsm.field_project_task_template__id
 msgid "ID"
-msgstr ""
+msgstr "Identifiant"
 
 #. module: bemade_fsm
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_equipment__activity_exception_icon
@@ -456,6 +481,8 @@ msgid ""
 "Indicates whether a line or all the lines in a section have been entirely "
 "delivered and invoiced."
 msgstr ""
+"Indique si une ligne ou toutes les lignes dans une section ont été "
+"entièrement livrées et facturées."
 
 #. module: bemade_fsm
 #: model:ir.model.fields,help:bemade_fsm.field_bemade_fsm_visit__is_completed
@@ -488,6 +515,12 @@ msgid "Invoiced"
 msgstr "Facturé"
 
 #. module: bemade_fsm
+#: model:ir.model.fields,field_description:bemade_fsm.field_sale_order__is_fsm
+#: model:ir.model.fields,field_description:bemade_fsm.field_sale_order_line__is_fsm
+msgid "Is FSM"
+msgstr "Est FSM"
+
+#. module: bemade_fsm
 #: model:ir.model.fields,field_description:bemade_fsm.field_sale_order_line__is_field_service
 msgid "Is Field Service"
 msgstr "Est un service terrain"
@@ -501,7 +534,7 @@ msgstr "Est un abonné"
 #: model:ir.model.fields,field_description:bemade_fsm.field_res_partner__is_site_contact
 #: model:ir.model.fields,field_description:bemade_fsm.field_res_users__is_site_contact
 msgid "Is a site contact"
-msgstr ""
+msgstr "Est un contact sur site"
 
 #. module: bemade_fsm
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_visit__label
@@ -513,6 +546,7 @@ msgstr "Nom"
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_equipment_tag____last_update
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_equipment_type____last_update
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_visit____last_update
+#: model:ir.model.fields,field_description:bemade_fsm.field_project_task_from_template_wizard____last_update
 #: model:ir.model.fields,field_description:bemade_fsm.field_project_task_template____last_update
 msgid "Last Modified on"
 msgstr "Dernière modification"
@@ -522,6 +556,7 @@ msgstr "Dernière modification"
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_equipment_tag__write_uid
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_equipment_type__write_uid
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_visit__write_uid
+#: model:ir.model.fields,field_description:bemade_fsm.field_project_task_from_template_wizard__write_uid
 #: model:ir.model.fields,field_description:bemade_fsm.field_project_task_template__write_uid
 msgid "Last Updated by"
 msgstr "Modifié par"
@@ -531,6 +566,7 @@ msgstr "Modifié par"
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_equipment_tag__write_date
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_equipment_type__write_date
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_visit__write_date
+#: model:ir.model.fields,field_description:bemade_fsm.field_project_task_from_template_wizard__write_date
 #: model:ir.model.fields,field_description:bemade_fsm.field_project_task_template__write_date
 msgid "Last Updated on"
 msgstr "Dernière mise à jour"
@@ -551,6 +587,11 @@ msgid "Mark as Delivered"
 msgstr "Marquer comme livré"
 
 #. module: bemade_fsm
+#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_materials_table
+msgid "Materials"
+msgstr "Matériaux"
+
+#. module: bemade_fsm
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_equipment__message_has_error
 msgid "Message Delivery error"
 msgstr "Erreur de livraison de message"
@@ -558,6 +599,15 @@ msgstr "Erreur de livraison de message"
 #. module: bemade_fsm
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_equipment__message_ids
 msgid "Messages"
+msgstr ""
+
+#. module: bemade_fsm
+#: code:addons/bemade_fsm/models/task.py:0
+#, python-format
+msgid ""
+"Modifying the planned start or end time on a task is not permitted when that"
+" task already has planning records associated to it. Please modify or delete"
+" the planning records instead."
 msgstr ""
 
 #. module: bemade_fsm
@@ -573,9 +623,14 @@ msgid "Name"
 msgstr "Nom"
 
 #. module: bemade_fsm
-#: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_equipment__activity_calendar_event_id
-msgid "Next Activity Calendar Event"
-msgstr "Évènement au calendrier de la prochaine activité"
+#: model:ir.model.fields,field_description:bemade_fsm.field_project_task_from_template_wizard__new_task_title
+msgid "New Task Title"
+msgstr "Nouveau titre de tâche"
+
+#. module: bemade_fsm
+#: model:ir.actions.act_window,name:bemade_fsm.action_new_task_from_template
+msgid "New Task from Template"
+msgstr "Nouvelle tâche à partir d'un gabarit"
 
 #. module: bemade_fsm
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_equipment__activity_date_deadline
@@ -618,7 +673,8 @@ msgid "Number of unread messages"
 msgstr "Nombre de messages non-lus"
 
 #. module: bemade_fsm
-#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_sale_order_table
+#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_materials_table
+#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_sale_order_table_with_pricing_and_labour
 msgid "Ordered"
 msgstr "Commandé"
 
@@ -636,6 +692,7 @@ msgid "P&ID Tag"
 msgstr "Tag P&ID"
 
 #. module: bemade_fsm
+#: model_terms:ir.ui.view,arch_db:bemade_fsm.project_task_view_search_fsm_inherit
 #: model_terms:ir.ui.view,arch_db:bemade_fsm.task_template_search_view
 msgid "Parent Task"
 msgstr "Tâche parent"
@@ -662,9 +719,24 @@ msgid "Plan as field service"
 msgstr "Planifier comme service terrain"
 
 #. module: bemade_fsm
+#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_info_block
+msgid "Planned end:"
+msgstr "Fin planifiée :"
+
+#. module: bemade_fsm
+#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_info_block
+msgid "Purchase Order:"
+msgstr "Commande :"
+
+#. module: bemade_fsm
+#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_info_block
+msgid "Planned start:"
+msgstr "Début planifié :"
+
+#. module: bemade_fsm
 #: model:ir.model,name:bemade_fsm.model_product_template
 msgid "Product Template"
-msgstr "Modèle de produit"
+msgstr "Modèle d'article"
 
 #. module: bemade_fsm
 #: model:ir.model.fields,help:bemade_fsm.field_product_product__is_field_service
@@ -677,9 +749,20 @@ msgstr ""
 " considéré lors de la planification."
 
 #. module: bemade_fsm
+#: model:ir.model.fields,field_description:bemade_fsm.field_project_task_from_template_wizard__project_id
 #: model_terms:ir.ui.view,arch_db:bemade_fsm.task_template_search_view
 msgid "Project"
 msgstr "Projet"
+
+#. module: bemade_fsm
+#: model:ir.model.fields,field_description:bemade_fsm.field_project_task__propagate_assignment
+msgid "Propagate Assignment"
+msgstr "Propager l'assignation"
+
+#. module: bemade_fsm
+#: model:ir.model.fields,help:bemade_fsm.field_project_task__propagate_assignment
+msgid "Propagate assignment of this task to all subtasks."
+msgstr "Propager l'assignation de cette tâche à toutes les sous-tâches."
 
 #. module: bemade_fsm
 #: model:project.task.type,legend_done:bemade_fsm.planning_project_stage_exception
@@ -717,12 +800,17 @@ msgstr "Section de commande de vente"
 #: model:ir.model,name:bemade_fsm.model_sale_order
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_visit__sale_order_id
 msgid "Sales Order"
-msgstr "Commande de ventes"
+msgstr "Bon de commande"
 
 #. module: bemade_fsm
 #: model:ir.model,name:bemade_fsm.model_sale_order_line
 msgid "Sales Order Line"
-msgstr "Ligne de commandes de vente"
+msgstr "Ligne de bons de commande"
+
+#. module: bemade_fsm
+#: model:ir.model.fields,field_description:bemade_fsm.field_sale_order_line__section_line_ids
+msgid "Section Line"
+msgstr "Section"
 
 #. module: bemade_fsm
 #: model:ir.model.fields,field_description:bemade_fsm.field_project_task_template__sequence
@@ -730,7 +818,9 @@ msgid "Sequence"
 msgstr "Séquence"
 
 #. module: bemade_fsm
+#: code:addons/bemade_fsm/models/sale_order.py:0
 #: model:ir.model.fields,field_description:bemade_fsm.field_bemade_fsm_visit__task_id
+#, python-format
 msgid "Service Visit"
 msgstr "Visite de service"
 
@@ -759,13 +849,14 @@ msgstr "Contacts sur site :"
 
 #. module: bemade_fsm
 #: model:ir.model.fields,field_description:bemade_fsm.field_res_partner__equipment_ids
+#: model:ir.model.fields,field_description:bemade_fsm.field_res_users__equipment_ids
 msgid "Site Equipment"
-msgstr ""
+msgstr "Équipement sur site"
 
 #. module: bemade_fsm
 #: model:ir.model.fields,field_description:bemade_fsm.field_project_task__planned_date_begin
 msgid "Start Date"
-msgstr ""
+msgstr "Date de début"
 
 #. module: bemade_fsm
 #: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_tasks_table
@@ -816,6 +907,7 @@ msgstr "Tâche"
 #: model:ir.actions.act_window,name:bemade_fsm.task_template_act_window
 #: model:ir.model.fields,field_description:bemade_fsm.field_product_product__task_template_id
 #: model:ir.model.fields,field_description:bemade_fsm.field_product_template__task_template_id
+#: model:ir.model.fields,field_description:bemade_fsm.field_project_task_from_template_wizard__task_template_id
 #: model_terms:ir.ui.view,arch_db:bemade_fsm.task_template_form_view
 #: model_terms:ir.ui.view,arch_db:bemade_fsm.task_template_search_view
 #: model_terms:ir.ui.view,arch_db:bemade_fsm.task_template_tree_view
@@ -835,13 +927,9 @@ msgstr "Nom de tâche"
 
 #. module: bemade_fsm
 #: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_tasks_table
+#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_timesheet_entries
 msgid "Technician"
 msgstr "Technicien·ne"
-
-#. module: bemade_fsm
-#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_info_block
-msgid "Technicians:"
-msgstr "Technicien·ne·s:"
 
 #. module: bemade_fsm
 #: model:ir.model,name:bemade_fsm.model_project_task_template
@@ -856,6 +944,11 @@ msgstr ""
 "de ventes."
 
 #. module: bemade_fsm
+#: model:ir.model.fields,help:bemade_fsm.field_project_task_from_template_wizard__project_id
+msgid "The project the new task should be created in."
+msgstr ""
+
+#. module: bemade_fsm
 #: model:ir.model.fields,help:bemade_fsm.field_bemade_fsm_visit__so_section_id
 msgid ""
 "The section on the sale order that represents the labour and parts for this "
@@ -865,13 +958,42 @@ msgstr ""
 "pièces pour cette visite"
 
 #. module: bemade_fsm
+#: model:ir.model.fields,help:bemade_fsm.field_project_task_from_template_wizard__task_template_id
+msgid "The template to use when creating the new task."
+msgstr "Le gabarit à utiliser en créant la nouvelle tâche."
+
+#. module: bemade_fsm
+#: model:ir.model.fields,help:bemade_fsm.field_project_task_from_template_wizard__new_task_title
+msgid ""
+"The title (name) for the newly created task. If left blank, the name of the "
+"template will be used."
+msgstr ""
+"Le titre (nom) de la nouvelle tâche. Si laissé vide, le nom du gabarit sera "
+"utilisé."
+
+#. module: bemade_fsm
 #: model_terms:ir.actions.act_window,help:bemade_fsm.task_template_act_window
 msgid "There are no task templates, click above to create one."
 msgstr ""
 "Il n'existe aucun gabarit de tâche, cliquez ci-dessus pour en créer une."
 
 #. module: bemade_fsm
-#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_sale_order_table
+#: code:addons/bemade_fsm/models/sale_order_line.py:0
+#, python-format
+msgid ""
+"This task has been created from: <a href=# data-oe-model=sale.order data-oe-"
+"id=%d>%s</a> (%s)"
+msgstr ""
+"Cette tâche a été créée à partir de : <a href=# data-oe-model=sale.order data-oe-"
+"id=%d>%s</a> (%s)"
+
+#. module: bemade_fsm
+#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_timesheet_entries
+msgid "Time"
+msgstr "Temps"
+
+#. module: bemade_fsm
+#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_sale_order_table_with_pricing_and_labour
 msgid "Time &amp; Material"
 msgstr "Temps &amp; matériaux"
 
@@ -886,7 +1008,7 @@ msgid "Type of the exception activity on record."
 msgstr "Type d'activité d'exception sur l'enregistrement."
 
 #. module: bemade_fsm
-#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_sale_order_table
+#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_sale_order_table_with_pricing_and_labour
 msgid "Unit Price"
 msgstr "Prix unitaire"
 
@@ -906,12 +1028,18 @@ msgid "View Task"
 msgstr "Voir tâche"
 
 #. module: bemade_fsm
+#: code:addons/bemade_fsm/models/sale_order_line.py:0
 #: model:ir.model.fields,field_description:bemade_fsm.field_project_task__visit_id
 #: model:ir.model.fields,field_description:bemade_fsm.field_sale_order__visit_ids
 #: model:ir.model.fields,field_description:bemade_fsm.field_sale_order_line__visit_id
-#: model:ir.model.fields,field_description:bemade_fsm.field_sale_order_line__visit_ids
+#, python-format
 msgid "Visit"
 msgstr "Visite"
+
+#. module: bemade_fsm
+#: model:ir.model.fields,field_description:bemade_fsm.field_sale_order_line__visit_ids
+msgid "Visits"
+msgstr "Visites"
 
 #. module: bemade_fsm
 #: model:project.task.type,name:bemade_fsm.planning_project_stage_waiting_parts
@@ -929,14 +1057,14 @@ msgid "Website communication history"
 msgstr "Historique de communication du site web"
 
 #. module: bemade_fsm
+#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_timesheet_entries
+msgid "Work Completed"
+msgstr "Travaux complétés"
+
+#. module: bemade_fsm
 #: model:project.task.type,name:bemade_fsm.planning_project_stage_work_completed
 msgid "Work Executed"
 msgstr "Travaux exécutés"
-
-#. module: bemade_fsm
-#: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_info_block
-msgid "Work Order"
-msgstr "Bon de travail"
 
 #. module: bemade_fsm
 #: model_terms:ir.ui.view,arch_db:bemade_fsm.workorder_page_info_block
@@ -944,8 +1072,7 @@ msgid ""
 "Work Order\n"
 "                        Contacts:"
 msgstr ""
-"Bon de travail\n"
-"                        Contacts :"
+"Contacts recevant le bon de travail :"
 
 #. module: bemade_fsm
 #: model:ir.model.fields,field_description:bemade_fsm.field_project_task__work_order_contacts
