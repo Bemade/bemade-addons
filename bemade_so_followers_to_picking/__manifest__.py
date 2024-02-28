@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Add SO Followers to Picking",
-    "version": "15.0.0.0.1",
+    "version": "17.0.0.0.1",
     "category": "Extra Tools",
     'summary': 'Add SO Followers to Picking',
     "description": """

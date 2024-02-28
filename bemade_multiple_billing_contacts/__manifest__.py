@@ -18,7 +18,7 @@
 #
 {
     'name': 'bemade_multiple_billing_contacts',
-    'version': '15.0.1.0.1',
+    'version': '17.0.1.0.1',
     'summary': 'Send invoices to multiple contacts by default.',
     'description': """By default, newly created invoices add all invoice addresses for the given partner as
                       followers on the invoice. If billing contacts are set manually on the sales order, those billing

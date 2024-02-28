@@ -18,7 +18,7 @@
 #
 {
     'name': 'Full Form from Dialog',
-    'version': '16.0.1.0.0',
+    'version': '17.0.1.0.0',
     'summary': 'Allows opening the full form view from the dialog (modal) view.',
     'description': 'Adds a button to open the full form view when viewing the form view for a record in a dialog.',
     'category': 'Technical',

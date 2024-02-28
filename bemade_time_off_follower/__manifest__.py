@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Time Off Alternative Follower",
-    "version": "15.0.0.0.1",
+    "version": "17.0.0.0.1",
     "category": "Extra Tools",
     'summary': 'Add Alternative Follower When Receiving Message While On Time Off',
     "description": """

@@ -1,6 +1,6 @@
 {
     'name': 'Temporary Change for Image Full Size',
-    'version': '16.0.0.0.0',
+    'version': '17.0.0.0.0',
     'category': 'Extra Tools',
     'summary': 'Temporary Change for Image Full Size',
     'description': """
