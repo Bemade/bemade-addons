@@ -15,7 +15,7 @@
     ],
     "data": [
         # BV : FOR MIGRATION
-        # 'views/stock_warehouse_orderpoint.xml',
+        'views/stock_warehouse_orderpoint.xml',
     ],
     "auto_install": False,
     "installable": True,
