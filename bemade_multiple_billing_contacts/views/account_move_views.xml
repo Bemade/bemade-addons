@@ -8,8 +8,7 @@
             <field name="arch" type="xml">
                 <field name="partner_id" position="after">
                     <field name="billing_contacts"
-                           attrs="{'invisible': [('move_type', 'not in',
-                                                 ('out_invoice', 'out_refund'))]}"
+                           invisible="move_type not in ('out_invoice', 'out_refund')"
                            widget="many2many_checkboxes"
                            domain="['|', '|', ('id', 'in', billing_contacts),
                                               ('parent_id', '=', partner_id),
