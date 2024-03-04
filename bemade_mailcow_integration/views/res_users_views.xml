@@ -6,7 +6,7 @@
         <field name="inherit_id" ref="base.view_users_form"/>
         <field name="arch" type="xml">
             <field name="email" position="before">
-                <div id="mailcow_mailcow" attrs="{'invisible': [('id', '!=', False)]}">
+                <div id="mailcow_mailcow" invisible="id != False">
                     <label for="mailcow_mailbox" string="Create mailbox on Mailcow"/>
                     <field name="mailcow_mailbox"/>
                 </div>

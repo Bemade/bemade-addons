@@ -34,8 +34,8 @@
     ],
     "assets": {
         "web.assets_backend": [
-            "bemade_mailcow_integration/static/src/js/mailcow.js",
-            "bemade_mailcow_integration/static/src/xml/mailcow_templates.xml",
+            # "bemade_mailcow_integration/static/src/js/mailcow.js",
+            # "bemade_mailcow_integration/static/src/xml/mailcow_templates.xml",
         ],
     },
     'installable': True,
