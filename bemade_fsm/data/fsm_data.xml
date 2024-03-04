@@ -4,7 +4,8 @@
         <record id="planning_project_stage_waiting_parts" model="project.task.type">
             <field name="sequence">2</field>
             <field name="name">Waiting on Parts</field>
-            <field name="legend_blocked">Blocked</field>
+<!-- BV: legend_blocked n'existe plus -->
+<!-- BV:            <field name="legend_blocked">Blocked</field>-->
             <field name="fold" eval="False"/>
 <!--            <field name="is_closed" eval="False"/>-->
             <field name="project_ids" eval="[(4,ref('industry_fsm.fsm_project'))]"/>
@@ -12,7 +13,7 @@
         <record id="planning_project_stage_work_completed" model="project.task.type">
             <field name="sequence">15</field>
             <field name="name">Work Executed</field>
-            <field name="legend_blocked">Blocked</field>
+<!-- BV:           <field name="legend_blocked">Blocked</field>-->
             <field name="fold" eval="False"/>
 <!--            <field name="is_closed" eval="False"/>-->
             <field name="project_ids" eval="[(4,ref('industry_fsm.fsm_project'))]"/>
@@ -20,7 +21,7 @@
         <record id="planning_project_stage_exception" model="project.task.type">
             <field name="sequence">19</field>
             <field name="name">Exception</field>
-            <field name="legend_blocked">Blocked</field>
+<!-- BV:           <field name="legend_blocked">Blocked</field>-->
             <field name="fold" eval="False"/>
 <!--            <field name="is_closed" eval="False"/>-->
             <field name="project_ids" eval="[(4,ref('industry_fsm.fsm_project'))]"/>
@@ -35,8 +36,9 @@
         <record id="industry_fsm.fsm_project" model="project.project">
             <field name="type_ids"
                    eval="[(4, ref('industry_fsm.planning_project_stage_0')), (4, ref('industry_fsm.planning_project_stage_1')), (4, ref('industry_fsm.planning_project_stage_2')), (4, ref('planning_project_stage_work_completed')), (4, ref('industry_fsm.planning_project_stage_3')), (4, ref('industry_fsm.planning_project_stage_4'))]"/>
-            <field name="allow_subtasks"
-                   eval="True"/>
+<!-- BV: allow_subtask n'existe plus-->
+<!--            <field name="allow_subtasks"-->
+<!--                   eval="True"/>-->
         </record>
         <function model="ir.model.data" name="write">
             <function name="search" model="ir.model.data">

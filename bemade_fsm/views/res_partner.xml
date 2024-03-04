@@ -17,21 +17,22 @@
                 <page name="field_service" string="Field Service">
                     <field name="owned_equipment_ids" invisible="True"/>
                     <group>
-                        <field name="site_contacts"
-                               attrs="{'invisible': [('company_type','=','person')]}"
-                               context="{'tree_view_ref': 'bemade_fsm.fsm_contacts_view_tree'}"/>
-                        <field name="work_order_contacts"
-                               attrs="{'invisible': [('company_type','=','person')]}"
-                               context="{'tree_view_ref': 'bemade_fsm.fsm_contacts_view_tree'}"/>
-                        <field name="equipment_ids" attrs="{'invisible': [('company_type','=','person')]}"
-                               context="{'tree_view_ref': 'bemade_fsm.fsm_equipment_view_tree'}"
-                               readonly="False"/>
-                        <field attrs="{'invisible': ['|', ('company_type','=','person'), ('owned_equipment_ids','=',False)]}"
-                               context="{'tree_view_ref': 'bemade_fsm.fsm_equipment_view_tree'}"
-                               name="owned_equipment_ids"
-                               readonly="True"/>
-                        <field name="site_ids"
-                               attrs="{'invisible': [('company_type','=','company')]}">
+                        <field  name="site_contacts"
+                                invisible="company_type == 'person'"
+                                context="{'tree_view_ref': 'bemade_fsm.fsm_contacts_view_tree'}"/>
+                        <field  name="work_order_contacts"
+                                invisible="company_type == 'person'"
+                                context="{'tree_view_ref': 'bemade_fsm.fsm_contacts_view_tree'}"/>
+                        <field  name="equipment_ids"
+                                invisible="company_type == 'person'"
+                                context="{'tree_view_ref': 'bemade_fsm.fsm_equipment_view_tree'}"
+                                readonly="False"/>
+                        <field  name="owned_equipment_ids"
+                                invisible="company_type == 'person' or owned_equipment_ids == False"
+                                context="{'tree_view_ref': 'bemade_fsm.fsm_equipment_view_tree'}"
+                                readonly="True"/>
+                        <field  name="site_ids"
+                                invisible="company_type == 'company'">
                             <tree editable="bottom">
                                 <field name="name" widget="res_partner_many2one"/>
                             </tree>

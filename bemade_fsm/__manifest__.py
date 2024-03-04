@@ -52,7 +52,8 @@
         'views/menus.xml',
         'views/task_views.xml',
         'views/sale_order_views.xml',
-        'reports/worksheet_custom_report_templates.xml',
+        # BV: need to readd this file
+        # 'reports/worksheet_custom_report_templates.xml',
         'reports/worksheet_custom_reports.xml',
         'wizard/new_task_from_template.xml',
     ],
@@ -66,8 +67,9 @@
             'bemade_fsm/static/src/scss/bemade_fsm.scss'
         ],
         'web.assets_backend': [
-            'bemade_fsm/static/src/js/kanban_view.js',
-            'bemade_fsm/static/src/js/list_view.js',
+            #  BV: need to readd these files
+            # 'bemade_fsm/static/src/js/kanban_view.js',
+            # 'bemade_fsm/static/src/js/list_view.js',
         ],
         'web.assets_qweb': [
             'bemade_fsm/static/src/xml/project_view_buttons.xml',
