@@ -5,12 +5,14 @@
     "category": "Extra Tools",
     'summary': 'Force Partner to be a company on SO and PO',
     "description": """
-Force Partner to be a company on SO and PO
-""",
+    Force Partner to be a company on SO and PO
+    """,
     "author": "Bemade",
     'website': 'https://www.bemade.org',
     "depends": [
-        'stock','sale',
+        'purchase',
+        'stock',
+        'sale',
     ],
     "data": [
         'views/sale_order.xml',
