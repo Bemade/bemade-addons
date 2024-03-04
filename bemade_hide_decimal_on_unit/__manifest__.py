@@ -14,9 +14,8 @@
         'purchase'
     ],
     "data": [
-        # BV : FOR MIGRATION
-        # 'views/sale.xml',
-        # 'views/purchase.xml'
+        'views/sale.xml',
+        'views/purchase.xml'
     ],
     "auto_install": False,
     "installable": True,
