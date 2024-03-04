@@ -29,7 +29,7 @@
     'data': [],
     'assets': {
         'web.assets_backend': [
-            'bemade_full_formview_from_modal/static/src/**/*',
+            # 'bemade_full_formview_from_modal/static/src/**/*',
         ],
     },
     'installable': True,
