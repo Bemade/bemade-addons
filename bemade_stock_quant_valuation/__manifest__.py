@@ -19,14 +19,20 @@
 {
     'name': 'Stock Quant Valuation',
     'version': '17.0.1.0.0',
-    'summary': 'Adds valuation to stock quant for better inventory adjustment management',
+    'summary': """
+    Adds valuation to stock quant for better inventory adjustment management'
+    """,
     'description': '',
     'category': 'Inventory',
     'author': 'Bemade Inc.',
     'website': 'https://www.bemade.org',
     'license': 'OPL-1',
-    'depends': ['stock_account'],
-    'data': ['views/stock_account_views.xml'],
+    'depends': [
+        'stock_account'
+    ],
+    'data': [
+        'views/stock_account_views.xml'
+    ],
     'demo': [],
     'installable': True,
     'auto_install': False,
