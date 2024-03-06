@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Héritage de la vue pour ajouter la devise à côté du total -->
+        <template id="document_tax_totals_inherit" inherit_id="account.document_tax_totals">
+            <xpath expr="//tr[contains(@class, 'o_total')]/td[1]/strong" position="after">
+                <!-- Add the currency symbol in parentheses next to "Total" -->
+                <t t-if="tax_totals['currency_symbol']">
+                    <span> (<t t-esc="tax_totals['currency_symbol']"/>)</span>
+                </t>
+            </xpath>
+        </template>
+    </data>
+</odoo>
