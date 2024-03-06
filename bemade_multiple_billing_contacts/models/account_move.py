@@ -4,11 +4,13 @@ from odoo import models, fields, api
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
-    billing_contacts = fields.Many2many(comodel_name='res.partner',
-                                        string="Billing Contacts",
-                                        compute='_compute_billing_contacts',
-                                        inverse='_inverse_billing_contacts',
-                                        store=True,)
+    billing_contacts = fields.Many2many(
+        comodel_name='res.partner',
+        string="Billing Contacts",
+        compute='_compute_billing_contacts',
+        inverse='_inverse_billing_contacts',
+        store=True
+    )
 
     @api.depends('line_ids.sale_line_ids.order_id', 'partner_id')
     def _compute_billing_contacts(self):

@@ -34,6 +34,7 @@
     ],
     "assets": {
         "web.assets_backend": [
+            # BV: Commented out the following lines to avoid errors when installing the module.
             # "bemade_mailcow_integration/static/src/js/mailcow.js",
             # "bemade_mailcow_integration/static/src/xml/mailcow_templates.xml",
         ],
