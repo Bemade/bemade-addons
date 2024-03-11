@@ -26,9 +26,9 @@
 
     # always loaded
     'data': [
-        # 'security/ir.model.access.csv',
+        'security/ir.model.access.csv',
         'views/sale_order_views.xml',
-        'wizard/sale_order_alternative_views.xml',
+        'wizard/sale_order_duplication_wizard_view.xml',
     ],
     # only loaded in demonstration mode
     'demo': [

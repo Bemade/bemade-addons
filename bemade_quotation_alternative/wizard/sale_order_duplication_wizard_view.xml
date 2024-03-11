@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="sale_order_duplication_wizard_form_view" model="ir.ui.view">
+            <field name="name">sale.order.duplication.wizard.form</field>
+            <field name="model">sale.order.duplication.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Duplicate Sale Order">
+                    <group>
+                        <group>
+                            <field name="original_order_id" invisible="1"/>
+                            <field name="new_quot" invisible="1"/>
+                            <field name="purpose"/>
+                        </group>
+                        <group>
+                            <field name="duplicate_all_lines"/>
+                        </group>
+                    </group>
+                    <field name="lines_to_duplicate" attrs="{'invisible': [('duplicate_all_lines', '=', True)]}">
+                        <tree editable="bottom">
+                            <field name="to_duplicate"/>
+                            <field name="sale_order_line_id" options="{'no_create': True}"/>
+                        </tree>
+                    </field>
+                    <field name="note"/>
+                    <footer>
+                        <button string="Duplicate" type="object" name="action_duplicate_order" class="btn-primary"/>
+                        <button string="Cancel" class="btn-default" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="sale_order_duplication_wizard_action" model="ir.actions.act_window">
+            <field name="name">Duplicate Sale Order</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">sale.order.duplication.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+    </data>
+</odoo>
