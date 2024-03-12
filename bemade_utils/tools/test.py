@@ -14,7 +14,7 @@ def patch_test(original_method):
 
         # Extract module and class names
         module_name = original_method.__module__
-        class_name = original_method.__qualname__.split('.')[0]  # Assuming the method is always in a class
+        class_name = original_method.__qualname__.split('.')[0]
 
         # Import the module
         module = importlib.import_module(module_name)
