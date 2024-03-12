@@ -11,7 +11,6 @@ class TestA(TransactionCase):
         self.assertFalse(True)
 
 
-class TestB(TransactionCase):
-    @patch_test(TestA.test_method_a)
-    def test_redefining_test(self):
-        self.assertTrue(True)
+@patch_test(TestA.test_method_a)
+def test_redefining_test(self):
+    self.assertTrue(True)
