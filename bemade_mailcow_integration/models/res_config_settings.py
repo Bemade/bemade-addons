@@ -1,4 +1,6 @@
-from odoo import fields, models
+from odoo import fields, models, api, _
+from odoo.exceptions import ValidationError
+
 
 class ResConfigSettings(models.TransientModel):
     _inherit = 'res.config.settings'
@@ -23,3 +25,8 @@ class ResConfigSettings(models.TransientModel):
         string='Create Mailboxes in Mailcow',
         help='Auto create Mailboxes in Mailcow on creation in Odoo',
         config_parameter='mailcow.create_mailbox')
+
+    @api.constrains('mailcow_sync_alias', 'mailcow_auto_create')
+    def require_api_key_and_base_url_to_sync(self):
+        if not self.mailcow_api_key and self.mailcow_base_url:
+            raise ValidationError(_("You must set a base URL and API key to enable synchronization."))
