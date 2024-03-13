@@ -1,5 +1,5 @@
 from odoo.tests import TransactionCase
-from addons.bemade_utils.tools.test import patch_test
+from addons.bemade_utils import patch_test
 
 
 class TestA(TransactionCase):
