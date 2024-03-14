@@ -10,7 +10,7 @@
     "author": "Bemade",
     'website': 'https://www.bemade.org',
     "depends": [
-        'fetchmail',
+        'mail',
     ],
     "data": [
     ],
