@@ -361,8 +361,8 @@
         </template>
         <!-- Make the front-end "Sign" page show our new template -->
         <template id="portal_my_worksheet"
-                  inherit_id="industry_fsm_report.portal_my_worksheet">
-            <xpath expr="//div[@t-call='industry_fsm_report.worksheet_custom_page']"
+                  inherit_id="industry_fsm.portal_my_worksheet">
+            <xpath expr="//div[@t-call='industry_fsm.worksheet_custom_page']"
                    position="replace">
                 <div t-call="bemade_fsm.work_order_page"/>
             </xpath>
