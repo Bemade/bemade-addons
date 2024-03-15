@@ -51,7 +51,7 @@ class SportsTeam(models.Model):
 
 class TeamStaff(models.Model):
     _name = "sports.team.staff"
-    _description = "Relationship between staff members and their teams."
+    _description = "Sports Team Staff"
 
     sequence = fields.Integer()
     team_id = fields.Many2one(comodel_name='sports.team', string='Team', required=True)

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="sports_patient_injury_view_form" model="ir.ui.view">
+        <field name="name">sports.patient.injury.view.form</field>
+        <field name="model">sports.patient.injury</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="stage" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            Injury Details for
+                            <field name="patient_name" class="oe_inline"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group col="2">
+                            <field name="patient_id" invisible="1"/>
+                            <span colspan="2">
+                                <label for="injury_date"/>
+                                <field name="injury_date" widget="date" class="oe_inline"/>
+                                <field name="injury_date_na" class="oe_inline"/>
+                                <label for="injury_date_na"/>
+                            </span>
+                            <field name="diagnosis"/>
+                            <field name="predicted_resolution_date"/>
+                            <field name="resolution_date"/>
+                        </group>
+                        <group>
+                            <field name="parental_consent"/>
+                            <field name="internal_notes" widget="html"/>
+                            <field name="external_notes" widget="html"/>
+                            <field name="treatment_professional_ids"
+                                   widget="many2many_tags_avatar"/>
+                        </group>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+    <record id="sports_patient_injury_view_tree" model="ir.ui.view">
+        <field name="name">sports.patient.injury.view.tree</field>
+        <field name="model">sports.patient.injury</field>
+        <field name="arch" type="xml">
+            <tree string="Patient Injury History" editable="bottom"
+                  multi_edit="True">
+                <field name="patient_id" invisible="1"/>
+                <field name="injury_date" widget="date"/>
+                <field name="diagnosis"/>
+                <field name="predicted_resolution_date" widget="date"/>
+                <field name="resolution_date" widget="date"/>
+                <field name="treatment_professional_ids"
+                       widget="many2many_avatar_user"/>
+                <field name="activity_ids" widget="list_activity"/>
+                <field name="parental_consent"/>
+                <button name="action_view_injury_form" type="object"
+                        title="Details" string="Details"
+                        context="{'default_patient_id': patient_id}"/>
+            </tree>
+        </field>
+    </record>
+</odoo>

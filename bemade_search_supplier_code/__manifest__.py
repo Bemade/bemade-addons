@@ -1,5 +1,4 @@
 {
-    'name': 'Search Supplier Code',
     'version': '17.0.0.1',
     'summary': 'Search for products by supplier code',
     'sequence': 10,

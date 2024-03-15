@@ -19,3 +19,7 @@ class TestEquipment(BemadeFSMBaseTest):
         partner_company.write({'equipment_ids': [Command.set([])]})
         with self.assertRaises(MissingError):
             equipment.name
+
+    def test_compute_complete_name_when_name_blank(self):
+        equipment = self._generate_equipment(name=False)
+        complete_name = equipment.complete_name

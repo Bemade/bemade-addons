@@ -52,17 +52,16 @@
         'views/menus.xml',
         'views/task_views.xml',
         'views/sale_order_views.xml',
+<<<<<<< HEAD
         # BV: need to readd this file
         # 'reports/worksheet_custom_report_templates.xml',
+=======
+        'reports/worksheet_custom_report_templates.xml',
+>>>>>>> origin/16.0
         'reports/worksheet_custom_reports.xml',
         'wizard/new_task_from_template.xml',
     ],
     'assets': {
-        'web.assets_tests': [
-            'bemade_fsm/static/tests/tours/task_template_tour.js',
-            'bemade_fsm/static/tests/tours/equipment_tour.js',
-            'bemade_fsm/static/tests/tours/sale_order_tour.js',
-        ],
         'web.report_assets_common': [
             'bemade_fsm/static/src/scss/bemade_fsm.scss'
         ],
