@@ -31,8 +31,11 @@
                 'account',
                 'bemade_partner_root_ancestor',
                 ],
-    'data': ['views/account_move_views.xml',
-             'views/res_partner_views.xml'],
+    'data': [
+        'views/account_move_views.xml',
+        'views/res_partner_views.xml',
+        'views/sale_order_views.xml',
+    ],
     'demo': [],
     'installable': True,
     'auto_install': False,
