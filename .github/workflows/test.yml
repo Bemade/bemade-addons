@@ -6,7 +6,7 @@ on:
       - "17.0-test-ci"
   push:
     branches:
-      -"17.0-test-ci"
+      - "17.0-test-ci"
 
 jobs:
   test:
