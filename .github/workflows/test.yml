@@ -11,7 +11,8 @@ on:
 jobs:
   test:
     runs-on: ubuntu-22.04
-    container: ghcr.io/bemade/test-odoo:latest
+    container:
+      image: ghcr.io/bemade/test-odoo:latest
     name: Test Repo Addons With Odoo
     strategy:
       fail-fast: false
