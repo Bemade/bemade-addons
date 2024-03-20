@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          persist-credientials: false
+          submodules: true
       - name: Run Tests
         run: run_tests
 
