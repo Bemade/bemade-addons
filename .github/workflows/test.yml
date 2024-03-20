@@ -27,8 +27,6 @@ jobs:
           - 5432:5432
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: true
       - name: Run Tests
         run: run_tests
 
