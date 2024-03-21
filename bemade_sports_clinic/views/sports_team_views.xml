@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <record id="teams_view_search" model="ir.ui.view">
         <field name="name">teams.view.search</field>
@@ -9,21 +9,16 @@
                 <field name="parent_id" string="Parent Organization"/>
                 <field name="head_coach_id"/>
                 <field name="head_therapist_id"/>
-                <filter name="groupby_parent_id"
-                        context="{'group_by': 'parent_id'}"/>
-                <filter name="groupby_head_coach_id"
-                        context="{'group_by': 'head_coach_id'}"/>
-                <filter name="groupby_head_therapist_id"
-                        context="{'group_by': 'head_therapist_id'}"/>
-            </search>
-        </field>
+                <filter context="{'group_by': 'parent_id'}" name="groupby_parent_id"/>
+                <filter context="{'group_by': 'head_coach_id'}" name="groupby_head_coach_id"/>
+                <filter context="{'group_by': 'head_therapist_id'}" name="groupby_head_therapist_id"/>
+            </search></field>
     </record>
     <record id="sports_team_view_kanban" model="ir.ui.view">
         <field name="name">sports.team.view.kanban</field>
         <field name="model">sports.team</field>
         <field name="arch" type="xml">
-            <kanban default_group_by="parent_id" default_order="name"
-                    group_create="false" group_delete="false" archivable="false">
+            <kanban archivable="false" default_group_by="parent_id" default_order="name" group_create="false" group_delete="false">
                 <field name="name"/>
                 <field name="parent_id"/>
                 <field name="head_coach_name"/>
@@ -35,7 +30,9 @@
                         <div t-attf-class="oe_kanban_content oe_kanban_global_click">
                             <div>
                                 <strong class="o_kanban_record_title">
-                                    <span><field name="name"/></span>
+                                    <span>
+                                        <field name="name"/>
+                                    </span>
                                 </strong>
                             </div>
                             <div>
@@ -44,16 +41,21 @@
                                 </span>
                             </div>
                             <div>
-                                <span>Head coach: <field
-                                        name="head_coach_name"/></span>
+                                <span>
+                                    Head coach:
+                                    <field name="head_coach_name"/>
+                                </span>
                             </div>
                             <div>
-                                <span>Head therapist: <field
-                                        name="head_therapist_name"/></span>
+                                <span>
+                                    Head therapist:
+                                    <field name="head_therapist_name"/>
+                                </span>
                             </div>
                             <div class="o_kanban_record_bottom">
                                 <div class="oe_kanban_bottom_left">
-                                    <span class="text-success">Healthy:
+                                    <span class="text-success">
+                                        Healthy:
                                         <field name="healthy_count"/>
                                     </span>
                                 </div>
@@ -67,8 +69,7 @@
                         </div>
                     </t>
                 </templates>
-            </kanban>
-        </field>
+            </kanban></field>
     </record>
     <record id="sports_team_view_list" model="ir.ui.view">
         <field name="name">sports.team.view.list</field>
@@ -81,19 +82,22 @@
                 <field name="head_therapist_id"/>
                 <field name="player_count"/>
                 <field name="injured_count"/>
-            </tree>
-        </field>
+            </tree></field>
     </record>
     <record id="sports_team_view_form" model="ir.ui.view">
         <field name="name">sports.team.view.form</field>
         <field name="model">sports.team</field>
         <field name="arch" type="xml">
             <form>
-                <field name="id" invisible="1"/>
-                <header></header>
+                <field invisible="1" name="id"/>
+                <header/>
                 <sheet>
-                    <div class="oe_button_box"></div>
-                    <div class="oe_title"><h1><field name="name"/></h1></div>
+                    <div class="oe_button_box"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
                     <group string="Team Information">
                         <group>
                             <field name="parent_id"/>
@@ -101,36 +105,22 @@
                             <field name="injured_count"/>
                         </group>
                         <group>
-                            <field name="staff_ids">
-                                <tree>
+                            <field name="staff_ids"><tree>
                                     <field name="sequence" widget="handle"/>
                                     <field name="name"/>
                                     <field name="role"/>
                                     <field name="mobile" widget="phone"/>
-                                    <field name="has_portal_access" invisible="1"/>
-                                    <field name="partner_id" invisible="1"/>
-                                    <button name="action_grant_portal_access"
-                                            type="object" icon="fa-user-plus"
-                                            class="oe_highlight"
-                                            attrs="{'invisible': [('has_portal_access', '=', True)]}"
-                                            title="Grant Portal Access"
-                                            groups="bemade_sports_clinic.group_sports_clinic_admin,base.group_system"/>
-                                    <button name="action_revoke_portal_access" type="object" icon="fa-ban"
-                                            class="oe_highlight"
-                                            attrs="{'invisible': [('has_portal_access', '=', False)]}"
-                                            title="Revoke Portal Access"
-                                            groups="bemade_sports_clinic.group_sports_clinic_admin,base.group_system"/>
-
-                                </tree>
-                            </field>
+                                    <field invisible="1" name="has_portal_access"/>
+                                    <field invisible="1" name="partner_id"/>
+                                    <button class="oe_highlight" groups="bemade_sports_clinic.group_sports_clinic_admin,base.group_system" icon="fa-user-plus" invisible="has_portal_access == True" name="action_grant_portal_access" title="Grant Portal Access" type="object"/>
+                                    <button class="oe_highlight" groups="bemade_sports_clinic.group_sports_clinic_admin,base.group_system" icon="fa-ban" invisible="has_portal_access == False" name="action_revoke_portal_access" title="Revoke Portal Access" type="object"/>
+                                </tree></field>
                         </group>
                     </group>
                     <separator string="Players"/>
-                    <field name="patient_ids" nolabel="1"
-                           context="{'tree_view_ref': 'bemade_sports_clinic.sports_patient_view_list_embedded'}"/>
+                    <field context="{'tree_view_ref': 'bemade_sports_clinic.sports_patient_view_list_embedded'}" name="patient_ids" nolabel="1"/>
                 </sheet>
-            </form>
-        </field>
+            </form></field>
     </record>
     <record id="sports_team_staff_view_form" model="ir.ui.view">
         <field name="name">sports.team.staff.view.form</field>
@@ -150,7 +140,6 @@
                         </group>
                     </group>
                 </sheet>
-            </form>
-        </field>
+            </form></field>
     </record>
 </odoo>
