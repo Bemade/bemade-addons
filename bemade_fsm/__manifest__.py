@@ -52,12 +52,7 @@
         'views/menus.xml',
         'views/task_views.xml',
         'views/sale_order_views.xml',
-<<<<<<< HEAD
-        # BV: need to readd this file
-        # 'reports/worksheet_custom_report_templates.xml',
-=======
         'reports/worksheet_custom_report_templates.xml',
->>>>>>> origin/16.0
         'reports/worksheet_custom_reports.xml',
         'wizard/new_task_from_template.xml',
     ],
