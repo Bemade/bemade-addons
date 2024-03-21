@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-
         <record id="account_followup_followup_line_form_inherit" model="ir.ui.view">
             <field name="name">account_credit_hold.account_followup_line.form</field>
             <field name="model">account_followup.followup.line</field>
@@ -9,44 +8,26 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='send_email']" position="before">
                     <field name="account_hold"/>
-                </xpath>
-            </field>
+                </xpath></field>
         </record>
-
         <record id="customer_statements_form_view_inherit" model="ir.ui.view">
             <field name="name">customer.statements.form.view.inherit</field>
             <field name="model">res.partner</field>
             <field name="inherit_id" ref="account_followup.customer_statements_form_view"/>
             <field name="arch" type="xml">
                 <xpath expr="//button[last()]" position="after">
-                    <field name="hold_bg" invisible="1"/>
-                    <button
-                            string="Credit Hold"
-                            type="object"
-                            name="action_credit_hold"
-                            class="button btn-secondary"
-                            attrs="{'invisible': [('hold_bg', '=', True)]}"
-                    />
-                    <button
-                            string="Lift Credit Hold"
-                            type="object"
-                            name="action_lift_credit_hold"
-                            class="button btn-secondary"
-                            attrs="{'invisible': [('hold_bg', '=', False)]}"
-                    />
-                </xpath>
-            </field>
+                    <field invisible="1" name="hold_bg"/>
+                    <button class="button btn-secondary" invisible="hold_bg == True" name="action_credit_hold" string="Credit Hold" type="object"/>
+                    <button class="button btn-secondary" invisible="hold_bg == False" name="action_lift_credit_hold" string="Lift Credit Hold" type="object"/>
+                </xpath></field>
         </record>
-
         <record id="action_credit_hold" model="ir.actions.server">
             <field name="name">action_credit_hold</field>
             <field name="model_id" ref="base.model_res_partner"/>
             <field name="binding_model_id" ref="base.model_res_partner"/>
             <field name="binding_view_types">list,form</field>
             <field name="state">code</field>
-            <field name="code">
-                records.action_credit_hold()
-            </field>
+            <field name="code">records.action_credit_hold()</field>
         </record>
     </data>
 </odoo>
