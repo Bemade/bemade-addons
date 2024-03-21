@@ -23,12 +23,12 @@
         # Commented for migration to 17, raises error on update
         'data/res_partner_relation_type.xml'
     ],
-    "assets": {
-        "web.assets_backend": [
-            "bemade_odoo_partner_scrapper/static/src/js/odoo_scrapper.js",
-            "bemade_odoo_partner_scrapper/static/src/xml/odoo_scrapper_templates.xml",
-        ],
-    },
+    # "assets": {
+    #     "web.assets_backend": [
+    #         "bemade_odoo_partner_scrapper/static/src/js/odoo_scrapper.js",
+    #         "bemade_odoo_partner_scrapper/static/src/xml/odoo_scrapper_templates.xml",
+    #     ],
+    # },
     'demo': [],
     'installable': True,
     'application': False,

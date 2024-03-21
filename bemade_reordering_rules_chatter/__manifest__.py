@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Chatter on the Reordering Rules",
-    "version": "15.0.0.0.1",
+    "version": "17.0.0.0.1",
     "category": "Extra Tools",
     'license': 'GPL-3',
     'summary': 'Add chatter on the reordering rules',
@@ -15,7 +15,7 @@
     ],
     "data": [
         # BV : FOR MIGRATION
-        # 'views/stock_warehouse_orderpoint.xml',
+        'views/stock_warehouse_orderpoint.xml',
     ],
     "auto_install": False,
     "installable": True,

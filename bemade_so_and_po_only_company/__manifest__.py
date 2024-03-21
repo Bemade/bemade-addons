@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Force Partner to be a company on SO and PO",
-    "version": "15.0.0.0.1",
+    "version": "17.0.0.0.1",
     "category": "Extra Tools",
     'summary': 'Force Partner to be a company on SO and PO',
     "description": """
-Force Partner to be a company on SO and PO
-""",
+    Force Partner to be a company on SO and PO
+    """,
     "author": "Bemade",
     'website': 'https://www.bemade.org',
     "depends": [
-        'stock','sale',
+        'purchase',
+        'stock',
+        'sale',
     ],
     "data": [
         'views/sale_order.xml',

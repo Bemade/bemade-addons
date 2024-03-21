@@ -18,7 +18,7 @@
 #
 {
     'name': 'Partner Root Ancestor',
-    'version': '15.0.1.0.0',
+    'version': '17.0.1.0.0',
     'summary': 'Technical module to add the field root_ancestor to res.partner.',
     'category': 'Generic Modules/Base',
     'author': 'Bemade Inc.',

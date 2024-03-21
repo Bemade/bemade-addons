@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Automatic Quotation Date and Validity Updater",
-    "version": "15.0.0.0.1",
+    "version": "17.0.0.0.1",
     "category": "Extra Tools",
     'summary': 'Automatically updates the sale quotation date and validity date upon sending the quotation',
     "description": """

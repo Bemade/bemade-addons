@@ -59,7 +59,7 @@ class ChooseDeliveryPackage(models.TransientModel):
             # if no package type found, create one
             if not delivery_package_type:
                 delivery_package_type = delivery_package_type.create({
-                    'name': f'Box {vals["width"]}x{vals["height"]}x{vals["length"]}',
+                    'name': f'Box {self.width}x{self.height}x{self.length}',
                     'width': self.width,
                     'height': self.height,
                     'packaging_length': self.length,

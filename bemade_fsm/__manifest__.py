@@ -52,27 +52,18 @@
         'views/menus.xml',
         'views/task_views.xml',
         'views/sale_order_views.xml',
-<<<<<<< HEAD
         'reports/worksheet_custom_report_templates.xml',
         'reports/worksheet_custom_reports.xml',
-=======
-        # 'reports/worksheet_custom_report_templates.xml',
-        # 'reports/worksheet_custom_reports.xml',
->>>>>>> 5a006ec3
         'wizard/new_task_from_template.xml',
     ],
     'assets': {
-        'web.assets_tests': [
-            'bemade_fsm/static/tests/tours/task_template_tour.js',
-            'bemade_fsm/static/tests/tours/equipment_tour.js',
-            'bemade_fsm/static/tests/tours/sale_order_tour.js',
-        ],
         'web.report_assets_common': [
             'bemade_fsm/static/src/scss/bemade_fsm.scss'
         ],
         'web.assets_backend': [
-            'bemade_fsm/static/src/js/kanban_view.js',
-            'bemade_fsm/static/src/js/list_view.js',
+            #  BV: need to readd these files
+            # 'bemade_fsm/static/src/js/kanban_view.js',
+            # 'bemade_fsm/static/src/js/list_view.js',
         ],
         'web.assets_qweb': [
             'bemade_fsm/static/src/xml/project_view_buttons.xml',

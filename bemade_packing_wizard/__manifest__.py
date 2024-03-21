@@ -1,6 +1,6 @@
 {
     'name': 'Packing wizard',
-    'version': '16.0.1.0.0',
+    'version': '17.0.1.0.0',
     'category': 'Extra Tools',
     'summary': 'Allow automated packing type creation',
     'description': """

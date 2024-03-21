@@ -9,8 +9,7 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='name']/.." position="before">
                     <h1 class="d-flex flex-row justify-content-between">
-                        <field name="work_order_number"
-                               attrs="{'invisible': [('work_order_number', '=', False)]}"/>
+                        <field name="work_order_number" invisible="work_order_number == False"/>
                     </h1>
                 </xpath>
                 <xpath expr="//page[@name='extra_info']" position="after">

@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-11-07 20:03+0000\n"
-"PO-Revision-Date: 2023-11-07 20:03+0000\n"
+"POT-Creation-Date: 2024-02-21 00:52+0000\n"
+"PO-Revision-Date: 2024-02-21 00:52+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -24,11 +24,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:bemade_sports_clinic.portal_my_home
 msgid "/my/teams"
 msgstr ""
-
-#. module: bemade_sports_clinic
-#: model:ir.model,name:bemade_sports_clinic.model_sports_patient_injury
-msgid "A patient's injury."
-msgstr "La blessure d'un patient."
 
 #. module: bemade_sports_clinic
 #. odoo-python
@@ -106,20 +101,20 @@ msgid "Age"
 msgstr "Âge"
 
 #. module: bemade_sports_clinic
+#: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient__allergies
+msgid "Allergies"
+msgstr ""
+
+#. module: bemade_sports_clinic
 #: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient__message_attachment_count
 #: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient_injury__message_attachment_count
 msgid "Attachment Count"
 msgstr "Nombre de pièces jointes"
 
 #. module: bemade_sports_clinic
-#: model:ir.model.fields.selection,name:bemade_sports_clinic.selection__sports_patient__stage__practice_ok
-msgid "Cleared for Practice"
-msgstr "Pratiques autorisées"
-
-#. module: bemade_sports_clinic
-#: model:ir.model.fields.selection,name:bemade_sports_clinic.selection__sports_patient__stage__healthy
-msgid "Cleared to Play"
-msgstr "Matchs autorisés"
+#: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient__city
+msgid "City"
+msgstr "Ville"
 
 #. module: bemade_sports_clinic
 #: model:ir.model.fields.selection,name:bemade_sports_clinic.selection__sports_team_staff__role__coach
@@ -128,8 +123,9 @@ msgstr "Entraîneur"
 
 #. module: bemade_sports_clinic
 #: model:ir.model,name:bemade_sports_clinic.model_res_partner
+#: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient__partner_id
 msgid "Contact"
-msgstr "Contact"
+msgstr ""
 
 #. module: bemade_sports_clinic
 #: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient_contact__contact_type
@@ -139,7 +135,12 @@ msgstr "Type de contact"
 #. module: bemade_sports_clinic
 #: model_terms:ir.ui.view,arch_db:bemade_sports_clinic.sports_patient_view_form
 msgid "Contacts"
-msgstr "Contacts"
+msgstr ""
+
+#. module: bemade_sports_clinic
+#: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient__country_id
+msgid "Country"
+msgstr "Pays"
 
 #. module: bemade_sports_clinic
 #: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient__create_uid
@@ -160,14 +161,19 @@ msgid "Created on"
 msgstr "Créé le"
 
 #. module: bemade_sports_clinic
+#: model_terms:ir.ui.view,arch_db:bemade_sports_clinic.sports_patient_view_kanban
+msgid "DOB:"
+msgstr "DDN :"
+
+#. module: bemade_sports_clinic
 #: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient__date_of_birth
 msgid "Date Of Birth"
 msgstr "Date de naissance"
 
 #. module: bemade_sports_clinic
-#: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient_injury__injury_date_time
-msgid "Date and Time of Injury"
-msgstr "Date et heure de la blessure"
+#: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient_injury__injury_date
+msgid "Date of Injury"
+msgstr "Date de la blessure"
 
 #. module: bemade_sports_clinic
 #: model_terms:ir.ui.view,arch_db:bemade_sports_clinic.sports_patient_injury_view_tree
@@ -188,6 +194,11 @@ msgstr "Diagnostique"
 #: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_team_staff__display_name
 msgid "Display Name"
 msgstr "Nom pour affichage"
+
+#. module: bemade_sports_clinic
+#: model:ir.model.fields.selection,name:bemade_sports_clinic.selection__sports_team_staff__role__doctor
+msgid "Doctor"
+msgstr "Docteur"
 
 #. module: bemade_sports_clinic
 #: model:ir.model.constraint,message:bemade_sports_clinic.constraint_sports_team_staff_team_staff_unique
@@ -301,7 +312,7 @@ msgstr "En santé :"
 #: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_team__id
 #: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_team_staff__id
 msgid "ID"
-msgstr "ID"
+msgstr ""
 
 #. module: bemade_sports_clinic
 #: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient__activity_exception_icon
@@ -328,6 +339,13 @@ msgstr "Si coché, des nouveaux messages nécessitent votre attention."
 #: model:ir.model.fields,help:bemade_sports_clinic.field_sports_patient_injury__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
 msgstr "Si coché, certains messages ont une erreur de livraison."
+
+#. module: bemade_sports_clinic
+#. odoo-python
+#: code:addons/bemade_sports_clinic/models/patient_injury.py:0
+#, python-format
+msgid "If injury date is not set, the N/A box must be checked."
+msgstr "Sa la date de la blessure n'est pas remplie, la case S/O doit être cochée."
 
 #. module: bemade_sports_clinic
 #: model:ir.model.fields.selection,name:bemade_sports_clinic.selection__sports_patient__stage__no_play
@@ -463,7 +481,14 @@ msgstr "Erreur de livraison du message"
 #: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient__message_ids
 #: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient_injury__message_ids
 msgid "Messages"
-msgstr "Messages"
+msgstr ""
+
+#. module: bemade_sports_clinic
+#: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient__mobile
+#: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient_contact__mobile
+#: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_team_staff__mobile
+msgid "Mobile"
+msgstr ""
 
 #. module: bemade_sports_clinic
 #: model:ir.model.fields.selection,name:bemade_sports_clinic.selection__sports_patient_contact__contact_type__mother
@@ -475,6 +500,12 @@ msgstr "Mère"
 #: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient_injury__my_activity_date_deadline
 msgid "My Activity Deadline"
 msgstr "Date limite de mon activité"
+
+#. module: bemade_sports_clinic
+#: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient_injury__injury_date_na
+#: model:ir.model.fields.selection,name:bemade_sports_clinic.selection__sports_patient_injury__parental_consent__na
+msgid "N/A"
+msgstr "S/O"
 
 #. module: bemade_sports_clinic
 #: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient__name
@@ -508,13 +539,15 @@ msgstr "Type de la prochaine activité"
 #. module: bemade_sports_clinic
 #: model:ir.model.fields.selection,name:bemade_sports_clinic.selection__sports_patient__match_status__no
 #: model:ir.model.fields.selection,name:bemade_sports_clinic.selection__sports_patient__practice_status__no
+#: model:ir.model.fields.selection,name:bemade_sports_clinic.selection__sports_patient_injury__parental_consent__no
 msgid "No"
 msgstr "Non"
 
 #. module: bemade_sports_clinic
+#: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient__team_info_notes
 #: model_terms:ir.ui.view,arch_db:bemade_sports_clinic.portal_my_player_injuries
 msgid "Notes"
-msgstr "Notes"
+msgstr ""
 
 #. module: bemade_sports_clinic
 #: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient__message_needaction_counter
@@ -558,6 +591,11 @@ msgid "Other"
 msgstr "Autre"
 
 #. module: bemade_sports_clinic
+#: model_terms:ir.ui.view,arch_db:bemade_sports_clinic.sports_patient_view_form
+msgid "Other Contacts"
+msgstr "Autres contacts"
+
+#. module: bemade_sports_clinic
 #: model:ir.model.fields,field_description:bemade_sports_clinic.field_res_partner__owned_team_ids
 #: model:ir.model.fields,field_description:bemade_sports_clinic.field_res_users__owned_team_ids
 msgid "Owned Team"
@@ -571,10 +609,23 @@ msgid "Parent Organization"
 msgstr "Organisation parente"
 
 #. module: bemade_sports_clinic
+#: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient_injury__parental_consent
+msgid "Consent for Disclosure to Parent"
+msgstr "Consentement pour divulgation au parent"
+
+#. module: bemade_sports_clinic
+#: model:ir.model,name:bemade_sports_clinic.model_sports_patient
+#: model:ir.model.fields,field_description:bemade_sports_clinic.field_res_partner__patient_ids
+#: model:ir.model.fields,field_description:bemade_sports_clinic.field_res_users__patient_ids
 #: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient_contact__patient_id
 #: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient_injury__patient_id
 msgid "Patient"
-msgstr "Patient(e)"
+msgstr "Patient dans une clinique de médecine sportive."
+
+#. module: bemade_sports_clinic
+#: model_terms:ir.ui.view,arch_db:bemade_sports_clinic.sports_patient_view_form
+msgid "Patient Address"
+msgstr "Adresse du patient"
 
 #. module: bemade_sports_clinic
 #: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient__contact_ids
@@ -582,9 +633,19 @@ msgid "Patient Contacts"
 msgstr "Contacts du patient"
 
 #. module: bemade_sports_clinic
+#: model:mail.message.subtype,name:bemade_sports_clinic.subtype_patient_update
+msgid "Patient File Update"
+msgstr "Mise à jour du dossier du patient"
+
+#. module: bemade_sports_clinic
 #: model_terms:ir.ui.view,arch_db:bemade_sports_clinic.sports_patient_view_form
 msgid "Patient Information"
 msgstr "Information du patient"
+
+#. module: bemade_sports_clinic
+#: model:ir.model,name:bemade_sports_clinic.model_sports_patient_injury
+msgid "Patient Injury"
+msgstr "La blessure d'un patient."
 
 #. module: bemade_sports_clinic
 #: model_terms:ir.ui.view,arch_db:bemade_sports_clinic.sports_patient_injury_view_tree
@@ -592,14 +653,19 @@ msgid "Patient Injury History"
 msgstr "Historique des blessures du patient"
 
 #. module: bemade_sports_clinic
+#: model:mail.message.subtype,name:bemade_sports_clinic.subtype_patient_injury_update
+msgid "Patient Injury Status Update"
+msgstr "Mise à jour du statut de la blessure d'un patient"
+
+#. module: bemade_sports_clinic
+#: model_terms:ir.ui.view,arch_db:bemade_sports_clinic.sports_patient_view_form
+msgid "Patient Phone & Email"
+msgstr "Téléphone et courriel du patient"
+
+#. module: bemade_sports_clinic
 #: model_terms:ir.ui.view,arch_db:bemade_sports_clinic.sports_patient_view_form
 msgid "Patient Record"
 msgstr "Dossier du patient"
-
-#. module: bemade_sports_clinic
-#: model:ir.model,name:bemade_sports_clinic.model_sports_patient
-msgid "Patient at a sports medicine clinic."
-msgstr "Patient dans une clinique de médecine sportive."
 
 #. module: bemade_sports_clinic
 #: model_terms:ir.ui.view,arch_db:bemade_sports_clinic.sports_patient_view_form
@@ -607,19 +673,32 @@ msgid "Patient's Contacts"
 msgstr "Contacts du patient"
 
 #. module: bemade_sports_clinic
+#: model:mail.message.subtype,description:bemade_sports_clinic.subtype_patient_update
+msgid "Patient's file has been updated."
+msgstr "Le dossier du patient a été mis à jour."
+
+#. module: bemade_sports_clinic
+#: model:mail.message.subtype,description:bemade_sports_clinic.subtype_patient_injury_update
+msgid "Patient's injury was updated."
+msgstr "Le dossier de la blessure du patient a été mis à jour."
+
+#. module: bemade_sports_clinic
 #: model:ir.actions.act_window,name:bemade_sports_clinic.action_view_patient
 #: model:ir.ui.menu,name:bemade_sports_clinic.sports_clinic_patients
 #: model_terms:ir.ui.view,arch_db:bemade_sports_clinic.sports_patient_view_list
 #: model_terms:ir.ui.view,arch_db:bemade_sports_clinic.sports_patient_view_list_embedded
 msgid "Patients"
-msgstr "Patients"
+msgstr ""
 
 #. module: bemade_sports_clinic
-#: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient__mobile
-#: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient_contact__mobile
-#: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_team_staff__mobile
-msgid "Mobile"
-msgstr "Mobile"
+#: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient__phone
+msgid "Phone"
+msgstr "Téléphone"
+
+#. module: bemade_sports_clinic
+#: model:ir.model.fields.selection,name:bemade_sports_clinic.selection__sports_patient__stage__healthy
+msgid "Play OK"
+msgstr "Matchs autorisés"
 
 #. module: bemade_sports_clinic
 #: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_team__player_count
@@ -634,6 +713,11 @@ msgstr "Nombre de joueurs"
 #: model_terms:ir.ui.view,arch_db:bemade_sports_clinic.sports_team_view_form
 msgid "Players"
 msgstr "Joueurs"
+
+#. module: bemade_sports_clinic
+#: model:ir.model.fields.selection,name:bemade_sports_clinic.selection__sports_patient__stage__practice_ok
+msgid "Practice OK"
+msgstr "Pratiques autorisées"
 
 #. module: bemade_sports_clinic
 #: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient__practice_status
@@ -651,11 +735,6 @@ msgstr "Date prévue de résolution"
 #: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient__predicted_return_date
 msgid "Predicted Return Date"
 msgstr "Date prévue de retour"
-
-#. module: bemade_sports_clinic
-#: model:ir.model,name:bemade_sports_clinic.model_sports_team_staff
-msgid "Relationship between staff members and their teams."
-msgstr "Relation entre les membres du personnel et leurs équipes."
 
 #. module: bemade_sports_clinic
 #: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient_injury__resolution_date
@@ -721,6 +800,11 @@ msgid "Sports Team"
 msgstr "Équipe sportive"
 
 #. module: bemade_sports_clinic
+#: model:ir.model,name:bemade_sports_clinic.model_sports_team_staff
+msgid "Sports Team Staff"
+msgstr "Relation entre les membres du personnel et leurs équipes."
+
+#. module: bemade_sports_clinic
 #: model:ir.actions.act_window,name:bemade_sports_clinic.action_view_team
 #: model_terms:ir.ui.view,arch_db:bemade_sports_clinic.sports_team_view_list
 msgid "Sports Teams"
@@ -745,6 +829,11 @@ msgid "Stage"
 msgstr "Étape"
 
 #. module: bemade_sports_clinic
+#: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient__state_id
+msgid "State"
+msgstr "État"
+
+#. module: bemade_sports_clinic
 #: model:ir.model.fields,help:bemade_sports_clinic.field_sports_patient__activity_state
 #: model:ir.model.fields,help:bemade_sports_clinic.field_sports_patient_injury__activity_state
 msgid ""
@@ -757,6 +846,21 @@ msgstr ""
 "En retard: La date d'échéance est passée\n"
 "Aujourd'hui: La date d'échéance est aujourd'hui\n"
 "Planifiées: Activités futures."
+
+#. module: bemade_sports_clinic
+#: model_terms:ir.ui.view,arch_db:bemade_sports_clinic.sports_patient_view_kanban
+msgid "Status:"
+msgstr "Statut :"
+
+#. module: bemade_sports_clinic
+#: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient__street
+msgid "Street"
+msgstr "Rue"
+
+#. module: bemade_sports_clinic
+#: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient__street2
+msgid "Street2"
+msgstr "Rue2"
 
 #. module: bemade_sports_clinic
 #: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_team_staff__team_id
@@ -805,6 +909,11 @@ msgid "The teams this person works for."
 msgstr "Les équipes pour lesquelles cette personne travaille."
 
 #. module: bemade_sports_clinic
+#: model:ir.model.fields.selection,name:bemade_sports_clinic.selection__sports_team_staff__role__therapist
+msgid "Therapist"
+msgstr "Thérapeute"
+
+#. module: bemade_sports_clinic
 #. odoo-python
 #: code:addons/bemade_sports_clinic/controllers/team_staff_portal.py:0
 #, python-format
@@ -819,19 +928,16 @@ msgid "This team could not be found."
 msgstr "Cette équipe n'a pu être trouvée."
 
 #. module: bemade_sports_clinic
+#. odoo-python
+#: code:addons/bemade_sports_clinic/models/res_partner.py:0
+#, python-format
+msgid "To change a patient's name, change it from the patient form."
+msgstr "Pour changer le nom d'un patient, changez le à partir du formulaire patient."
+
+#. module: bemade_sports_clinic
 #: model_terms:ir.ui.view,arch_db:bemade_sports_clinic.portal_my_teams
 msgid "Total Players"
 msgstr "Total des joueurs"
-
-#. module: bemade_sports_clinic
-#: model:ir.model.fields.selection,name:bemade_sports_clinic.selection__sports_team_staff__role__therapist
-msgid "Therapist"
-msgstr "Thérapeute"
-
-#. module: bemade_sports_clinic
-#: model:ir.model.fields.selection,name:bemade_sports_clinic.selection__sports_team_staff__role__doctor
-msgid "Doctor"
-msgstr "Docteur"
 
 #. module: bemade_sports_clinic
 #: model:res.groups,name:bemade_sports_clinic.group_sports_clinic_treatment_professional
@@ -879,11 +985,22 @@ msgstr "Historique de communication du site web"
 #. module: bemade_sports_clinic
 #: model:ir.model.fields,help:bemade_sports_clinic.field_sports_patient__return_date
 msgid "When the player was cleared by medical staff to return to match play."
-msgstr "Quand le joueur a été autorisé par le personnel médical à retourner au jeu."
+msgstr ""
+"Quand le joueur a été autorisé par le personnel médical à retourner au jeu."
+
+#. module: bemade_sports_clinic
+#: model:ir.model.fields,help:bemade_sports_clinic.field_sports_patient_injury__parental_consent
+msgid ""
+"Whether the patient has given their consent to share injury details with "
+"their parents."
+msgstr ""
+"Indique si le patient a donné son consentement pour que les détails de la blessure soient partagés avec "
+"ses parents."
 
 #. module: bemade_sports_clinic
 #: model:ir.model.fields.selection,name:bemade_sports_clinic.selection__sports_patient__match_status__yes
 #: model:ir.model.fields.selection,name:bemade_sports_clinic.selection__sports_patient__practice_status__yes
+#: model:ir.model.fields.selection,name:bemade_sports_clinic.selection__sports_patient_injury__parental_consent__yes
 msgid "Yes"
 msgstr "Oui"
 
@@ -903,11 +1020,6 @@ msgid "Your Teams"
 msgstr "Vos équipes"
 
 #. module: bemade_sports_clinic
-#: model_terms:ir.ui.view,arch_db:bemade_sports_clinic.portal_my_home
-msgid "players_count"
-msgstr ""
-
-#. module: bemade_sports_clinic
-#: model_terms:ir.ui.view,arch_db:bemade_sports_clinic.portal_my_home
-msgid "teams_count"
-msgstr ""
+#: model:ir.model.fields,field_description:bemade_sports_clinic.field_sports_patient__zip
+msgid "Zip"
+msgstr "Code postal"

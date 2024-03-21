@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="l10n_ca_parameter_ARK" model="hr.rule.parameter">
+            <field name="name">A, R, K constants for Federak Tax Calculation</field>
+            <field name="code">ARK</field>
+        </record>
+        <record id="l10n_ca_parameter_value_ARK_2024" model="hr.rule.parameter.value">
+            <field name="date_from">2024-01-01</field>
+            <field name="rule_parameter_id" ref="bemade_l10n_ca_payroll.l10n_ca_parameter_ARK"/>
+            <field name="parameter_value">
+                [
+                    (0, 0.15, 0),
+                    (55867, 0.2050, 3073),
+                    (111733, 0.26, 9218),
+                    (173205, 0.29, 14414),
+                    (246752, 0.33, 24284),
+                ]
+            </field>
+        </record>
+        <record id="l10n_ca_parameter_TC" model="hr.rule.parameter">
+            <field name="name">Base amount for federal form TD1</field>
+            <field name="code">FED_TC</field>
+        </record>
+        <record id="l10n_ca_parameter_value_TC_2024" model="hr.rule.parameter.value">
+            <field name="date_from">2024-01-01</field>
+            <field name="rule_parameter_id" ref="bemade_l10n_ca_payroll.l10n_ca_parameter_TC"/>
+            <field name="parameter_value">15704</field>
+        </record>
+
+        <record id="l10n_ca_fed_tax_on_payslip" model="hr.salary.rule">
+            <field name="name">Income Tax - Federal</field>
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="sequence" eval="205"/>
+            <field name="struct_id" ref="hr_payroll.default_structure"/>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="appears_on_employee_cost_dashboard" eval="False"/>
+            <field name="appears_on_payroll_report" eval="True"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+                """<![CDATA[
+Source: https://www.canada.ca/fr/agence-revenu/services/formulaires-publications/retenues-paie/t4127-formules-calcul-retenues-paie/t4127-jan/t4127-jan-formules-calcul-informatise-retenues-paie.html#toc31
+
+Pour le Québec, calcul en 4 étapes (étapes 1, 2, 3, et 6 du guide ci-dessus)
+Étape 1: Calculer "A" - le revenu imposable
+Étape 2: Calculer "T3" - l'impôt fédéral de base
+Étape 3: Calculer "T1" - l'impôt fédéral annuel à payer
+Étape 4: Calculer "T" - L'impôt à payer pour cette paye
+
+
+Étape 1
+
+A = P x (I - F - F2 - F5A -U1) - HD - F1
+où
+P = Nombre de périodes de paie dans l'année
+I = Rémunération brute pour la période de paie, excluant les primes, augmentations salariales rétroactives ou autres paiements non-périodiques
+F = Retenues pour la période pour un REER, RPA, RPAC ou CR.
+F2 = saisie ordonnée par la cour (pension alimentaire, etc.)
+F5A = Déductions des cotisations supplémentaires au RRQ pour la période de paie
+U1 = Cotisations à un syndicat ou assoc. de fonctionnaires, pour la période de paie
+HD = Retenue annuelle accordée aux résidents d'une région visée par le règlement selon formulaire TD1
+F1 = Retenues annuelles (frais de garde d'enfants, pensions alimentaires, demandées par l'employé et autorisés par bureau svcs. fiscaux)
+PI = gains ouvrant droit à une pension pour la période de paie. Nous assumons ici que c'est égal à la rémunération brute.
+B = Prime brute, augmentation de salaire rétroactive, ou autres montants non périodiques
+
+"""
+pay_periods_map = {
+    'annually': 1,
+    'semi-annually': 2,
+    'quarterly': 4,
+    'bi-monthly': 6,
+    'monthly': 12,
+    'semi-monthly': 24,
+    'bi-weekly': 26,
+    'weekly': 52,
+    'daily': 365,
+}
+
+P = payslip.struct_type_id.default_pay_periods_per_year
+I = categories.get("GROSS") - (inputs['BONUS'].amount if 'BONUS' in inputs else 0)
+F = inputs['FED_F'].amount if 'FED_F' in inputs else 0
+F2 = inputs['FED_F2'].amount if 'FED_F2' in inputs else 0
+C = categories.get("COTISATIONS_RRQ", 0)
+C2 = categories.get("COTISATIONS_RRQ_2", 0)
+F5Q = C * (0.01/0.0640) + C2
+PI = categories.get("GROSS")
+B = inputs['BONUS'].amount if 'BONUS' in inputs else 0
+F5A = F5Q * ((PI - B)/PI)
+U1 = inputs['FED_U1'].amount if 'FED_U1' in inputs else 0
+HD = inputs['FED_HD'].amount if 'FED_HD' in inputs else 0
+F1 = inputs['FED_F1'].amount if 'FED_F1' in inputs else 0
+
+A = P * (I - F - F2 - F5A - U1) - HD - F1
+
+"""
+Étape 2 - Calcul de l'impôt fédéral de base (T3)
+
+T3 = (R x A) - K - K1 - K2Q - K3 - K4
+où
+
+R = taux d'imposition fédéral qui s'applique au revenu imposable annuel A
+"""
+
+# TODO: Get this into a configuration data structure
+ARK = payslip._rule_parameter('ARK')
+R, K = payslip._l10n_ca_compute_fed_tax_constants(A, ARK)
+TC = inputs['FED_TC'].amount if 'FED_TC' in inputs else payslip._rule_parameter('FED_TC_BASIC')
+K1 = 0.15 * TC
+PM = payslip._rule_parameter('RRQ_NO_MOIS_TOTAL')
+IE = A # Assume that insurables are the gross pay
+AE = categories.get("EI_CONTR")
+K2Q = ((0.15 * min(P * C * (0.0540/0.0640), 3217.50) * (PM/12)) + (0.15 * min(P * AE, 834.24) + (0.15 * min(P * IE * 0.00494, 464.36))
+K3 = inputs['FED_K3'].amount if 'FED_K3' in inputs else 0
+CCE = payslip._rule_parameter('FED_CCE') # 1 433 for 2024
+K4 = min(0.5 * A, CCE)
+
+T3 = (R * A) - K - K1 - K2Q - K3 - K4
+
+"""
+Étape 3 - Formule pour calculer l'impôt fédéral à payer (T1)
+
+T1 = ((T3 - (P x LCF)) - (0.165 * T3)
+
+"""
+
+LCF = min(750, 0.15 * (inputs['DED_CAPITAL_PURCH'] if 'DED_CAPITAL_PURCH' in inputs else 0))
+T1 = (T3 - (P * LCF)) - (0.165 * T3)
+
+"""
+Étape 6 - Formule pour calculer une estimation des retenus d'impôt fédéral pour la période de paie (T)
+
+T = (T1 / P) / L
+
+L = Retenues d'impôt additionnelles pour la période de paie, demandées par l'employé(e) sur TD1
+"""
+
+L = inputs['FED_DEDUCT_REQUEST'].amount if 'FED_DEDUCT_REQUEST' in inputs else 0
+T = (T1 / P) / L
+
+result = T
+]]>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="l10n_ca_input_bonus" model="hr.payslip.input.type">
+            <field name="name">Bonus or other non-period payment</field>
+            <field name="code">BONUS</field>
+            <field name="country_id" ref="base.ca"/>
+            <field name="struct_ids" eval="Command.link(ref('hr_payroll.default_structure'))"/>
+        </record>
+        <record id="l10n_ca_input_fed_f1" model="hr.payslip.input.type">
+            <field name="name">Employee-requested deductions (Federal)</field>
+            <field name="code">FED_F1</field>
+            <field name="country_id" ref="base.ca"/>
+            <field name="struct_ids" eval="Command.link(ref('hr_payroll.default_structure'))"/>
+        </record>
+        <record id="l10n_ca_input_fed_f2" model="hr.payslip.input.type">
+            <field name="name">Court-ordered deductions (Federal)</field>
+            <field name="code">FED_F2</field>
+            <field name="country_id" ref="base.ca"/>
+            <field name="struct_ids" eval="Command.link(ref('hr_payroll.default_structure'))"/>
+        </record>
+        <record id="l10n_ca_input_fed_U1" model="hr.payslip.input.type">
+            <field name="name">Union or association dues for the period (Federal)</field>
+            <field name="code">FED_U1</field>
+            <field name="country_id" ref="base.ca"/>
+            <field name="struct_ids" eval="Command.link(ref('hr_payroll.default_structure'))"/>
+        </record>
+        <record id="l10n_ca_input_fed_HD" model="hr.payslip.input.type">
+            <field name="name">Allowance for residents of specified regions (Federal)</field>
+            <field name="code">FED_HD</field>
+            <field name="country_id" ref="base.ca"/>
+            <field name="struct_ids" eval="Command.link(ref('hr_payroll.default_structure'))"/>
+        </record>
+        <record id="l10n_ca_input_fed_F" model="hr.payslip.input.type">
+            <field name="name">Deduction for retirement plan contributions (Federal)</field>
+            <field name="code">FED_F</field>
+            <field name="country_id" ref="base.ca"/>
+            <field name="struct_ids" eval="Command.link(ref('hr_payroll.default_structure'))"/>
+        </record>
+        <record id="l10n_ca_input_fed_TC" model="hr.payslip.input.type">
+            <field name="name">Total Requested Amount on Federal form TD1</field>
+            <field name="code">FED_TC</field>
+            <field name="country_id" ref="base.ca"/>
+            <field name="struct_ids" eval="Command.link(ref('hr_payroll.default_structure'))"/>
+        </record>
+
+    </data>
+</odoo>

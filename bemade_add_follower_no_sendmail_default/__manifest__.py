@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Change default when adding follower",
-    "version": "15.0.0.0.1",
+    "version": "17.0.0.0.1",
     "category": "Extra Tools",
     'summary': 'Change default when adding follower',
     "description": """

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="subtype_patient_injury_external_update" model="mail.message.subtype">
+            <field name="name">Patient File Update (External)</field>
+            <field name="res_model">sports.patient.injury</field>
+            <field name="default" eval="True"/>
+            <field name="internal" eval="False"/>
+            <field name="sequence" eval="4"/>
+            <field name="hidden" eval="False"/>
+            <field name="description"></field>
+        </record>
+        <record id="subtype_patient_injury_internal_update" model="mail.message.subtype">
+            <field name="name">Patient File Update (Internal)</field>
+            <field name="res_model">sports.patient.injury</field>
+            <field name="default" eval="True"/>
+            <field name="internal" eval="True"/>
+            <field name="sequence" eval="4"/>
+            <field name="hidden" eval="False"/>
+        </record>
+        <record id="mail_template_patient_injury_status_update" model="mail.template">
+            <field name="name">Patient Status Update</field>
+            <field name="model_id" ref="bemade_sports_clinic.model_sports_patient_injury"/>
+            <field name="subject">Patient Injury Status Update for {{ object.patient_name }}</field>
+            <field name="body_html" type="html">
+                <p>An update has been posted to the injury record for <t t-out="object.patient_name"/>'s injury<t t-if="object.diagnosis">with
+                    the diagnosis of <strong t-out="object.diagnosis"/></t>. Click
+                    <a t-attf-href="{{ user.company_id.website }}/my/player?player_id={{ object.patient_id.id }}">here</a> to view the injury details.
+                </p>
+            </field>
+        </record>
+        <record id="mail_template_patient_injury_new_internal_note" model="mail.template">
+            <field name="name">Patient Status Update</field>
+            <field name="model_id" ref="bemade_sports_clinic.model_sports_patient_injury"/>
+            <field name="subject">Internal Note Updated for Patient {{ object.patient_name }}</field>
+            <field name="body_html" type="html">
+                <p>A new internal note has been posted to the injury record for <t t-out="object.patient_name"/>'s injury<t t-if="object.diagnosis">with
+                    the diagnosis of <strong t-out="object.diagnosis"/></t>.
+                </p>
+                <div>
+                    <p><strong>New Note: </strong></p>
+                    <div><t t-out="object.internal_notes"/></div>
+                </div>
+            </field>
+        </record>
+        <record id="subtype_patient_external_update" model="mail.message.subtype">
+            <field name="name">Patient File Update (External)</field>
+            <field name="res_model">sports.patient</field>
+            <field name="default" eval="True"/>
+            <field name="internal" eval="False"/>
+            <field name="sequence" eval="4"/>
+            <field name="hidden" eval="False"/>
+            <field name="description"></field>
+        </record>
+        <record id="subtype_patient_internal_update" model="mail.message.subtype">
+            <field name="name">Patient File Update (Internal)</field>
+            <field name="res_model">sports.patient</field>
+            <field name="default" eval="True"/>
+            <field name="internal" eval="True"/>
+            <field name="sequence" eval="4"/>
+            <field name="hidden" eval="False"/>
+        </record>
+        <record id="mail_template_patient_status_update" model="mail.template">
+            <field name="name">Patient Status Update</field>
+            <field name="model_id" ref="bemade_sports_clinic.model_sports_patient"/>
+            <field name="subject">Patient Status Update for {{ object.name}}</field>
+            <field name="body_html" type="html">
+                <p>An update has been posted to the  record for <t t-out="object.name"/>'s. Click
+                    <a t-attf-href="{{ user.company_id.website }}/my/players">here</a> to view the  details.
+                </p>
+            </field>
+        </record>
+        <record id="mail_template_patient_new_internal_note" model="mail.template">
+            <field name="name">Patient Status Update</field>
+            <field name="model_id" ref="bemade_sports_clinic.model_sports_patient"/>
+            <field name="subject">Internal Note Updated for Patient {{ object.name}}</field>
+            <field name="body_html" type="html">
+                <p>A new internal note has been posted to the  record for <t t-out="object.name"/>'s.
+                </p>
+                <div>
+                    <p><strong>New Note: </strong></p>
+                    <div><t t-out="object.team_info_notes"/></div>
+                </div>
+            </field>
+        </record>
+    </data>
+</odoo>

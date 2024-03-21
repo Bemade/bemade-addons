@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <data>
-        <record id="industry_fsm_report.task_custom_report" model="ir.actions.report">
+        <record id="industry_fsm.task_custom_report" model="ir.actions.report">
             <field name="name">Work Order Report (PDF)</field>
             <field name="report_name">bemade_fsm.work_order</field>
             <field name="report_file">bemade_fsm.work_order</field>
-            <field name="print_report_name">'%s Work Order %s' % (
-                time.strftime('%Y-%m-%d'), object.work_order_number)</field>
+            <field name="print_report_name">'%s %s' % (
+                object.planned_date_begin.strftime('%Y-%m-%d') if object.planned_date_begin else time.strftime('%Y-%m-%d'),
+                object.name
+            )
+            </field>
             <field name="report_type">qweb-pdf</field>
         </record>
     </data>

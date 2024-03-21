@@ -8,24 +8,26 @@
             <field name="inherit_id" ref="sale_project.product_template_form_view_invoice_policy_inherit_sale_project"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='project_id']" position="after">
-                    <field name="task_template_id"
-                           attrs="{'invisible': [('service_tracking', 'not in', ('task_global_project', 'task_in_project'))]}"
-                           domain="[('parent', '=', False)]"/>
+                    <field  name="task_template_id"
+                            invisible="service_tracking not in ('task_global_project', 'task_in_project')"
+                            domain="[('parent', '=', False)]"/>
                 </xpath>
                 <xpath expr="//field[@name='planning_enabled']" position="after">
                     <field name="is_field_service"/>
                 </xpath>
             </field>
         </record>
-        <record id="product_search_form_view_inherit_bemade_fsm" model="ir.ui.view">
-            <field name="name">bemade_fsm.product_search_form_view_inherit_bemade_fsm</field>
-            <field name="model">product.product</field>
-            <field name="inherit_id" ref="industry_fsm_sale.product_search_form_view_inherit_fsm_sale"/>
-            <field name="arch" type="xml">
-                <xpath expr="//searchpanel//field[@name='categ_id']" position="attributes">
-                    <attribute name="limit">0</attribute>
-                </xpath>
-            </field>
-        </record>
+
+<!--  BV: Did comment that one cause can not match inherit_id and don't understand it use      -->
+<!--        <record id="product_search_form_view_inherit_bemade_fsm" model="ir.ui.view">-->
+<!--            <field name="name">bemade_fsm.product_search_form_view_inherit_bemade_fsm</field>-->
+<!--            <field name="model">product.product</field>-->
+<!--            <field name="inherit_id" ref="industry_fsm_sale.product_search_form_view_inherit_fsm_sale"/>-->
+<!--            <field name="arch" type="xml">-->
+<!--                <xpath expr="//searchpanel//field[@name='categ_id']" position="attributes">-->
+<!--                    <attribute name="limit">0</attribute>-->
+<!--                </xpath>-->
+<!--            </field>-->
+<!--        </record>-->
     </data>
 </odoo>

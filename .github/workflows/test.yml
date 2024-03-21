@@ -1,0 +1,33 @@
+name: tests
+
+on:
+  pull_request:
+    branches:
+      - "17.0-test-ci"
+  push:
+    branches:
+      - "17.0-test-ci"
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    container: ghcr.io/bemade/test-odoo_arm64:latest
+    name: Test Repo Addons With Odoo
+    strategy:
+      fail-fast: false
+    services:
+      postgres:
+        image: postgres:12.0
+        env:
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: odoo
+          POSTGRES_DB: odoo
+        ports:
+          - 5432:5432
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credientials: false
+      - name: Run Tests
+        run: run_tests.sh
+
