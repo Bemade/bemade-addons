@@ -17,26 +17,23 @@
 #    DEALINGS IN THE SOFTWARE.
 #
 {
-    'name': 'Multiple Billing Contacts',
-    'version': '17.0.1.0.1',
-    'summary': 'Send invoices to multiple contacts by default.',
+    'name': 'Show Currency in total',
+    'version': '15.0.0.0.1',
+    'summary': 'Show Currency in total',
     'description': """
-        By default, newly created invoices add all invoice addresses for the given partner as
-        followers on the invoice. If billing contacts are set manually on the sales order, those billing
-        contacts are added as followers on the invoice instead.
+        This module adds the ability to view currency in total in all pdf.
     """,
-    'category': 'Invoicing Management',
+    'category': 'Account',
     'author': 'Bemade Inc.',
     'website': 'https://www.bemade.org',
     'license': 'OPL-1',
-    'depends': ['sale',
-                'account',
-                'bemade_partner_root_ancestor',
-                ],
+    'depends': [
+        'sale',
+        'purchase',
+        'account'
+    ],
     'data': [
-        'views/account_move_views.xml',
-        'views/res_partner_views.xml',
-        'views/sale_order_views.xml',
+        'views/total_template.xml'
     ],
     'demo': [],
     'installable': True,

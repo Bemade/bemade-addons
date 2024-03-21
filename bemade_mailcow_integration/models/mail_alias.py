@@ -6,6 +6,7 @@ class MailAlias(models.Model):
 
     mailcow_id = fields.One2many('mail.mailcow.alias', 'alias_id')
 
+
 @api.model_create_multi
 def create(self, vals_list):
     alias_list = super().create(vals_list)

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Mailcow Integration',
-    'version': '1.0.0',
+    'version': '15.0.1.0.1',
     'category': 'Administration',
     'summary': 'Module for integrating Mailcow email server with Odoo.',
     'description': """
