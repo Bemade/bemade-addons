@@ -18,7 +18,7 @@
 #
 {
     'name': 'Documents Portal Base',
-    'version': '15.0.1.0.0',
+    'version': '17.0.1.0.0',
     'summary': 'Adds documents to the front-end portal.',
     'category': 'Document Management',
     'author': 'Bemade Inc.',

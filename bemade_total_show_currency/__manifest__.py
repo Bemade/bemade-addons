@@ -18,7 +18,7 @@
 #
 {
     'name': 'Show Currency in total',
-    'version': '15.0.0.0.1',
+    'version': '17.0.0.0.1',
     'summary': 'Show Currency in total',
     'description': """
         This module adds the ability to view currency in total in all pdf.

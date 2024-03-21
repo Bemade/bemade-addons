@@ -18,7 +18,7 @@
 #
 {
     'name': 'Fix Quality Worksheet',
-    'version': '15.0.1.0.0',
+    'version': '17.0.1.0.0',
     'summary': 'Fix Quality worksheet bug from Odoo Enterprise',
     'description': '',
     'category': 'Quality Control',

@@ -18,7 +18,7 @@
 #
 {
     'name': 'Bemade Geo Distance',
-    'version': '15.0.1.0.0',
+    'version': '17.0.1.0.0',
     'summary': 'Utility module for calculating the distance driving between addresses.',
     'description': """Module for calculating the driving distance between addresses using the Google Route API.
                       **IMPORTANT NOTE:** You must have an active Google Route API key configured in the Geo Localization
