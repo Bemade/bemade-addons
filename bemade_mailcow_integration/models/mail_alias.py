@@ -8,8 +8,12 @@ class MailAlias(models.Model):
 
     @api.model
     def create(self, vals):
+        params = self.env['ir.config_parameter'].sudo()
+        param_auto_create = params.get_param('mailcow.create_mailbox')
+
         alias = super(MailAlias, self).create(vals)
-        if not alias.alias_name:
+
+        if not alias.alias_name or not param_auto_create:
             return alias
 
         alias_domain = self.env["ir.config_parameter"].sudo().get_param("mail.catchall.domain"),

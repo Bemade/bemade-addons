@@ -1,17 +1,40 @@
 <odoo>
   <data>
+    <record id="view_sale_order_form_inherit" model="ir.ui.view">
+        <field name="name">sale.order.form.inherit</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <header>
+                <button name="action_duplicate_order"
+                        string="Duplicate Order"
+                        type="object"
+                        class="oe_highlight"
+                        attrs="{'invisible': [('state', '!=', 'draft')]}"
+                />
+            </header>
+        </field>
+    </record>
+
+
+
+
+
+
+
+
     <!-- explicit list view definition -->
 
-    <record model="ir.ui.view" id="bemade_quotation_alternative_form">
-      <field name="name">bemade_quotation_alternative form</field>
-      <field name="model">sale.order</field>
-      <field name="inherit_id" ref="sale.view_order_form"/>
-      <field name="arch" type="xml">
-        <header position="inside">
-            <button name="action_create_alternative" type="object" string="Create Alternative" class="oe_highlight" />
-        </header>
-      </field>
-    </record>
+<!--    <record model="ir.ui.view" id="bemade_quotation_alternative_form">-->
+<!--      <field name="name">bemade_quotation_alternative form</field>-->
+<!--      <field name="model">sale.order</field>-->
+<!--      <field name="inherit_id" ref="sale.view_order_form"/>-->
+<!--      <field name="arch" type="xml">-->
+<!--        <header position="inside">-->
+<!--            <button name="action_create_alternative" type="object" string="Create Alternative" class="oe_highlight" />-->
+<!--        </header>-->
+<!--      </field>-->
+<!--    </record>-->
 
     <!-- actions opening views on models -->
 <!--
