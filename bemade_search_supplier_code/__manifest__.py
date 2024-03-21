@@ -1,5 +1,6 @@
 {
-    'version': '17.0.0.1',
+    'name': 'Bemade Search Supplier Code',
+    'version': '17.0.1.0.1',
     'summary': 'Search for products by supplier code',
     'sequence': 10,
     'description': """
