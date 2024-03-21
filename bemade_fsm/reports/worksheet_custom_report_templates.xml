@@ -461,14 +461,12 @@
                 </t>
             </t>
         </template>
-        <!-- MD Commented out since this no longer matches the structure of industry_fsm at all -->
-        <!-- Make the front-end "Sign" page show our new template -->
-        <!-- <template id="portal_my_worksheet" -->
-        <!--           inherit_id="industry_fsm.portal_my_task"> -->
-        <!--     <xpath expr="//div[@t-call='industry_fsm.worksheet_custom_page']" -->
-        <!--            position="replace"> -->
-        <!--         <div t-call="bemade_fsm.work_order_page"/> -->
-        <!--     </xpath> -->
-        <!-- </template> -->
+        <template id="worksheet_custom"
+                  inherit_id="industry_fsm_report.worksheet_custom">
+            <xpath expr="//t[@t-call='industry_fsm_report.worksheet_custom_page']"
+                   position="replace">
+                <div t-call="bemade_fsm.work_order_page"/>
+            </xpath>
+        </template>
     </data>
 </odoo>
