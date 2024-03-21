@@ -1,81 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <data>
-    <record id="view_sale_order_form_inherit" model="ir.ui.view">
-        <field name="name">sale.order.form.inherit</field>
-        <field name="model">sale.order</field>
-        <field name="inherit_id" ref="sale.view_order_form"/>
-        <field name="arch" type="xml">
-            <header>
-                <button name="action_duplicate_order"
-                        string="Duplicate Order"
-                        type="object"
-                        class="oe_highlight"
-                        attrs="{'invisible': [('state', '!=', 'draft')]}"
-                />
-            </header>
-        </field>
-    </record>
-
-
-
-
-
-
-
-
-    <!-- explicit list view definition -->
-
-<!--    <record model="ir.ui.view" id="bemade_quotation_alternative_form">-->
-<!--      <field name="name">bemade_quotation_alternative form</field>-->
-<!--      <field name="model">sale.order</field>-->
-<!--      <field name="inherit_id" ref="sale.view_order_form"/>-->
-<!--      <field name="arch" type="xml">-->
-<!--        <header position="inside">-->
-<!--            <button name="action_create_alternative" type="object" string="Create Alternative" class="oe_highlight" />-->
-<!--        </header>-->
-<!--      </field>-->
-<!--    </record>-->
-
-    <!-- actions opening views on models -->
-<!--
+    <data>
+        <record id="view_sale_order_form_inherit" model="ir.ui.view">
+            <field name="name">sale.order.form.inherit</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <header>
+                    <button class="oe_highlight" invisible="state != 'draft'" name="action_duplicate_order" string="Duplicate Order" type="object"/>
+                </header></field>
+        </record>
+        <!-- explicit list view definition -->
+        <!--    <record model="ir.ui.view" id="bemade_quotation_alternative_form">-->
+        <!--      <field name="name">bemade_quotation_alternative form</field>-->
+        <!--      <field name="model">sale.order</field>-->
+        <!--      <field name="inherit_id" ref="sale.view_order_form"/>-->
+        <!--      <field name="arch" type="xml">-->
+        <!--        <header position="inside">-->
+        <!--            <button name="action_create_alternative" type="object" string="Create Alternative" class="oe_highlight" />-->
+        <!--        </header>-->
+        <!--</field>-->
+        <!--    </record>-->
+        <!-- actions opening views on models -->
+        <!--
     <record model="ir.actions.act_window" id=".repos/bemade-addons/bemade_quotation_alternative.action_window">
       <field name="name">.repos/bemade-addons/bemade_quotation_alternative window</field>
       <field name="res_model">.repos/bemade-addons/bemade_quotation_alternative..repos/bemade-addons/bemade_quotation_alternative</field>
       <field name="view_mode">tree,form</field>
     </record>
 -->
-
-    <!-- server action to the one above -->
-<!--
+        <!-- server action to the one above -->
+        <!--
     <record model="ir.actions.server" id=".repos/bemade-addons/bemade_quotation_alternative.action_server">
       <field name="name">.repos/bemade-addons/bemade_quotation_alternative server</field>
       <field name="model_id" ref="model_.repos/bemade-addons/bemade_quotation_alternative_.repos/bemade-addons/bemade_quotation_alternative"/>
       <field name="state">code</field>
-      <field name="code">
-        action = {
+      <field name="code">action = {
           "type": "ir.actions.act_window",
           "view_mode": "tree,form",
           "res_model": model._name,
-        }
-      </field>
+        }</field>
     </record>
 -->
-
-    <!-- Top menu item -->
-<!--
+        <!-- Top menu item -->
+        <!--
     <menuitem name=".repos/bemade-addons/bemade_quotation_alternative" id=".repos/bemade-addons/bemade_quotation_alternative.menu_root"/>
 -->
-    <!-- menu categories -->
-<!--
+        <!-- menu categories -->
+        <!--
     <menuitem name="Menu 1" id=".repos/bemade-addons/bemade_quotation_alternative.menu_1" parent=".repos/bemade-addons/bemade_quotation_alternative.menu_root"/>
     <menuitem name="Menu 2" id=".repos/bemade-addons/bemade_quotation_alternative.menu_2" parent=".repos/bemade-addons/bemade_quotation_alternative.menu_root"/>
 -->
-    <!-- actions -->
-<!--
+        <!-- actions -->
+        <!--
     <menuitem name="List" id=".repos/bemade-addons/bemade_quotation_alternative.menu_1_list" parent=".repos/bemade-addons/bemade_quotation_alternative.menu_1"
               action=".repos/bemade-addons/bemade_quotation_alternative.action_window"/>
     <menuitem name="Server to list" id=".repos/bemade-addons/bemade_quotation_alternative" parent=".repos/bemade-addons/bemade_quotation_alternative.menu_2"
               action=".repos/bemade-addons/bemade_quotation_alternative.action_server"/>
 -->
-  </data>
+    </data>
 </odoo>
