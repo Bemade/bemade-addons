@@ -22,7 +22,8 @@
         'membership_variable_period',
         'membership_delegated_partner',
         'partner_multi_relation',
-        'sale_management'
+        'sale_management',
+        'base_automation'
     ],
     'data': [
         # Reference to XML, CSV, and other data files
