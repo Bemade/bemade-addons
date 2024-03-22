@@ -100,7 +100,7 @@ class SaleOrderLine(models.Model):
         if is_order and self.qty_to_deliver == 0:
             return 0
         elif is_order and self.qty_to_deliver > 0:
-            reserved = sum([m.reserved_availability for m in self.move_ids])
+            reserved = sum([q.reserved_quantity for q in self.move_ids.mapped('move_line_ids').mapped('quant_id')])
             missing = self.qty_to_deliver - reserved
             if float_compare(missing, 0.0,
                              precision_rounding=self.product_uom.rounding) == 1:
