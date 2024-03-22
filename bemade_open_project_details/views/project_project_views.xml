@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Héritage de la vue Kanban des projets -->
+        <record id="project_view_project_kanban_inherit" model="ir.ui.view">
+            <field name="name">project.view.project.kanban.inherit</field>
+            <field name="model">project.project</field>
+            <field name="inherit_id" ref="project.view_project_kanban"/>
+            <field name="arch" type="xml">
+                <!-- Modification de la visibilité de la gestion des paramètres pour tous les utilisateurs -->
+                <div class="o_kanban_card_manage_settings row" groups="project.group_project_manager" position="attributes">
+                    <attribute name="groups">base.group_user</attribute>
+                </div>
+                <xpath expr="//a[@name='action_view_kanban_project'][@type='edit']" position="replace">
+                    <a class="dropdown-item" role="menuitem" type="open" name="action_view_kanban_project">Open</a>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
