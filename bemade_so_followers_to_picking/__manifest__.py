@@ -11,7 +11,8 @@
     'website': 'https://www.bemade.org',
     "depends": [
         'sale',
-        'purchase'
+        'purchase',
+        'stock',
     ],
     "data": [
     ],
