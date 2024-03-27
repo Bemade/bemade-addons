@@ -6,17 +6,11 @@
         <field name="inherit_id" ref="delivery.choose_delivery_package_view_form"/>
         <field name="arch" type="xml">
             <field name="delivery_package_type_id" position="replace">
-                <field name="auto_create_package" attrs="{'invisible': 1}"/>
-                <field name="delivery_package_type_id"
-                       domain="[('package_carrier_type', '=', context.get('current_package_carrier_type', 'none'))]"
-                       context="{'form_view_ref':'stock.stock_package_type_form'}"
-                       attrs="{'invisible': [('auto_create_package', '=', True)]}" />
-                <field name="length" attrs="{'invisible': [('auto_create_package', '=', False)]}"/>
-                <field name="width" attrs="{'invisible': [('auto_create_package', '=', False)]}"/>
-                <field name="height" attrs="{'invisible': [('auto_create_package', '=', False)]}"/>
-                <field name="provider" attrs="{'invisible': 1}"/>
-            </field>
-        </field>
+                <field invisible="1" name="auto_create_package"/>
+                <field context="{'form_view_ref':'stock.stock_package_type_form'}" domain="[('package_carrier_type', '=', context.get('current_package_carrier_type', 'none'))]" invisible="auto_create_package == True" name="delivery_package_type_id"/>
+                <field invisible="auto_create_package == False" name="length"/>
+                <field invisible="auto_create_package == False" name="width"/>
+                <field invisible="auto_create_package == False" name="height"/>
+                <field invisible="1" name="provider"/></field></field>
     </record>
-
 </odoo>
