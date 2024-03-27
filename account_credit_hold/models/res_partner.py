@@ -44,8 +44,8 @@ class Partner(models.Model):
             rec.hold_bg = False
             rec.message_post(body=_('Credit hold lifted.'))
 
-    def _execute_followup_partner(self):
-        res = super()._execute_followup_partner()
+    def _execute_followup_partner(self, options=None):
+        res = super()._execute_followup_partner(options)
         if self.followup_status == 'in_need_of_action':
             if self.followup_line_id.account_hold:
                 self.action_credit_hold()

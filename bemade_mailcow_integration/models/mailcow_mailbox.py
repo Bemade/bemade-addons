@@ -53,7 +53,7 @@ class MailcowMailbox(models.Model):
         Overridden create method to add a new mailbox entry on the Mailcow server for each user created in Odoo.
         """
 
-        res_list = []
+        res = self.env['mail.mailcow.mailbox']
 
         for vals in vals_list:
             password = secrets.token_hex(16)
@@ -81,10 +81,8 @@ class MailcowMailbox(models.Model):
                 self.api_request(endpoint, method='POST', data=data)
                 _logger.info(f"Mailbox {vals['local_part']}@{vals['domain']} has been created on Mailcow server")
 
-            res = super().create(vals)
-            res_list.append(res)
-
-        return res_list
+            res |= super().create(vals)
+        return res
 
     def write(self, vals):
         """
@@ -141,8 +139,8 @@ class MailcowMailbox(models.Model):
         self.api_request(endpoint, method='POST', data=data)
         _logger.info(f'Mailbox for user {user.login} has been created on Mailcow server')
 
-        pw_bundle = seld.env['password.bundle'].search([('name', '=', user.name)])
-        self.env['password.key'].create_mailbox_for_user(res)
+        pw_bundle = self.env['password.bundle'].search([('name', '=', user.name)])
+        self.env['password.key'].create_mailbox_for_user(user)
 
         return self.create({
             'address': user.login,
