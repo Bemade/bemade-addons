@@ -63,7 +63,8 @@ class TestBillingContacts(TransactionCase):
             'price_unit': cls.product.list_price,
             'order_id': cls.sale_order.id,
             'tax_id': False,
-            'qty_delivered_manual': 2,
+            'qty_delivered': 2,
+            'qty_delivered_method': 'manual',
         })
 
     def test_billing_contacts_structure(self):
