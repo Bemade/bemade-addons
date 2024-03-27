@@ -3,7 +3,7 @@
     <record id="choose_delivery_package_view_form2" model="ir.ui.view">
         <field name="name">choose.delivery.package.form2</field>
         <field name="model">choose.delivery.package</field>
-        <field name="inherit_id" ref="delivery.choose_delivery_package_view_form"/>
+        <field name="inherit_id" ref="stock_delivery.choose_delivery_package_view_form"/>
         <field name="arch" type="xml">
             <field name="delivery_package_type_id" position="replace">
                 <field invisible="1" name="auto_create_package"/>
