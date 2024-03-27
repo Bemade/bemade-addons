@@ -10,7 +10,7 @@
         You need to activate the auto create package feature on the delivery carrier to use this feature.
     """,
     'depends': [
-        'delivery'
+        'stock_delivery'
     ],
     'data': [
         'views/stock_package_views.xml',
