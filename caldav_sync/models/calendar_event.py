@@ -93,7 +93,7 @@ def _parse_rrule_string(rrule_str: str) -> Dict[str, Any]:
 
 def _extract_vcal_email(vcal_address):
     email_regex = re.compile(r"[a-z0-9.\-+_]+@[a-z0-9.\-+_]+\.[a-z]+")
-    res = email_regex.search(str(vcal_address))
+    res = email_regex.search(str(vcal_address).lower())
     return res.group(0).lower().strip() if res else ""
 
 
