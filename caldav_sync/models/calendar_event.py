@@ -498,8 +498,12 @@ class CalendarEvent(models.Model):
         event_data["created"] = vDatetime(
             utc.localize(self.create_date).astimezone(event_tz)
         )
-        event_data["dtstart"] = vDatetime(utc.localize(self.start).astimezone(event_tz))
-        event_data["dtend"] = vDatetime(utc.localize(self.stop).astimezone(event_tz))
+        if self.allday:
+            event_data["dtstart"] = vDate(self.start_date)
+            event_data["dtend"] = vDate(self.stop_date + timedelta(days=1))
+        else:
+            event_data["dtstart"] = vDatetime(utc.localize(self.start).astimezone(event_tz))
+            event_data["dtend"] = vDatetime(utc.localize(self.stop).astimezone(event_tz))
 
     def _add_event_recurrence_id(self, event_data: Dict) -> None:
         """Add the recurrence-id parameter to event data if self is linked
@@ -911,12 +915,31 @@ class CalendarEvent(models.Model):
         :param for_creation: Whether these values are for creating a new event (True)
                             or updating an existing one (False).
         :return: The dictionary of values to construct a calendar.event."""
+        allday = False
         start = component.get("dtstart") and component.decoded("dtstart")
         if isinstance(start, datetime):
             start = start.astimezone(utc).replace(tzinfo=None)
-        end = component.get("dtend") and component.decoded("dtend")
-        if isinstance(end, datetime):
+        elif component.get("dtstart").params.get("VALUE") == "DATE":
+            allday = True
+        else:
+            _logger.warning(
+                f"Unsupported dtstart type for event {component.get('uid')}: {type(start)}"
+            )
+            return {}
+        dtend_prop = component.get("dtend")
+        end = dtend_prop and component.decoded("dtend")
+        if dtend_prop is None:
+            pass  # handled below alongside the duration/instant-event fallback
+        elif isinstance(end, datetime):
             end = end.astimezone(utc).replace(tzinfo=None)
+        elif dtend_prop.params.get("VALUE") == "DATE":
+            allday = True
+            end = end - timedelta(days=1)
+        else:
+            _logger.warning(
+                f"Unsupported dtend type for event {component.get('uid')}: {type(end)}"
+            )
+            return {}
 
         # Handle events without dtend (e.g., endless recurring events or instant events)
         # Per RFC 5545, events can have dtend, duration, or neither.
@@ -956,6 +979,15 @@ class CalendarEvent(models.Model):
             "caldav_uid": str(component.get("uid")),
             "partner_ids": [(6, 0, attendee_ids.ids)],
         }
+
+        if allday:
+            values.update(
+                {
+                    "start_date": start,
+                    "stop_date": end,
+                    "allday": True,
+                }
+            )
 
         # Only set user_id and partner_id during creation
         if for_creation:
