@@ -179,10 +179,21 @@
                     <details class="o_sc_kiosk_policy mb-4">
                         <summary>Privacy policy</summary>
                         <div class="pt-2 text-muted">
-                            <!-- TODO owner: texte politique — final FR+EN wording to be
-                                 supplied/approved by the owner before ship (reviewer check). -->
+                            <!-- Condensed, kiosk-scoped version of the Law 25
+                                 policy (owner-approved 2026-09-06); the full
+                                 policy is the fitcrew_privacy_policy website
+                                 page. Same-host link only (kiosk rule). -->
+                            <p class="mb-2">
+                                Your first name, last name and date of birth are collected only to signal your arrival to this clinic's therapy team. Nothing you type is shown to other visitors, and no health information is requested at this kiosk.
+                            </p>
+                            <p class="mb-2">
+                                Your sign-in is matched to your athlete file; access is limited to the staff responsible for your follow-up. A sign-in that matches no file is deleted automatically a few days after the clinic.
+                            </p>
+                            <p class="mb-2">
+                                Data is hosted in Quebec. Privacy officer: Denis Durepos — admin@lefitcrew.com. You may request access to or rectification of your information, or withdraw your consent, at any time.
+                            </p>
                             <p class="mb-0">
-                                Your first name, last name and date of birth are used only to find your patient file for this clinic and mark your arrival. Nothing is displayed back on this screen, nothing is stored on this device, and no file is ever created here.
+                                <a t-att-href="lang_en and '/en/politique-de-confidentialite' or '/politique-de-confidentialite'">Read the full privacy policy</a>
                             </p>
                         </div>
                     </details>
