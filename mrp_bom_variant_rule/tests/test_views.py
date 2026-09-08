@@ -164,10 +164,24 @@ class TestViews(BomVariantRuleCommon, RuleSetBuilderMixin):
         )
         self.assertFalse(unrelated.bom_rule_set_id)
 
-        arch = self.env["product.product"].get_view(
-            self.env.ref("product.product_normal_form_view").id, "form"
-        )["arch"]
-        self.assertIn("action_bom_rule_regenerate", arch)
+        # Both variant forms, not just the normal one. A variant opened from
+        # Product Variants uses the normal form; one opened from a template's
+        # Variants button uses the easy-edit form, which is a base view rather
+        # than an inheritor of the first. This test used to check only the
+        # normal form, and so passed while the button was missing from the
+        # route most people actually take -- found by hand on staging.
+        for xmlid in (
+            "product.product_normal_form_view",
+            "product.product_variant_easy_edit_view",
+        ):
+            arch = self.env["product.product"].get_view(
+                self.env.ref(xmlid).id, "form"
+            )["arch"]
+            self.assertIn(
+                "action_bom_rule_regenerate",
+                arch,
+                "the regenerate button is missing from %s" % xmlid,
+            )
 
     def test_actions_and_menus_resolve(self):
         expected = {
