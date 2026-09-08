@@ -254,13 +254,25 @@ class TestEcoRevision(BomVariantRuleCommon, RuleSetBuilderMixin):
             .get("bom_rule_eco_auto_apply")
         )
 
+    def _other_eco_type(self):
+        """An ECO type that is not the default.
+
+        18.0 shipped a second seeded type to point at; 19.0 seeds only one, so
+        these tests used to depend on data that has since gone away. Creating
+        the type here says what the test actually needs -- some other type --
+        instead of naming one and hoping it exists.
+        """
+        return self.env["mrp.eco.type"].create(
+            {"name": "Rule Engine Test Type", "sequence": 99}
+        )
+
     def test_configured_eco_type_is_used(self):
         """Criterion 11."""
         self.assertEqual(
             self.env["product.product"]._bom_rule_eco_type(),
             self.env.ref("mrp_plm.ecotype_bom_update"),
         )
-        other = self.env.ref("mrp_plm.ecotype0")
+        other = self._other_eco_type()
         settings = self.env["res.config.settings"].create(
             {"bom_rule_eco_type_id": other.id}
         )
@@ -277,5 +289,5 @@ class TestEcoRevision(BomVariantRuleCommon, RuleSetBuilderMixin):
         with Form(self.env["res.config.settings"]) as form:
             form.bom_rule_change_policy = "revision"
             form.bom_rule_eco_auto_apply = False
-            form.bom_rule_eco_type_id = self.env.ref("mrp_plm.ecotype0")
+            form.bom_rule_eco_type_id = self._other_eco_type()
         self.assertEqual(form.record.bom_rule_change_policy, "revision")

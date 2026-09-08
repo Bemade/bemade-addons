@@ -8,7 +8,7 @@
 #
 {
     "name": "BOM generation from variant attribute rules - PLM",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.0.1",
     "summary": "Route generated BOM revisions through an engineering change order",
     "author": "Bemade Inc.",
     "website": "https://www.bemade.org",
