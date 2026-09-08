@@ -2,8 +2,8 @@
 
 {
     "name": "Product Supplierinfo Tracking",
-    "version": "19.0.3.0.0",
-    "license": "AGPL-3",
+    "version": "19.0.3.0.1",
+    "license": "LGPL-3",
     "author": "Bemade",
     "category": "Tools",
     "depends": [
