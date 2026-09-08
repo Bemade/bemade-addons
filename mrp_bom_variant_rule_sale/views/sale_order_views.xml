@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 Bemade Inc.
+     License LGPL-3 - See https://www.gnu.org/licenses/lgpl-3.0.html -->
+<odoo>
+    <record id="view_order_form_bom_rule" model="ir.ui.view">
+        <field name="name">sale.order.form.bom.rule</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form" />
+        <field name="arch" type="xml">
+            <xpath
+        expr="//field[@name='order_line']/list/field[@name='product_id']"
+        position="after"
+      >
+                <field
+          name="bom_rule_state"
+          widget="badge"
+          decoration-success="bom_rule_state == 'generated'"
+          decoration-warning="bom_rule_state == 'superseded'"
+          decoration-danger="bom_rule_state == 'refused'"
+          invisible="bom_rule_state == 'none'"
+          optional="show"
+        />
+                <field
+          name="bom_rule_cost_confidence"
+          widget="badge"
+          decoration-success="bom_rule_cost_confidence == 'firm'"
+          decoration-warning="bom_rule_cost_confidence == 'estimated'"
+          invisible="not bom_rule_cost_confidence"
+          optional="show"
+        />
+                <field
+          name="bom_rule_message"
+          invisible="bom_rule_state != 'refused'"
+          optional="hide"
+        />
+                <button
+          name="action_bom_rule_regenerate"
+          type="object"
+          icon="fa-refresh"
+          title="Regenerate bill of materials"
+          invisible="bom_rule_state == 'none'"
+        />
+            </xpath>
+        </field>
+    </record>
+</odoo>

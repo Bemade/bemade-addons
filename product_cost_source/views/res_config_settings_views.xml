@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field
+      name="name"
+    >res.config.settings.view.form.inherit.product.cost.source</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="stock.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='stock']" position="inside">
+                <block title="Costing" id="product_cost_source_block">
+                    <setting
+            id="product_cost_source_setting"
+            string="Price freshness"
+            help="How long a price stays trustworthy when no vendor agreement backs it. A price covered by a date-bounded vendor pricelist stays firm for as long as that agreement runs, however old it is."
+          >
+                        <div class="content-group">
+                            <div class="row mt16">
+                                <field
+                  name="price_age_months"
+                  class="col-lg-2 o_light_label"
+                />
+                                <span class="ms-2">months</span>
+                            </div>
+                        </div>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

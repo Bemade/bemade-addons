@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 Bemade Inc.
+     License LGPL-3 - See https://www.gnu.org/licenses/lgpl-3.0.html -->
+<odoo>
+    <record id="view_mrp_bom_form_bom_rule" model="ir.ui.view">
+        <field name="name">mrp.bom.form.bom.rule</field>
+        <field name="model">mrp.bom</field>
+        <field name="inherit_id" ref="mrp.mrp_bom_form_view" />
+        <field name="arch" type="xml">
+            <!-- Everything here stays hidden on a hand-built bill of
+                 materials, which by definition carries no ruleset. -->
+            <xpath expr="//field[@name='code']" position="after">
+                <field
+          name="generated_rule_set_id"
+          invisible="not generated_rule_set_id"
+        />
+                <field
+          name="generated_predecessor_id"
+          invisible="not generated_predecessor_id"
+        />
+                <field
+          name="generated_fingerprint"
+          groups="base.group_no_one"
+          invisible="not generated_rule_set_id"
+        />
+                <field
+          name="cost_confidence"
+          widget="badge"
+          decoration-success="cost_confidence == 'firm'"
+          decoration-warning="cost_confidence == 'estimated'"
+          decoration-danger="cost_confidence == 'no_components'"
+          invisible="not generated_rule_set_id"
+        />
+                <field
+          name="cost_unpriced_product_ids"
+          widget="many2many_tags"
+          invisible="not cost_unpriced_product_ids"
+        />
+                <field
+          name="cost_stale_priced_product_ids"
+          widget="many2many_tags"
+          invisible="not cost_stale_priced_product_ids"
+        />
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_mrp_bom_list_bom_rule" model="ir.ui.view">
+        <field name="name">mrp.bom.list.bom.rule</field>
+        <field name="model">mrp.bom</field>
+        <field name="inherit_id" ref="mrp.mrp_bom_tree_view" />
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="inside">
+                <field name="generated_rule_set_id" optional="hide" />
+                <field name="cost_confidence" optional="hide" />
+            </xpath>
+        </field>
+    </record>
+</odoo>

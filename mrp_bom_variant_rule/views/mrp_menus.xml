@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 Bemade Inc.
+     License LGPL-3 - See https://www.gnu.org/licenses/lgpl-3.0.html -->
+<odoo>
+    <menuitem
+    id="menu_mrp_bom_rule_set"
+    name="BOM Rulesets"
+    parent="mrp.menu_mrp_configuration"
+    action="action_mrp_bom_rule_set"
+    groups="mrp.group_mrp_manager"
+    sequence="40"
+  />
+
+    <menuitem
+    id="menu_mrp_bom_rule"
+    name="BOM Rules"
+    parent="mrp.menu_mrp_configuration"
+    action="action_mrp_bom_rule"
+    groups="mrp.group_mrp_manager"
+    sequence="41"
+  />
+
+    <menuitem
+    id="menu_product_attribute_value_param"
+    name="Attribute Value Parameters"
+    parent="mrp.menu_mrp_configuration"
+    action="action_product_attribute_value_param"
+    groups="mrp.group_mrp_manager"
+    sequence="42"
+  />
+</odoo>
