@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 Bemade Inc.
+     License LGPL-3 - See https://www.gnu.org/licenses/lgpl-3.0.html -->
+<odoo>
+    <record id="ir_cron_report_stale_boms" model="ir.cron">
+        <field name="name">Report bills of materials out of step with
+            their ruleset</field>
+        <field name="model_id" ref="mrp.model_mrp_bom" />
+        <field name="state">code</field>
+        <field name="code">model._cron_report_stale_boms()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="True" />
+    </record>
+</odoo>

@@ -1,0 +1,13 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_product_attribute_value_param_user,product.attribute.value.param user,model_product_attribute_value_param,base.group_user,1,0,0,0
+access_product_attribute_value_param_manager,product.attribute.value.param manager,model_product_attribute_value_param,mrp.group_mrp_manager,1,1,1,1
+access_mrp_bom_rule_set_user,mrp.bom.rule.set user,model_mrp_bom_rule_set,base.group_user,1,0,0,0
+access_mrp_bom_rule_set_manager,mrp.bom.rule.set manager,model_mrp_bom_rule_set,mrp.group_mrp_manager,1,1,1,1
+access_mrp_bom_slot_user,mrp.bom.slot user,model_mrp_bom_slot,base.group_user,1,0,0,0
+access_mrp_bom_slot_manager,mrp.bom.slot manager,model_mrp_bom_slot,mrp.group_mrp_manager,1,1,1,1
+access_mrp_bom_rule_user,mrp.bom.rule user,model_mrp_bom_rule,base.group_user,1,0,0,0
+access_mrp_bom_rule_manager,mrp.bom.rule manager,model_mrp_bom_rule,mrp.group_mrp_manager,1,1,1,1
+access_mrp_bom_rule_condition_user,mrp.bom.rule.condition user,model_mrp_bom_rule_condition,base.group_user,1,0,0,0
+access_mrp_bom_rule_condition_manager,mrp.bom.rule.condition manager,model_mrp_bom_rule_condition,mrp.group_mrp_manager,1,1,1,1
+access_mrp_bom_rule_mapping_user,mrp.bom.rule.mapping user,model_mrp_bom_rule_mapping,base.group_user,1,0,0,0
+access_mrp_bom_rule_mapping_manager,mrp.bom.rule.mapping manager,model_mrp_bom_rule_mapping,mrp.group_mrp_manager,1,1,1,1

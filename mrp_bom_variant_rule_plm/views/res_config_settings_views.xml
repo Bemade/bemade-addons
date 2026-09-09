@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field
+      name="name"
+    >res.config.settings.view.form.inherit.mrp.bom.variant.rule.plm</field>
+        <field name="model">res.config.settings</field>
+        <field
+      name="inherit_id"
+      ref="mrp_bom_variant_rule.res_config_settings_view_form"
+    />
+        <field name="arch" type="xml">
+            <xpath
+        expr="//block[@name='bom_variant_rule_setting_container']"
+        position="inside"
+      >
+                <setting
+          id="bom_rule_eco_type_setting"
+          string="Change order type"
+          help="Revisions of a generated bill of materials are filed under this engineering change order type. Leave empty to use the standard BOM Updates type."
+          invisible="bom_rule_change_policy != 'revision'"
+        >
+                    <field name="bom_rule_eco_type_id" options="{'no_create': True}" />
+                </setting>
+                <setting
+          id="bom_rule_eco_auto_apply_setting"
+          string="Apply revisions immediately"
+          help="Apply the change order as soon as it is created, so the regenerated bill of materials becomes active at once. Turn this off to have every rule-driven revision reviewed first."
+          invisible="bom_rule_change_policy != 'revision'"
+        >
+                    <field name="bom_rule_eco_auto_apply" />
+                    <div class="text-muted">
+                        While a change order is awaiting approval, the
+                        previous bill of materials stays active and stays
+                        what quotations are costed from.
+                    </div>
+                </setting>
+            </xpath>
+        </field>
+    </record>
+</odoo>

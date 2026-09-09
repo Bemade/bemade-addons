@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 Bemade Inc.
+     License LGPL-3 - See https://www.gnu.org/licenses/lgpl-3.0.html -->
+<odoo>
+    <record id="view_mrp_bom_rule_set_list" model="ir.ui.view">
+        <field name="name">mrp.bom.rule.set.list</field>
+        <field name="model">mrp.bom.rule.set</field>
+        <field name="arch" type="xml">
+            <list string="BOM Rulesets">
+                <field name="name" />
+                <field name="product_tmpl_ids" widget="many2many_tags" />
+                <field name="revision" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_mrp_bom_rule_set_search" model="ir.ui.view">
+        <field name="name">mrp.bom.rule.set.search</field>
+        <field name="model">mrp.bom.rule.set</field>
+        <field name="arch" type="xml">
+            <search string="BOM Rulesets">
+                <field name="name" />
+                <field name="product_tmpl_ids" string="Product Template" />
+                <filter
+          name="filter_inactive"
+          string="Archived"
+          domain="[('active', '=', False)]"
+        />
+            </search>
+        </field>
+    </record>
+
+    <record id="view_mrp_bom_rule_set_form" model="ir.ui.view">
+        <field name="name">mrp.bom.rule.set.form</field>
+        <field name="model">mrp.bom.rule.set</field>
+        <field name="arch" type="xml">
+            <form string="BOM Ruleset">
+                <sheet>
+                    <field name="active" invisible="1" />
+                    <widget
+            name="web_ribbon"
+            title="Archived"
+            bg_color="text-bg-danger"
+            invisible="active"
+          />
+                    <div class="oe_title">
+                        <label for="name" />
+                        <h1>
+                            <field
+                name="name"
+                placeholder="e.g. Filtration skid components"
+              />
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field
+                name="product_tmpl_ids"
+                widget="many2many_tags"
+                options="{'no_create': True}"
+              />
+                        </group>
+                        <group>
+                            <field name="revision" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Slots" name="slots">
+                            <div class="alert alert-info" role="status">
+                                <p class="mb-1">
+                                    A slot is one position in the bill of
+                                    materials, such as <b>Vessel</b> or
+                                    <b>Pump</b>. Each slot contributes at most
+                                    one component line, whichever rule wins it.
+                                </p>
+                                <p class="mb-0">
+                                    Clear <b>Required</b> for a slot that a
+                                    configuration may legitimately leave empty.
+                                    A required slot that no rule claims refuses
+                                    generation outright rather than quietly
+                                    producing a short bill of materials.
+                                </p>
+                            </div>
+                            <field name="slot_ids">
+                                <list string="Slots" editable="bottom">
+                                    <field name="sequence" widget="handle" />
+                                    <field name="name" placeholder="e.g. Vessel" />
+                                    <field name="required" widget="boolean_toggle" />
+                                    <field name="rule_count" />
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Rules" name="rules">
+                            <div class="alert alert-info" role="status">
+                                <p class="mb-1">
+                                    Rules are read slot by slot, and within a
+                                    slot from the lowest sequence upwards. The
+                                    <b>first rule whose conditions the variant
+                                    satisfies wins its slot</b>; every rule
+                                    below it in the same slot is then ignored.
+                                </p>
+                                <p class="mb-0">
+                                    A rule with no conditions matches every
+                                    variant, so it belongs last in its slot —
+                                    anywhere else it shadows the rules after
+                                    it. Open a row to edit its conditions.
+                                </p>
+                            </div>
+                            <field name="rule_ids">
+                                <list
+                  string="Rules"
+                  default_order="slot_id, sequence, id"
+                >
+                                    <field name="slot_id" />
+                                    <field name="sequence" />
+                                    <field name="condition_summary" />
+                                    <field name="product_id" />
+                                    <field name="qty_expr" />
+                                    <field
+                    name="product_uom_id"
+                    groups="uom.group_uom"
+                  />
+                                </list>
+                                <form string="Rule">
+                                    <group>
+                                        <group>
+                                            <field
+                        name="slot_id"
+                        domain="[('rule_set_id', '=', parent.id)]"
+                        options="{'no_create': True}"
+                      />
+                                            <field name="product_id" />
+                                            <label for="qty_expr" />
+                                            <div class="o_row">
+                                                <field
+                          name="qty_expr"
+                          placeholder="e.g. volume * 1.2 * trains"
+                        />
+                                                <field
+                          name="product_uom_id"
+                          options="{'no_create': True}"
+                          groups="uom.group_uom"
+                        />
+                                            </div>
+                                        </group>
+                                        <group>
+                                            <field name="sequence" />
+                                        </group>
+                                    </group>
+                                    <div class="alert alert-info" role="status">
+                                        The quantity is arithmetic over the
+                                        named parameters carried by the
+                                        variant's attribute values, for example
+                                        <code>volume * 1.2 * trains</code>.
+                                        Leave the conditions empty to make this
+                                        rule a catch-all.
+                                    </div>
+                                    <separator string="Conditions" />
+                                    <div class="text-muted mb-2">
+                                        Every condition must hold. Within one
+                                        condition the variant's value need only
+                                        be one of those listed.
+                                    </div>
+                                    <field name="condition_ids">
+                                        <list string="Conditions" editable="bottom">
+                                            <field name="attribute_id" />
+                                            <field
+                        name="value_ids"
+                        widget="many2many_tags"
+                        domain="[('attribute_id', '=', attribute_id)]"
+                      />
+                                        </list>
+                                    </field>
+                                </form>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_mrp_bom_rule_set" model="ir.actions.act_window">
+        <field name="name">BOM Rulesets</field>
+        <field name="res_model">mrp.bom.rule.set</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create a BOM ruleset</p>
+            <p>
+                A ruleset turns a configurable product's attribute values into
+                a bill of materials, so the manufacturing experts who know the
+                product maintain the table rather than asking for a
+                bill of materials per variant.
+            </p>
+        </field>
+    </record>
+</odoo>
