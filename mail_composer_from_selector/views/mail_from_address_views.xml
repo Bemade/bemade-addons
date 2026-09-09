@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2025 Bemade Inc.
+     License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl). -->
+<odoo>
+    <!-- Mail From Address Tree View -->
+    <record model="ir.ui.view" id="mail_from_address_view_tree">
+        <field name="name">mail.from.address.view.tree</field>
+        <field name="model">mail.from.address</field>
+        <field name="arch" type="xml">
+            <list string="Authorized From Addresses">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="email"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Mail From Address Form View -->
+    <record model="ir.ui.view" id="mail_from_address_view_form">
+        <field name="name">mail.from.address.view.form</field>
+        <field name="model">mail.from.address</field>
+        <field name="arch" type="xml">
+            <form string="Authorized From Address">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-secondary" invisible="active == True"/>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="email"/>
+                        </group>
+                        <group>
+                            <field name="active" widget="boolean_toggle"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <group string="Allowed Users" name="users">
+                        <field name="user_ids" widget="many2many_tags" placeholder="Leave empty to allow all users"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Mail From Address Action -->
+    <record model="ir.actions.act_window" id="mail_from_address_action">
+        <field name="name">Authorized From Addresses</field>
+        <field name="res_model">mail.from.address</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Menu Item under Settings -->
+    <menuitem id="mail_from_address_menu"
+              name="From Addresses"
+              parent="base.menu_email"
+              action="mail_from_address_action"
+              groups="base.group_system"/>
+</odoo>

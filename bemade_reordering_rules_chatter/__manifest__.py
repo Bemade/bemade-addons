@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Chatter on the Reordering Rules",
-    "version": "18.0.0.0.1",
+    "version": "18.0.1.0.0",
     "category": "Extra Tools",
     "license": "GPL-3",
     "summary": "Add chatter on the reordering rules",

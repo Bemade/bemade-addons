@@ -29,6 +29,13 @@ class ResConfigSettings(models.TransientModel):
         config_parameter="sale_purchase_late_notification.sale_default_user_id",
         help="Default user responsible for handling late sale orders",
     )
+    sale_late_renotify_cooldown_days = fields.Integer(
+        string="Re-notification Cooldown (Sales)",
+        default=7,
+        config_parameter="sale_purchase_late_notification.sale_renotify_cooldown_days",
+        help="Number of days to wait after a late sale order reminder is marked "
+        "Done before a new reminder is created while the order is still late",
+    )
 
     # Purchase order late notification settings
     purchase_late_notification_enabled = fields.Boolean(
@@ -54,4 +61,11 @@ class ResConfigSettings(models.TransientModel):
         string="Responsible User (Purchases)",
         config_parameter="sale_purchase_late_notification.purchase_default_user_id",
         help="Default user responsible for handling late purchase orders",
+    )
+    purchase_late_renotify_cooldown_days = fields.Integer(
+        string="Re-notification Cooldown (Purchases)",
+        default=7,
+        config_parameter="sale_purchase_late_notification.purchase_renotify_cooldown_days",
+        help="Number of days to wait after a late purchase order reminder is "
+        "marked Done before a new reminder is created while the order is still late",
     )

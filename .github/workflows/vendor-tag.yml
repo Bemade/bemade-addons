@@ -1,0 +1,33 @@
+name: vendor-tag
+
+# Producer auto-tag for per-addon vendoring (Bemade task #3992): on a merge to a
+# mainline branch, tag each changed addon as <addon>/<version> from its manifest.
+# These tags are the pins the vendoring lockfile (addons.lock) resolves to; a
+# fan-out step (added later) opens vendor-bump MRs in consuming client repos.
+
+on:
+  push:
+    branches:
+      - "17.0"
+      - "18.0"
+      - "19.0"
+
+permissions:
+  contents: write  # create + push tags
+
+concurrency:
+  group: vendor-tag-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  tag:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # full history + tags, so plan_tags sees existing tags
+      - name: Auto-tag changed addons <addon>/<version>
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.sha }}
+        run: python3 .github/scripts/vendor_autotag.py

@@ -1,5 +1,5 @@
 from odoo.tests import TransactionCase
-from unittest.mock import patch, MagicMock
+
 from .common import CaldavTestCommon
 from .test_calendar import _get_ics_path, _patch_caldav_with_events_from_ics
 

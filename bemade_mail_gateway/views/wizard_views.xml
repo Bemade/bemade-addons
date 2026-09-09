@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2026 Bemade Inc.
+    License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+-->
+<odoo>
+    <data>
+
+        <!--
+            Token creation wizard. Two states governed by the presence
+            of `generated_token`:
+              - empty → input form (name, description, expires_at, Generate button)
+              - filled → readonly display of the raw token + copy reminder
+        -->
+        <record id="view_token_create_wizard_form" model="ir.ui.view">
+            <field name="name">bemade.mail_gateway.token.create.wizard.form</field>
+            <field name="model">bemade.mail_gateway.token.create.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Generate Mail Gateway Token">
+                    <!-- Step 1: input -->
+                    <group invisible="generated_token">
+                        <field name="name" placeholder="omg-sugar"/>
+                        <field name="expires_at"/>
+                        <field name="description" placeholder="What integration will use this token?"/>
+                    </group>
+
+                    <!-- Step 2: result -->
+                    <div invisible="not generated_token" class="alert alert-warning" role="alert">
+                        <h4>Token Generated — Save It Now</h4>
+                        <p>
+                            <strong>This is the only time you will see this token.</strong>
+                            Once you close this dialog, the raw value is gone — only its
+                            sha256 hash remains in the database. If you lose it, generate
+                            a new one and update your integration.
+                        </p>
+                    </div>
+                    <group invisible="not generated_token">
+                        <field name="generated_token_id" readonly="1"/>
+                        <field name="generated_token" readonly="1" widget="CopyClipboardChar"/>
+                    </group>
+
+                    <footer>
+                        <button name="action_generate"
+                                string="Generate"
+                                type="object"
+                                class="btn-primary"
+                                invisible="generated_token"/>
+                        <button name="action_close"
+                                string="Done"
+                                type="object"
+                                class="btn-primary"
+                                invisible="not generated_token"/>
+                        <button string="Cancel"
+                                special="cancel"
+                                class="btn-secondary"
+                                invisible="generated_token"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Action: opens the wizard from anywhere (menu, button, etc.) -->
+        <record id="action_token_create_wizard" model="ir.actions.act_window">
+            <field name="name">Generate Mail Gateway Token</field>
+            <field name="res_model">bemade.mail_gateway.token.create.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,21 @@
+MIME-Version: 1.0
+Date: Fri, 17 Jul 2026 10:45:00 -0400
+Message-ID: <html-injection-msg-1@example.com>
+Subject: Newsletter
+From: "Untrusted Sender" <untrusted@example.com>
+To: sales@example.com
+Content-Type: multipart/alternative; boundary="ALT456"
+
+--ALT456
+Content-Type: text/plain; charset="UTF-8"
+
+Click here: http://example.com
+
+--ALT456
+Content-Type: text/html; charset="UTF-8"
+
+<p>Click <a href="http://example.com">here</a></p>
+<script>alert(document.cookie)</script>
+<img src="x" onerror="alert(1)" />
+
+--ALT456--

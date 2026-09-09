@@ -184,6 +184,29 @@ class TeamStaff(models.Model):
     has_portal_access = fields.Boolean(
         compute="_compute_has_portal_access", compute_sudo=True
     )
+    silent_notifications = fields.Boolean(
+        string="No Notifications",
+        help="When checked, this staff member is granted access but is not "
+             "added as a follower of the team's patients/injuries — they "
+             "won't receive automatic notifications.",
+    )
+    is_auto_created = fields.Boolean(
+        string="Auto-Created",
+        default=False,
+        help="True when this staff record was created automatically by an "
+             "event-coverage assignment. Auto-created records are removed "
+             "when their referencing events end or are cancelled.",
+    )
+    temporary_event_ids = fields.Many2many(
+        comodel_name="sports.event",
+        relation="sports_team_staff_event_rel",
+        column1="staff_id",
+        column2="event_id",
+        string="Granting Events",
+        help="Events that justify this temporary access. When the last "
+             "event is removed and the record is auto-created, the record "
+             "is unlinked.",
+    )
 
     _sql_constraints = [
         (
@@ -333,12 +356,26 @@ class TeamStaff(models.Model):
         # Store affected partners and users before deletion
         affected_partners = self.mapped('partner_id')
         affected_users = self.mapped('user_ids')
-        
+
         # Standard processing for follower recomputation
         patients = self.team_id.mapped("patient_ids")
         res = super().unlink()
         patients.recompute_followers()
-        
+
+        # Drop ex-staff users from any treatment_professional_ids on the
+        # affected patients' injuries when they no longer have staff
+        # access via any of the patient's other teams. Without this a
+        # therapist removed from a team stays assigned to the team's
+        # injuries (and as a follower) until manually scrubbed.
+        # Same logic for mail.activity records pointing at those
+        # injuries — the activity rule won't grant access to the
+        # ex-staff user anymore, so leaving the activity assigned to
+        # them produces a 403 in the portal next time they open
+        # /my/activities. Reassign to a current team therapist or drop.
+        if patients:
+            patients.injury_ids.sudo()._cleanup_stale_treatment_professionals()
+            patients.injury_ids.sudo()._cleanup_stale_mail_activities()
+
         # After deletion, update group memberships for all affected users
         # Use a new empty recordset to avoid using the deleted recordset
         empty_staff = self.env['sports.team.staff']
@@ -346,7 +383,7 @@ class TeamStaff(models.Model):
             for user in affected_users.sudo():
                 # Use the comprehensive group update method for each affected user
                 empty_staff._update_all_portal_groups(user)
-        
+
         return res
 
     def _has_therapist_role(self):
@@ -604,19 +641,21 @@ class TeamStaff(models.Model):
                         user.sudo().write({'groups_id': [(3, portal_treatment_prof_group.id)]})
     
     def write(self, values):
-        old_roles = {record.id: record.role for record in self}
+        previous_patients = self.team_id.patient_ids if 'team_id' in values else self.env['sports.patient']
         result = super().write(values)
-        
-        # If role changed or team changed, handle group membership updates
+
         if 'role' in values or 'team_id' in values:
             self._update_all_portal_groups()
-        
-        # Handle team changes for follower recomputation
-        if "team_id" in values:
-            to_recompute = self.env["sports.patient"]
-            for rec in self:
-                if rec.team_id.id != values["team_id"]:
-                    to_recompute |= rec.team_id.patient_ids
-            to_recompute.recompute_followers()
-            
+
+        if 'team_id' in values or 'silent_notifications' in values or 'role' in values:
+            affected_patients = self.team_id.patient_ids | previous_patients
+            affected_patients.recompute_followers()
+            # If team_id moved a staff member to a different team, the
+            # patients on the *previous* team may have stale TP injury
+            # assignments to clean up. (silent_notifications and role
+            # changes don't affect access to the patient itself.)
+            if 'team_id' in values and previous_patients:
+                previous_patients.injury_ids.sudo()._cleanup_stale_treatment_professionals()
+                previous_patients.injury_ids.sudo()._cleanup_stale_mail_activities()
+
         return result

@@ -55,17 +55,7 @@ access_res_users_portal_coach,Portal Coach Access for Users,base.model_res_users
 access_res_partner_portal_tp,Portal TP Access for Partners,base.model_res_partner,bemade_sports_clinic.group_portal_treatment_professional,1,1,1,0
 access_res_partner_portal_coach,Portal Coach Access for Partners,base.model_res_partner,bemade_sports_clinic.group_portal_team_coach,1,1,1,0
 access_mail_followers_portal_tp,Portal TP Access for Followers,mail.model_mail_followers,bemade_sports_clinic.group_portal_treatment_professional,1,1,1,0
-access_mail_followers_portal_tp,Portal TP Access for Mail Followers,mail.model_mail_followers,bemade_sports_clinic.group_portal_treatment_professional,1,1,1,0
 access_bus_bus_portal_tp,Portal TP Access for Bus,bus.model_bus_bus,bemade_sports_clinic.group_portal_treatment_professional,1,1,1,0
-access_project_task_portal_tp,Portal TP Access for Project Tasks,project.model_project_task,bemade_sports_clinic.group_portal_treatment_professional,1,1,1,0
-access_project_task_portal_coach,Portal Coach Access for Project Tasks,project.model_project_task,bemade_sports_clinic.group_portal_team_coach,1,1,1,0
-access_task_to_event_wizard_user,User Access for Task to Event Wizard,model_task_to_event_wizard,base.group_user,1,1,1,1
-access_task_to_event_wizard_portal_tp,Portal TP Access for Task to Event Wizard,model_task_to_event_wizard,bemade_sports_clinic.group_portal_treatment_professional,1,1,1,1
-access_task_to_event_wizard_portal_coach,Portal Coach Access for Task to Event Wizard,model_task_to_event_wizard,bemade_sports_clinic.group_portal_team_coach,1,1,1,1
-access_project_project_portal_tp,Portal TP Access for Projects,project.model_project_project,bemade_sports_clinic.group_portal_treatment_professional,1,1,0,0
-access_project_task_type_portal_tp,Portal TP Access for Task Types,project.model_project_task_type,bemade_sports_clinic.group_portal_treatment_professional,1,0,0,0
-access_project_tags_portal_tp,Portal TP Access for Project Tags,project.model_project_tags,bemade_sports_clinic.group_portal_treatment_professional,1,0,0,0
-access_project_milestone_portal_tp,Portal TP Access for Project Milestones,project.model_project_milestone,bemade_sports_clinic.group_portal_treatment_professional,1,0,0,0
 access_snailmail_letter_portal_tp,Portal TP Access for Snailmail Letters,snailmail.model_snailmail_letter,bemade_sports_clinic.group_portal_treatment_professional,1,0,0,0
 access_snailmail_letter_portal_coach,Portal Coach Access for Snailmail Letters,snailmail.model_snailmail_letter,bemade_sports_clinic.group_portal_team_coach,1,0,0,0
 access_team_role_mass_assign_wizard_admin,Admin Access for Team Role Mass Assign Wizard,model_team_role_mass_assign_wizard,base.group_system,1,1,1,1

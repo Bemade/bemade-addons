@@ -10,8 +10,7 @@
         <field name="body_html" type="html">
             <div>
                 <div style="margin-bottom: 16px;">
-                    Dear <t t-out="object.work_order_contacts and object.work_order_contacts[0].name or object.partner_id.name"/>
-,
+                    Dear <t t-out="object.work_order_contacts and object.work_order_contacts[0].name or object.partner_id.name"/>,
                 </div>
                 <div style="margin-bottom: 16px;">
                     We would like to confirm the details of your upcoming service visit:
@@ -27,11 +26,10 @@
                         <td style="padding:10px;background-color:#f8f9fa;border-bottom:1px solid #e7e7e7;">Technician Arrival</td>
                         <td style="padding:10px;border-bottom:1px solid #e7e7e7;">
                             <t t-set="partner" t-value="object.work_order_contacts and object.work_order_contacts[0] or object.partner_id"/>
-                            <t t-set="partner_tz" t-value="user.tz or object.company_id.partner_id.tz or 'America/Toronto'"/>
-                            <span t-field="object.planned_date_begin" t-options="{'widget': 'datetime', 'timezone': partner_tz}"/>
+                            <t t-set="partner_tz" t-value="partner.tz or object.company_id.partner_id.tz or 'America/Toronto'"/>
+                            <span t-field="object.planned_date_begin" t-options="{'widget': 'datetime', 'tz_name': partner_tz}"/>
                             <div style="font-size: 12px; color: #666;">
-                                (Timezone: <t t-out="partner_tz"/>
-)
+                                (Timezone: <t t-out="partner_tz"/>)
                             </div>
                         </td>
                     </tr>
@@ -44,9 +42,7 @@
                                 <t t-out="object.partner_id.street2"/>
                                 <br/>
                             </t>
-                            <t t-out="object.partner_id.city"/>
-,                            <t t-out="object.partner_id.state_id.code"/>
-                            <t t-out="object.partner_id.zip"/>
+                            <t t-out="object.partner_id.city"/>, <t t-out="object.partner_id.state_id.code"/> <t t-out="object.partner_id.zip"/>
                         </td>
                     </tr>
                     <tr>
@@ -61,6 +57,25 @@
                         </td>
                     </tr>
                 </table>
+                <!-- Client Requirements Section -->
+                <t t-if="object.client_requirement_ids">
+                    <div style="margin: 16px 0px; padding: 12px; background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 4px;">
+                        <strong style="color: #856404;">⚠️ Important Requirements for Your Visit</strong>
+                        <t t-foreach="object.client_requirement_ids" t-as="req">
+                            <p style="margin: 8px 0px 0px 0px; color: #856404;">
+                                <strong><t t-out="req.name"/></strong>
+                                <t t-if="req.description">
+                                    <br/><em><t t-out="req.description"/></em>
+                                </t>
+                            </p>
+                        </t>
+                    </div>
+                    <t t-if="object.client_requirements_notes">
+                        <p style="margin: 8px 0px; color: #666;">
+                            <strong>Additional notes:</strong> <em><t t-out="object.client_requirements_notes"/></em>
+                        </p>
+                    </t>
+                </t>
                 <div style="margin: 16px 0px 16px 0px;">
                     Please take a moment to confirm this visit by clicking one of the following options:
                 </div>
@@ -82,12 +97,18 @@
                 </table>
                 <div style="margin-top: 16px;">
                     <p>Best regards,</p>
-                    <p>The <t t-out="object.company_id.name"/>
- service management team</p>
+                    <p>The <t t-out="object.company_id.name"/> service management team</p>
                 </div>
             </div>
         </field>
         <field name="lang">{{ object.work_order_contacts and object.work_order_contacts[0].lang or object.partner_id.lang }}</field>
         <field name="auto_delete" eval="False"/>
+    </record>
+
+    <!-- Demo data: Create default "Water Shutdown Required" requirement -->
+    <record id="client_requirement_water_shutdown" model="fsm.task.client.requirement">
+        <field name="name">Water Shutdown Required</field>
+        <field name="description">You will not have water during this service visit.</field>
+        <field name="active" eval="True"/>
     </record>
 </odoo>

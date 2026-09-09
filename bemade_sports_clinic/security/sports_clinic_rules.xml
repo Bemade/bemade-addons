@@ -38,6 +38,22 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_unlink" eval="True"/>
             <field name="domain_force">
+                [('patient_id.team_ids.staff_ids.user_ids', 'in', user.id),
+                 ('hidden_from_coaches', '=', False)]
+            </field>
+        </record>
+        <!-- Internal TPs see hidden injuries on their teams as well; they only
+             need one rule to grant access (rules across groups are ORed). -->
+        <record id="tp_internal_team_injury_full_access" model="ir.rule">
+            <field name="name">Internal TP Full Access to Team Injuries (incl. hidden)</field>
+            <field name="model_id" ref="model_sports_patient_injury"/>
+            <field name="groups"
+                   eval="[(6, 0, [ref('group_sports_clinic_treatment_professional')])]"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+            <field name="domain_force">
                 [('patient_id.team_ids.staff_ids.user_ids', 'in', user.id)]
             </field>
         </record>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="mail_conversation_view_form" model="ir.ui.view">
+        <field name="name">mail.conversation.view.form.participant.scope</field>
+        <field name="model">mail.conversation</field>
+        <field name="inherit_id" ref="conversation_base.mail_conversation_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='primary_transport_id']" position="after">
+                <field name="external_visibility" />
+            </xpath>
+            <xpath expr="//field[@name='participant_ids']/list" position="inside">
+                <field name="receives_updates" />
+                <field name="visibility" />
+            </xpath>
+        </field>
+    </record>
+</odoo>

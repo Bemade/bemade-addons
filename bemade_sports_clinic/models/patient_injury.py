@@ -45,7 +45,23 @@ class PatientInjury(models.Model):
     team_id = fields.Many2one(
         comodel_name="sports.team",
         string="Team",
+        # The picker is scoped to the patient's teams via the
+        # `allowed_team_ids` helper field below — OWL's domain
+        # evaluator can't safely short-circuit chained access
+        # through a possibly-empty patient_id m2o, so we expose
+        # the resolved id list as its own field on the record.
+        domain="[('id', 'in', allowed_team_ids)]",
         help="The team for which this injury was reported, especially important when a player belongs to multiple teams.",
+    )
+    allowed_team_ids = fields.Many2many(
+        comodel_name='sports.team',
+        relation='sports_patient_injury_allowed_team_rel',
+        column1='injury_id',
+        column2='team_id',
+        compute='_compute_allowed_team_ids',
+        store=False,
+        compute_sudo=True,
+        help="Teams the patient belongs to — used to scope the team_id picker.",
     )
     diagnosis = fields.Char(tracking=True)
 
@@ -84,6 +100,14 @@ class PatientInjury(models.Model):
         - Active: Injury has been verified and is being treated
         - Resolved: Injury has been resolved
         """
+    )
+    hidden_from_coaches = fields.Boolean(
+        string="Hidden from Coaches",
+        default=False,
+        tracking=True,
+        help="When checked, team coaches cannot see this injury in the portal "
+             "or anywhere else. Treatment professionals and clinic admins "
+             "still see it normally.",
     )
     parental_consent = fields.Selection(
         string="Consent for Disclosure to Parent",
@@ -144,6 +168,11 @@ class PatientInjury(models.Model):
         string='Activity Count',
         compute='_compute_activity_count'
     )
+
+    @api.depends('patient_id', 'patient_id.team_ids')
+    def _compute_allowed_team_ids(self):
+        for record in self:
+            record.allowed_team_ids = record.patient_id.team_ids if record.patient_id else False
 
     @api.depends('treatment_note_ids')
     def _compute_treatment_note_count(self):
@@ -294,6 +323,72 @@ class PatientInjury(models.Model):
                 
         return res
         
+    def _cleanup_stale_treatment_professionals(self):
+        """For each injury in self, drop from treatment_professional_ids
+        any user who no longer has staff access to the patient (i.e. is
+        not on staff of any team the patient belongs to). Used by the
+        team-staff unlink/write hooks to keep injury TP assignments in
+        sync with the team-staff source of truth."""
+        for injury in self:
+            if not injury.treatment_professional_ids:
+                continue
+            patient = injury.patient_id
+            accessible_user_ids = set(patient.team_ids.mapped('staff_ids.user_ids').ids)
+            stale = injury.treatment_professional_ids.filtered(
+                lambda u: u.id not in accessible_user_ids
+            )
+            if stale:
+                injury.with_context(
+                    mail_notrack=True,
+                    mail_create_nolog=True,
+                    mail_create_nosubscribe=True,
+                ).write({
+                    'treatment_professional_ids': [(3, u.id) for u in stale],
+                })
+
+    def _cleanup_stale_mail_activities(self):
+        """Reassign or close mail.activity records on injuries in self that
+        are still assigned to users who no longer have staff access to the
+        patient. Without this, tightening the portal mail.activity rule
+        would silently hide stale assignee activities — leaving them
+        invisible to the original assignee while still cluttering the
+        backend.
+
+        Strategy: prefer reassigning to a current head therapist on the
+        patient's teams (then any therapist), so the work follows the
+        team. If no replacement is available, drop the activity
+        entirely — the verification cron will re-create what it needs.
+        """
+        Activity = self.env['mail.activity'].sudo()
+        model_rec = self.env['ir.model']._get('sports.patient.injury')
+        for injury in self.sudo():
+            patient = injury.patient_id
+            if not patient:
+                continue
+            current_user_ids = set(patient.team_ids.mapped('staff_ids.user_ids').ids)
+            activities = Activity.search([
+                ('res_model_id', '=', model_rec.id),
+                ('res_id', '=', injury.id),
+            ])
+            stale = activities.filtered(
+                lambda a: a.user_id and a.user_id.id not in current_user_ids
+            )
+            if not stale:
+                continue
+            # Pick replacement assignee from the patient's current teams.
+            therapist_staff = patient.team_ids.mapped('staff_ids').filtered(
+                lambda s: s.role in ('head_therapist', 'therapist')
+            )
+            head = therapist_staff.filtered(lambda s: s.role == 'head_therapist')
+            replacement_user = (
+                (head.mapped('user_ids')[:1])
+                or (therapist_staff.mapped('user_ids')[:1])
+            )
+            if replacement_user:
+                stale.write({'user_id': replacement_user.id})
+            else:
+                stale.unlink()
+
     def _manage_treatment_professional_subscriptions(self):
         """Subscribe treatment professionals to both regular and internal note updates
         while ensuring non-treatment professionals only subscribe to external updates."""
@@ -484,8 +579,15 @@ class PatientInjury(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        # Determine context before creating to avoid mail.followers writes when portal/coach creates
-        is_treatment_professional = self.env.user.has_group('bemade_sports_clinic.group_sports_clinic_treatment_professional')
+        # Determine context before creating to avoid mail.followers writes
+        # when portal/coach creates. "Treatment professional" covers BOTH
+        # internal and portal TPs — the latter must also create injuries
+        # in the verified ("active") stage so they don't have to manually
+        # bump the stage every time.
+        is_treatment_professional = (
+            self.env.user.has_group('bemade_sports_clinic.group_sports_clinic_treatment_professional')
+            or self.env.user.has_group('bemade_sports_clinic.group_portal_treatment_professional')
+        )
         is_admin = self.env.user.has_group('base.group_system')
         is_internal_user = self.env.user.has_group('base.group_user')
         suppress_notifications = not (is_treatment_professional or is_admin or is_internal_user)

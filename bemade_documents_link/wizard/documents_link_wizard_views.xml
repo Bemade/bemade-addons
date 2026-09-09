@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="documents_link_wizard_view_form" model="ir.ui.view">
+        <field name="name">documents.link.wizard.form</field>
+        <field name="model">documents.link.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Link Existing Documents">
+                <sheet>
+                    <group>
+                        <field name="res_model" invisible="1" />
+                        <field name="res_id" invisible="1" />
+                        <field
+              name="document_ids"
+              widget="many2many_tags"
+              options="{'no_create': True}"
+              placeholder="Check any existing documents to link to this record (uncheck to unlink)..."
+            />
+                    </group>
+                </sheet>
+                <footer>
+                    <button
+            name="action_link"
+            type="object"
+            string="Link"
+            class="btn-primary"
+            data-hotkey="q"
+          />
+                    <button
+            string="Cancel"
+            class="btn-secondary"
+            special="cancel"
+            data-hotkey="x"
+          />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_documents_link_wizard" model="ir.actions.act_window">
+        <field name="name">Link Existing Document</field>
+        <field name="res_model">documents.link.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="documents_link_wizard_view_form" />
+    </record>
+
+</odoo>

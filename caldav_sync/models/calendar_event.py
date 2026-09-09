@@ -7,7 +7,7 @@ from odoo.addons.calendar.models.calendar_recurrence import MAX_RECURRENT_EVENT
 import caldav
 from caldav.lib.error import NotFoundError
 import logging
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from icalendar import vCalAddress, vText, vDatetime, vRecur, Event, vDate
 import re
 from pytz import timezone, utc
@@ -248,11 +248,6 @@ class CalendarEvent(models.Model):
             calendar = client.calendar(url=user.caldav_calendar_url)
 
             base_event = self._get_caldav_base_event_by_uid(calendar, self.caldav_uid)
-            if not base_event:
-                _logger.warning(
-                    f"Failed to find base event for {self} on CalDAV server."
-                )
-                return
             if self.recurrence_id:
                 tz = timezone(self.event_tz or self.env.user.tz)
                 start = utc.localize(self.start).astimezone(tz)
@@ -389,9 +384,9 @@ class CalendarEvent(models.Model):
         We do, however, need to get a new caldav_uid and caldav_recurrence_id for all
         the events in the new chain.
         """
-        ctx = {"keep_caldav_ids": False}
+        ctx = {"caldav_keep_ids": False}
         old_base = self.recurrence_id.base_event_id
-        super().with_context(**ctx)._update_future_events(
+        result = super().with_context(**ctx)._update_future_events(
             values, time_values, recurrence_values
         )
         events_to_refresh = self.recurrence_id._get_events_from(self.start)
@@ -777,8 +772,15 @@ class CalendarEvent(models.Model):
             until = until[0].astimezone(utc)
         rrule_str = rrule.to_ical() and rrule.to_ical().decode("utf-8")
         if rrule_str:
+            dtstart_dt = component.get("dtstart").dt
+            # For all-day events, dtstart.dt is a date (not datetime) and has
+            # no astimezone(); promote it to a UTC-aware datetime at midnight.
+            if isinstance(dtstart_dt, datetime):
+                dtstart_dt = dtstart_dt.astimezone(utc)
+            else:
+                dtstart_dt = datetime.combine(dtstart_dt, datetime.min.time()).replace(tzinfo=utc)
             rrule_params = self.env["calendar.recurrence"]._rrule_parse(
-                "RRULE:" + rrule_str, component.get("dtstart").dt.astimezone(utc)
+                "RRULE:" + rrule_str, dtstart_dt
             )
         else:
             _logger.warning(f"Could not convert RRULE to string: {rrule}")
@@ -915,6 +917,28 @@ class CalendarEvent(models.Model):
         end = component.get("dtend") and component.decoded("dtend")
         if isinstance(end, datetime):
             end = end.astimezone(utc).replace(tzinfo=None)
+
+        # Handle events without dtend (e.g., endless recurring events or instant events)
+        # Per RFC 5545, events can have dtend, duration, or neither.
+        # If neither exists, default stop to start (zero-duration event).
+        if end is None:
+            # Check for duration property
+            duration_prop = component.get("duration")
+            if duration_prop:
+                duration = duration_prop.dt
+                if isinstance(start, datetime):
+                    end = start + duration
+                elif isinstance(start, date):
+                    # For date-only values, add duration as days
+                    end = start + duration
+                else:
+                    end = start
+            elif isinstance(start, datetime):
+                # No end time and no duration - instant event, use start as stop
+                end = start
+            else:
+                # For date-only events, set end to same day
+                end = start
 
         # Get attendees regardless of creation/update
         attendee_ids = self._get_attendee_partners(component, user.partner_id.email)

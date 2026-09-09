@@ -33,32 +33,32 @@ class SaleOrderDuplicationWizard(models.TransientModel):
             lines_vals = []
             for line in original_order.order_line:
                 lines_vals.append((0, 0, {"sale_order_line_id": line.id}))
-            res.update(
-                {
-                    "lines_to_duplicate": lines_vals,
-                    "purpose": (
-                        original_order.purpose if "purpose" in fields_list else ""
-                    ),
-                    "note": original_order.note if "note" in fields_list else "",
-                }
-            )
+            update = {"lines_to_duplicate": lines_vals}
+            if "purpose" in fields_list and "purpose" in original_order._fields:
+                update["purpose"] = original_order.purpose
+            if "note" in fields_list:
+                update["note"] = original_order.note
+            res.update(update)
         return res
 
     def action_duplicate_order(self):
         self.ensure_one()
         # Duplication de la commande de vente
-        new_order = self.original_order_id.copy(
-            {
-                "purpose": self.purpose,
-                "note": self.note,
-                # Assurez-vous que 'new_quot' est défini correctement dans votre modèle
-                "name": self.new_quot,
-            }
-        )
+        copy_defaults = {"note": self.note, "name": self.new_quot}
+        if "purpose" in self.original_order_id._fields:
+            copy_defaults["purpose"] = self.purpose
+        new_order = self.original_order_id.copy(copy_defaults)
         if not self.duplicate_all_lines:
-            new_order.order_line.unlink()
-            for line_wiz in self.lines_to_duplicate.filtered("to_duplicate"):
-                line_wiz.sale_order_line_id.copy({"order_id": new_order.id})
+            selected_originals = self.lines_to_duplicate.filtered(
+                "to_duplicate"
+            ).mapped("sale_order_line_id")
+            original_lines = self.original_order_id.order_line.sorted("sequence")
+            new_lines = new_order.order_line.sorted("sequence")
+            lines_to_remove = self.env["sale.order.line"]
+            for orig, new in zip(original_lines, new_lines):
+                if orig not in selected_originals:
+                    lines_to_remove |= new
+            lines_to_remove.unlink()
 
         # Préparation et envoi des messages de notification dans le chatter
         user_name = self.env.user.name

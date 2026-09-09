@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <data>
+    <data noupdate="1">
         <!-- Report action for Customer Account Statement -->
         <record id="action_report_customer_account_statement" model="ir.actions.report">
             <field name="name">Customer Account Statement</field>

@@ -1,0 +1,28 @@
+# External Odoo repos to clone before running CI tests.
+# Format: repo_url: [addon_name, ...]
+# The CI will try to clone the PR target branch, falling back to the repo default.
+repos:
+  https://github.com/OCA/partner-contact:
+    - partner_multi_relation
+  https://github.com/OCA/product-attribute:
+    - product_pricelist_supplierinfo
+  https://github.com/OCA/mail:
+    - mail_composer_cc_bcc
+
+# Modules in this repo to exclude from CI testing (missing proprietary or
+# unavailable external dependencies).
+no_ci:
+  - bemade_helpdesk_mailcow_blacklist
+  - bemade_user_password_bundle
+  - customer_product_code_search
+  - helpdesk_sale_order_ai
+  - k8s_odoo_manager
+  - mail_manual_routing_ai
+  - mail_manual_routing_fix
+  - mail_manual_routing_helpdesk
+  - mail_manual_routing_ux
+  - st_laurent_portal_vendor
+  - st_laurent_vendor_orders
+  - test_caldav_sync_appointments
+  - bemade_sports_clinic
+  - portal_planning

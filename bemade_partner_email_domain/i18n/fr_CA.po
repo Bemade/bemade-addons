@@ -13,28 +13,34 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
 
+#. module: bemade_partner_email_domain
 #: model:ir.model.fields,field_description:bemade_partner_email_domain.field_res_partner_access_token
 msgid "Access Token"
 msgstr "Jeton d'accès"
 
+#. module: bemade_partner_email_domain
 #: model:ir.model.fields,field_description:bemade_partner_email_domain.field_res_partner_email_domain
 msgid "Email Domain"
 msgstr "Domaine de courriel"
 
+#. module: bemade_partner_email_domain
 #: model:ir.model.fields,field_description:bemade_partner_email_domain.field_res_partner_is_subdivision
 msgid "Subdivision"
 msgstr "Subdivision"
 
+#. module: bemade_partner_email_domain
 #: code:addons/bemade_partner_email_domain/controllers/main.py:0
 #, python-format
 msgid "The requested partner is not found."
 msgstr "Le partenaire demandé n'est pas trouvé."
 
+#. module: bemade_partner_email_domain
 #: code:addons/bemade_partner_email_domain/controllers/main.py:0
 #, python-format
 msgid "No Access Token found or not matching for this partner."
 msgstr "Aucun jeton d'accès trouvé ou ne correspondant pas à ce partenaire."
 
+#. module: bemade_partner_email_domain
 #: code:addons/bemade_partner_email_domain/controllers/main.py:0
 #, python-format
 msgid "Partner %s is associated with the division %s."

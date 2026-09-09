@@ -4,3 +4,4 @@ access_mail_message_categorize_wizard,mail.message.categorize.wizard,model_mail_
 access_mail_message_delete_wizard,mail.message.delete.wizard,model_mail_message_delete_wizard,mail_manual_routing.group_lost_messages,1,1,1,1
 access_mail_invalid_address_wizard,mail.invalid.address.wizard,model_mail_invalid_address_wizard,mail_manual_routing.group_lost_messages,1,1,1,1
 access_mail_finance_triage_wizard,mail.finance.triage.wizard,model_mail_finance_triage_wizard,mail_manual_routing.group_lost_messages,1,1,1,1
+access_mail_forward_wizard,mail.forward.wizard,model_mail_forward_wizard,mail_manual_routing.group_lost_messages,1,1,1,1

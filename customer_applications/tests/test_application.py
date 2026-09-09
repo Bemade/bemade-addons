@@ -70,3 +70,59 @@ class TestApplication(TransactionCase):
         #       to dynamically create and load models
         self.assertEqual(specifications[0].sequence, 1)
         self.assertEqual(specifications[1].sequence, 2)
+
+    def test_new_key_is_auto_allowed_on_type(self):
+        """Adding a spec with a brand-new key auto-allows it on the type."""
+        application = self.env["partner.application"].create(
+            {
+                "partner_id": self.partner_1.id,
+                "application_type_id": self.application_type.id,
+            }
+        )
+        new_key = self.env["partner.application.specification.key"].create(
+            {"name": "Brand New Key"}
+        )
+        # Precondition (guards against a tautology): the key is NOT allowed yet.
+        self.assertNotIn(new_key, self.application_type.allowed_specification_keys)
+
+        # Pre-fix this raised ValidationError from _constrain_key_id.
+        spec = self.env["partner.application.specification"].create(
+            {
+                "key_id": new_key.id,
+                "value": "x",
+                "application_id": application.id,
+            }
+        )
+
+        self.assertTrue(spec.exists())
+        self.assertIn(new_key, self.application_type.allowed_specification_keys)
+
+    def test_changing_key_to_new_one_auto_allows(self):
+        """Writing a brand-new key onto an existing spec auto-allows it."""
+        application = self.env["partner.application"].create(
+            {
+                "partner_id": self.partner_1.id,
+                "application_type_id": self.application_type.id,
+            }
+        )
+        spec = self.env["partner.application.specification"].create(
+            {
+                "key_id": self.spec_key_1.id,
+                "value": "x",
+                "application_id": application.id,
+            }
+        )
+        another_new_key = self.env["partner.application.specification.key"].create(
+            {"name": "Another New Key"}
+        )
+        # Precondition: the new key is NOT allowed yet.
+        self.assertNotIn(
+            another_new_key, self.application_type.allowed_specification_keys
+        )
+
+        spec.write({"key_id": another_new_key.id})
+
+        self.assertEqual(spec.key_id, another_new_key)
+        self.assertIn(
+            another_new_key, self.application_type.allowed_specification_keys
+        )

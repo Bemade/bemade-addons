@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="conversation_transport_view_form_imap" model="ir.ui.view">
+        <field name="name">conversation.transport.view.form.imap</field>
+        <field name="model">conversation.transport</field>
+        <field
+      name="inherit_id"
+      ref="conversation_base.conversation_transport_view_form"
+    />
+        <field name="arch" type="xml">
+            <group name="capabilities" position="after">
+                <group
+          name="imap_smtp"
+          string="IMAP / SMTP"
+          invisible="provider != 'imap'"
+        >
+                    <field name="imap_host" />
+                    <field name="imap_port" />
+                    <field name="imap_ssl" />
+                    <field name="imap_folder" />
+                    <field name="smtp_host" />
+                    <field name="smtp_port" />
+                    <field name="smtp_ssl" />
+                    <field name="password" password="True" />
+                </group>
+            </group>
+        </field>
+    </record>
+</odoo>

@@ -23,6 +23,10 @@
                                 <label for="sale_late_activity_user_id" class="col-3 o_light_label"/>
                                 <field name="sale_late_activity_user_id" class="col-3"/>
                             </div>
+                            <div class="row mt8">
+                                <label for="sale_late_renotify_cooldown_days" class="col-3 o_light_label"/>
+                                <field name="sale_late_renotify_cooldown_days" class="col-3"/>
+                            </div>
                         </div>
                     </setting>
                 </block>
@@ -52,6 +56,10 @@
                             <div class="row mt8">
                                 <label for="purchase_late_activity_user_id" class="col-3 o_light_label"/>
                                 <field name="purchase_late_activity_user_id" class="col-3"/>
+                            </div>
+                            <div class="row mt8">
+                                <label for="purchase_late_renotify_cooldown_days" class="col-3 o_light_label"/>
+                                <field name="purchase_late_renotify_cooldown_days" class="col-3"/>
                             </div>
                         </div>
                     </setting>

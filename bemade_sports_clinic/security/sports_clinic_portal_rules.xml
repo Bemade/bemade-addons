@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
     <data noupdate="1">
-        <!-- Medical professionals (field therapists) can access all patients -->
+        <!-- Portal therapists access patients on teams they staff (manual or
+             auto-granted via event coverage). -->
         <record id="portal_medical_professional_patient_access" model="ir.rule">
             <field name="name">Portal Medical Professionals Access to Patients</field>
             <field name="model_id" ref="model_sports_patient"/>
@@ -10,10 +11,10 @@
             <field name="perm_write" eval="True"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_unlink" eval="False"/>
-            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="domain_force">[('team_ids.staff_ids.user_ids', 'in', user.id)]</field>
         </record>
 
-        <!-- Medical professionals can create injuries for any patient -->
+        <!-- Portal therapists access injuries on patients of teams they staff. -->
         <record id="portal_medical_professional_injury_access" model="ir.rule">
             <field name="name">Portal Medical Professionals Access to Patient Injuries</field>
             <field name="model_id" ref="model_sports_patient_injury"/>
@@ -22,10 +23,11 @@
             <field name="perm_write" eval="True"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_unlink" eval="False"/>
-            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="domain_force">[('patient_id.team_ids.staff_ids.user_ids', 'in', user.id)]</field>
         </record>
 
-        <!-- Team coaches can create injuries only for their team's players -->
+        <!-- Team coaches can create injuries only for their team's players,
+             and cannot see/edit injuries flagged hidden_from_coaches. -->
         <record id="portal_coach_injury_access" model="ir.rule">
             <field name="name">Portal Coaches Access to Patient Injuries</field>
             <field name="model_id" ref="model_sports_patient_injury"/>
@@ -34,7 +36,8 @@
             <field name="perm_write" eval="True"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_unlink" eval="False"/>
-            <field name="domain_force">[('patient_id.team_ids.staff_ids.user_ids', 'in', user.id)]</field>
+            <field name="domain_force">[('patient_id.team_ids.staff_ids.user_ids', 'in', user.id),
+                                       ('hidden_from_coaches', '=', False)]</field>
         </record>
         
         <!-- Team staff can view and manage their team's players -->
@@ -49,7 +52,7 @@
             <field name="domain_force">[('team_ids.staff_ids.user_ids', 'in', user.id)]</field>
         </record>
         
-        <!-- Treatment professionals can manage all players -->
+        <!-- Portal therapists manage players on teams they staff. -->
         <record id="portal_treatment_professional_player_access" model="ir.rule">
             <field name="name">Portal Treatment Professional Access to Players</field>
             <field name="model_id" ref="model_sports_patient"/>
@@ -58,10 +61,10 @@
             <field name="perm_write" eval="True"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_unlink" eval="True"/>
-            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="domain_force">[('team_ids.staff_ids.user_ids', 'in', user.id)]</field>
         </record>
-        
-        <!-- Portal treatment professionals can access all teams -->
+
+        <!-- Portal therapists access teams they staff. -->
         <record id="portal_treatment_professional_team_access" model="ir.rule">
             <field name="name">Portal Treatment Professional Access to Teams</field>
             <field name="model_id" ref="model_sports_team"/>
@@ -70,7 +73,7 @@
             <field name="perm_write" eval="False"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_unlink" eval="False"/>
-            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="domain_force">[('staff_ids.user_ids', 'in', user.id)]</field>
         </record>
         
         <!-- Portal team coaches can read teams that share patients with their accessible teams -->
@@ -100,7 +103,10 @@
             ]</field>
         </record>
         
-        <!-- Portal treatment professionals can access partners linked to patients -->
+        <!-- Portal therapists access partners broadly (kept permissive for
+             chatter follower lookups, contact rendering, etc. — matches the
+             portal_team_coach_partner_access rule). Tightening this further
+             needs careful coverage of all partner-name display paths. -->
         <record id="portal_treatment_professional_partner_access" model="ir.rule">
             <field name="name">Portal Treatment Professional Access to Partners</field>
             <field name="model_id" ref="base.model_res_partner"/>

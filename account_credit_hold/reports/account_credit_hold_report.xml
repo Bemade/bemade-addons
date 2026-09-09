@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="account_credit_hold_report_action" model="ir.actions.report">
+        <field name="name">Credit Hold Report</field>
+        <field name="model">res.partner</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">account_credit_hold.credit_hold_report</field>
+        <field name="report_file">account_credit_hold.credit_hold_report</field>
+        <field name="binding_model_id" ref="base.model_res_partner"/>
+        <field name="binding_type">action</field>
+        <field name="groups_id" eval="[(4, ref('account.group_account_manager')), (4, ref('account.group_account_user'))]"/>
+    </record>
+
+    <template id="credit_hold_report">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="partner">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2>Credit Hold Report - <span t-field="partner.name"/></h2>
+                        
+                        <div class="row mb32">
+                            <div class="col-6">
+                                <strong>Customer:</strong> <span t-field="partner.name"/>
+                            </div>
+                            <div class="col-6">
+                                <strong>Email:</strong> <span t-field="partner.email"/>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb32">
+                            <div class="col-6">
+                                <strong>On Hold:</strong> 
+                                <span t-if="partner.on_hold" class="text-danger">YES</span>
+                                <span t-if="not partner.on_hold" class="text-success">NO</span>
+                            </div>
+                            <div class="col-6">
+                                <strong>Postpone Until:</strong> <span t-field="partner.postpone_hold_until"/>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb32">
+                            <div class="col-6">
+                                <strong>Followup Status:</strong> <span t-field="partner.followup_status"/>
+                            </div>
+                            <div class="col-6">
+                                <strong>Total Due:</strong> <span t-field="partner.total_due" t-options='{"widget": "monetary"}'/>
+                            </div>
+                        </div>
+                        
+                        <h3>Outstanding Invoices</h3>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Invoice Number</th>
+                                    <th>Date</th>
+                                    <th>Due Date</th>
+                                    <th>Amount</th>
+                                    <th>Due</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="partner.unreconciled_aml_ids.filtered(lambda line: line.move_id.move_type == 'out_invoice')" t-as="line">
+                                    <tr>
+                                        <td><span t-field="line.move_id.name"/></td>
+                                        <td><span t-field="line.move_id.invoice_date"/></td>
+                                        <td><span t-field="line.move_id.invoice_date_due"/></td>
+                                        <td><span t-field="line.move_id.amount_total" t-options='{"widget": "monetary"}'/></td>
+                                        <td><span t-field="line.amount_residual" t-options='{"widget": "monetary"}'/></td>
+                                        <td><span t-field="line.move_id.payment_state"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                        
+                        <div class="mt32 text-center">
+                            <p class="text-muted">
+                                Report generated on <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%Y-%m-%d %H:%M:%S')"/>
+                            </p>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

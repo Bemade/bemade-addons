@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Generic conversation.transport form/list/search (task #3965). Only
+         the provider-agnostic fields (identity, capability flags, owner)
+         live here; each opt-in provider module (conversation_imap,
+         conversation_gmail, ...) extends conversation_transport_view_form
+         with its own connection-fields group, shown only for its own
+         `provider` value, so this base view never needs to know a
+         provider's fields exist. -->
+    <record id="conversation_transport_view_form" model="ir.ui.view">
+        <field name="name">conversation.transport.view.form</field>
+        <field name="model">conversation.transport</field>
+        <field name="arch" type="xml">
+            <form string="Mail Account">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" />
+                        <h1>
+                            <field name="name" placeholder="e.g. Support Inbox" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group name="identity">
+                            <field name="provider" />
+                            <field name="login" />
+                            <field name="user_id" />
+                            <field name="active" />
+                        </group>
+                        <group name="capabilities" string="Capabilities">
+                            <field name="browsable" />
+                            <field name="searchable" />
+                            <field name="sendable" />
+                            <field name="pushable" />
+                            <field name="artifact_only" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="conversation_transport_view_list" model="ir.ui.view">
+        <field name="name">conversation.transport.view.list</field>
+        <field name="model">conversation.transport</field>
+        <field name="arch" type="xml">
+            <list string="Mail Accounts">
+                <field name="name" />
+                <field name="provider" />
+                <field name="login" />
+                <field name="user_id" />
+                <field name="browsable" />
+                <field name="sendable" />
+            </list>
+        </field>
+    </record>
+
+    <record id="conversation_transport_view_search" model="ir.ui.view">
+        <field name="name">conversation.transport.view.search</field>
+        <field name="model">conversation.transport</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="provider" />
+                <field name="user_id" />
+                <filter
+          name="filter_mine"
+          string="My Accounts"
+          domain="[('user_id', '=', uid)]"
+        />
+                <filter
+          name="filter_shared"
+          string="Shared Accounts"
+          domain="[('user_id', '=', False)]"
+        />
+                <group expand="0" string="Group By">
+                    <filter
+            name="groupby_provider"
+            string="Provider"
+            context="{'group_by': 'provider'}"
+          />
+                </group>
+            </search>
+        </field>
+    </record>
+</odoo>

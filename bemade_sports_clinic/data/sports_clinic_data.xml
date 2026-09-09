@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
+    <!-- Subtypes are noupdate=1 so re-installing/upgrading the module does not
+         disturb existing follower subscriptions or default flags that admins
+         may have customized. -->
     <data noupdate="1">
         <record id="subtype_patient_injury_external_update" model="mail.message.subtype">
             <field name="name">Patient File Update (External)</field>
@@ -19,6 +22,28 @@
             <field name="hidden" eval="False"/>
             <field name="description">Internal notes updates for treatment professionals</field>
         </record>
+        <record id="subtype_patient_external_update" model="mail.message.subtype">
+            <field name="name">Patient File Update (External)</field>
+            <field name="res_model">sports.patient</field>
+            <field name="default" eval="True"/>
+            <field name="internal" eval="False"/>
+            <field name="sequence" eval="4"/>
+            <field name="hidden" eval="False"/>
+            <field name="description"></field>
+        </record>
+        <record id="subtype_patient_internal_update" model="mail.message.subtype">
+            <field name="name">Patient File Update (Internal)</field>
+            <field name="res_model">sports.patient</field>
+            <field name="default" eval="True"/>
+            <field name="internal" eval="True"/>
+            <field name="sequence" eval="4"/>
+            <field name="hidden" eval="False"/>
+        </record>
+    </data>
+
+    <!-- Mail templates are updatable so body_html / subject corrections flow
+         through on a regular module upgrade. -->
+    <data>
         <record id="mail_template_patient_injury_status_update" model="mail.template">
             <field name="name">Patient Status Update</field>
             <field name="model_id" ref="bemade_sports_clinic.model_sports_patient_injury"/>
@@ -44,30 +69,13 @@
                 </div>
             </field>
         </record>
-        <record id="subtype_patient_external_update" model="mail.message.subtype">
-            <field name="name">Patient File Update (External)</field>
-            <field name="res_model">sports.patient</field>
-            <field name="default" eval="True"/>
-            <field name="internal" eval="False"/>
-            <field name="sequence" eval="4"/>
-            <field name="hidden" eval="False"/>
-            <field name="description"></field>
-        </record>
-        <record id="subtype_patient_internal_update" model="mail.message.subtype">
-            <field name="name">Patient File Update (Internal)</field>
-            <field name="res_model">sports.patient</field>
-            <field name="default" eval="True"/>
-            <field name="internal" eval="True"/>
-            <field name="sequence" eval="4"/>
-            <field name="hidden" eval="False"/>
-        </record>
         <record id="mail_template_patient_status_update" model="mail.template">
             <field name="name">Patient Status Update</field>
             <field name="model_id" ref="bemade_sports_clinic.model_sports_patient"/>
             <field name="subject">Patient Status Update for {{ object.name}}</field>
             <field name="body_html" type="html">
-                <p>An update has been posted to the  record for <t t-out="object.name"/>'s. Click
-                    <a t-attf-href="{{ user.company_id.website }}/my/players">here</a> to view the  details.
+                <p>An update has been posted to the record for <t t-out="object.name"/>. Click
+                    <a t-attf-href="{{ user.company_id.website }}/my/player?player_id={{ object.id }}">here</a> to view the details.
                 </p>
             </field>
         </record>

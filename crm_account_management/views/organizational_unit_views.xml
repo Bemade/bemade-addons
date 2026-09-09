@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Tree View -->
+    <record id="organizational_unit_view_tree" model="ir.ui.view">
+        <field name="name">organizational.unit.tree</field>
+        <field name="model">organizational.unit</field>
+        <field name="arch" type="xml">
+            <list string="Customer Accounts">
+                <field name="name"/>
+                <field name="owner_id"/>
+                <field name="parent_id"/>
+                <field name="user_id" widget="many2one_avatar_user"/>
+                <field name="owner_city" optional="hide"/>
+                <field name="ytd_sales" widget="monetary" string="YTD Sales"/>
+                <field name="ytd_sales_change_pct" widget="percentage" string="YTD Chg"/>
+                <field name="rolling_12m_sales" widget="monetary" string="Rolling 12M"/>
+                <field name="rolling_12m_change_pct" widget="percentage" string="12M Chg"/>
+                <field name="open_orders_count"/>
+                <field name="open_opportunities_count"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View with Dashboard -->
+    <record id="organizational_unit_view_form" model="ir.ui.view">
+        <field name="name">organizational.unit.form</field>
+        <field name="model">organizational.unit</field>
+        <field name="arch" type="xml">
+            <form string="Customer Account">
+                <header>
+                    <button name="action_print_annual_review" 
+                            type="object" 
+                            string="Print Annual Review" 
+                            class="btn-primary"
+                            icon="fa-print"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_quotations" type="object" class="oe_stat_button" icon="fa-file-text-o">
+                            <div class="o_stat_info">
+                                <field name="open_quotations_count" class="o_stat_value"/>
+                                <span class="o_stat_text">Quotations</span>
+                            </div>
+                        </button>
+                        <button name="action_view_orders" type="object" class="oe_stat_button" icon="fa-shopping-cart">
+                            <div class="o_stat_info">
+                                <field name="open_orders_count" class="o_stat_value"/>
+                                <span class="o_stat_text">Open Orders</span>
+                            </div>
+                        </button>
+                        <button name="action_view_open_opportunities" type="object" class="oe_stat_button" icon="fa-star">
+                            <div class="o_stat_info">
+                                <field name="open_opportunities_count" class="o_stat_value"/>
+                                <span class="o_stat_text">Opportunities</span>
+                            </div>
+                        </button>
+                        <button name="action_view_invoices" type="object" class="oe_stat_button" icon="fa-pencil-square-o">
+                            <div class="o_stat_info">
+                                <field name="ytd_sales" class="o_stat_value" widget="monetary"/>
+                                <span class="o_stat_text">YTD Sales</span>
+                            </div>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Account Name"/>
+                        </h1>
+                    </div>
+                    
+                    <!-- Dashboard Metrics Section -->
+                    <group string="Dashboard">
+                        <group>
+                            <label for="ytd_sales" string="YTD Sales (Fiscal)"/>
+                            <div class="o_row">
+                                <button name="action_view_invoices_ytd" type="object"
+                                        class="btn btn-link p-0 text-start" style="font-size:inherit;">
+                                    <field name="ytd_sales" widget="monetary" nolabel="1"/>
+                                </button>
+                                <span class="text-muted mx-2">vs</span>
+                                <button name="action_view_invoices_prior_ytd" type="object"
+                                        class="btn btn-link p-0 text-start" style="font-size:inherit;">
+                                    <field name="ytd_sales_prior_year" widget="monetary" nolabel="1"/>
+                                </button>
+                                <span class="text-muted">(prior)</span>
+                            </div>
+                            <field name="ytd_sales_change_pct" widget="percentage" string="YTD Change"/>
+                            <label for="rolling_12m_sales" string="Rolling 12 Months"/>
+                            <div class="o_row">
+                                <button name="action_view_orders_rolling_12m" type="object"
+                                        class="btn btn-link p-0 text-start" style="font-size:inherit;">
+                                    <field name="rolling_12m_sales" widget="monetary" nolabel="1"/>
+                                </button>
+                                <span class="text-muted mx-2">vs</span>
+                                <button name="action_view_orders_prior_rolling_12m" type="object"
+                                        class="btn btn-link p-0 text-start" style="font-size:inherit;">
+                                    <field name="rolling_12m_sales_prior" widget="monetary" nolabel="1"/>
+                                </button>
+                                <span class="text-muted">(prior)</span>
+                            </div>
+                            <field name="rolling_12m_change_pct" widget="percentage" string="Rolling 12M Change"/>
+                        </group>
+                        <group>
+                            <label for="open_quotations_count" string="Open Quotations"/>
+                            <div class="o_row">
+                                <button name="action_view_quotations" type="object"
+                                        class="btn btn-link p-0 text-start d-flex align-items-center gap-1" style="font-size:inherit;">
+                                    <field name="open_quotations_count" nolabel="1"/>
+                                    <span class="text-muted">/</span>
+                                    <field name="open_quotations_amount" widget="monetary" nolabel="1"/>
+                                </button>
+                            </div>
+                            <label for="won_quotations_count" string="Bookings (YTD)"/>
+                            <div class="o_row">
+                                <button name="action_view_won_quotations_ytd" type="object"
+                                        class="btn btn-link p-0 text-start d-flex align-items-center gap-1" style="font-size:inherit;">
+                                    <field name="won_quotations_count" nolabel="1"/>
+                                    <span class="text-muted">/</span>
+                                    <field name="won_quotations_amount" widget="monetary" nolabel="1"/>
+                                </button>
+                            </div>
+                            <label for="won_quotations_prior_count" string="Bookings (Prior)"/>
+                            <div class="o_row">
+                                <button name="action_view_won_quotations_prior_ytd" type="object"
+                                        class="btn btn-link p-0 text-start d-flex align-items-center gap-1" style="font-size:inherit;">
+                                    <field name="won_quotations_prior_count" nolabel="1"/>
+                                    <span class="text-muted">/</span>
+                                    <field name="won_quotations_prior_amount" widget="monetary" nolabel="1"/>
+                                </button>
+                            </div>
+                        </group>
+                        <group>
+                            <label for="open_orders_count" string="Open Orders"/>
+                            <div class="o_row">
+                                <button name="action_view_orders" type="object"
+                                        class="btn btn-link p-0 text-start d-flex align-items-center gap-1" style="font-size:inherit;">
+                                    <field name="open_orders_count" nolabel="1"/>
+                                    <span class="text-muted">/</span>
+                                    <field name="open_orders_amount" widget="monetary" nolabel="1"/>
+                                </button>
+                            </div>
+                            <label for="open_orders_late_count" string="Late"/>
+                            <div class="o_row">
+                                <button name="action_view_orders_late" type="object"
+                                        class="btn btn-link p-0 text-start d-flex align-items-center gap-1 text-danger" style="font-size:inherit;">
+                                    <field name="open_orders_late_count" nolabel="1"/>
+                                    <span class="text-muted">/</span>
+                                    <field name="open_orders_late_amount" widget="monetary" nolabel="1"/>
+                                </button>
+                            </div>
+                            <label for="open_orders_ontime_count" string="On Time"/>
+                            <div class="o_row">
+                                <button name="action_view_orders_ontime" type="object"
+                                        class="btn btn-link p-0 text-start d-flex align-items-center gap-1 text-success" style="font-size:inherit;">
+                                    <field name="open_orders_ontime_count" nolabel="1"/>
+                                    <span class="text-muted">/</span>
+                                    <field name="open_orders_ontime_amount" widget="monetary" nolabel="1"/>
+                                </button>
+                            </div>
+                            <field name="open_orders_to_invoice_amount" widget="monetary" string="Remaining to Invoice"/>
+                            <field name="avg_gross_profit_percentage" widget="percentage" string="Avg Gross Profit %"/>
+                            <field name="all_ou_avg_gross_profit_percentage" widget="percentage" string="Avg GP % (all OUs)"/>
+                            <field name="last_sale_order_date" string="Last Sales Order"/>
+                        </group>
+                        <group>
+                            <label for="open_opportunities_count" string="Open Opportunities"/>
+                            <div class="o_row">
+                                <button name="action_view_open_opportunities" type="object"
+                                        class="btn btn-link p-0 text-start d-flex align-items-center gap-1" style="font-size:inherit;">
+                                    <field name="open_opportunities_count" nolabel="1"/>
+                                    <span class="text-muted">/</span>
+                                    <field name="open_opportunities_amount" widget="monetary" nolabel="1"/>
+                                </button>
+                            </div>
+                            <label for="won_opportunities_count" string="Won Opportunities (YTD)"/>
+                            <div class="o_row">
+                                <button name="action_view_won_opportunities_ytd" type="object"
+                                        class="btn btn-link p-0 text-start d-flex align-items-center gap-1" style="font-size:inherit;">
+                                    <field name="won_opportunities_count" nolabel="1"/>
+                                    <span class="text-muted">/</span>
+                                    <field name="won_opportunities_amount" widget="monetary" nolabel="1"/>
+                                </button>
+                            </div>
+                        </group>
+                    </group>
+
+                    <!-- Buying Trends Widget -->
+                    <separator string="Buying Trends"/>
+                    <field name="id" invisible="1"/>
+                    <widget name="buying_trends" ou_id="id"/>
+
+                    <!-- Account Details -->
+                    <group string="Account Details">
+                        <group>
+                            <field name="owner_id"/>
+                            <field name="parent_id"/>
+                            <field name="user_id" widget="many2one_avatar_user"/>
+                        </group>
+                        <group>
+                            <field name="fiscal_year_start_date"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                        <group string="Address" name="address">
+                            <field name="owner_street"/>
+                            <field name="owner_street2"/>
+                            <field name="owner_city"/>
+                            <field name="owner_state_id"/>
+                            <field name="owner_zip"/>
+                            <field name="owner_country_id"/>
+                        </group>
+                    </group>
+
+                    <!-- Child Accounts -->
+                    <group string="Child Accounts" invisible="not child_ids">
+                        <field name="child_ids" nolabel="1">
+                            <list>
+                                <field name="name"/>
+                                <field name="owner_id"/>
+                                <field name="user_id" widget="many2one_avatar_user"/>
+                            </list>
+                        </field>
+                    </group>
+
+                    <!-- Explicit Members -->
+                    <group string="Explicit Members" invisible="not member_ids">
+                        <field name="member_ids" nolabel="1" widget="many2many_tags"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="organizational_unit_view_search" model="ir.ui.view">
+        <field name="name">organizational.unit.search</field>
+        <field name="model">organizational.unit</field>
+        <field name="arch" type="xml">
+            <search string="Customer Accounts">
+                <field name="name"/>
+                <field name="owner_id"/>
+                <field name="user_id"/>
+                <filter string="My Accounts" name="my_accounts" domain="[('user_id', '=', uid)]"/>
+                <separator/>
+                <filter string="Has YTD Sales" name="has_ytd_sales" domain="[('ytd_sales', '>', 0)]"/>
+                <filter string="YTD Growth" name="ytd_growth" domain="[('ytd_sales_change_pct', '>', 0)]"/>
+                <filter string="YTD Decline" name="ytd_decline" domain="[('ytd_sales_change_pct', '&lt;', 0)]"/>
+                <separator/>
+                <filter string="Open Quotations" name="has_quotations" domain="[('open_quotations_count', '>', 0)]"/>
+                <filter string="Open Orders" name="has_orders" domain="[('open_orders_count', '>', 0)]"/>
+                <filter string="Open Opportunities" name="has_opportunities" domain="[('open_opportunities_count', '>', 0)]"/>
+                <separator/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Account Manager" name="group_user" context="{'group_by': 'user_id'}"/>
+                    <filter string="Parent Account" name="group_parent" context="{'group_by': 'parent_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="organizational_unit_action" model="ir.actions.act_window">
+        <field name="name">Customer Accounts</field>
+        <field name="res_model">organizational.unit</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="organizational_unit_view_search"/>
+        <field name="context">{'search_default_my_accounts': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first customer account
+            </p>
+            <p>
+                Customer accounts are automatically created for top-level company partners.
+                You can also create accounts manually to group partners together.
+            </p>
+        </field>
+    </record>
+
+</odoo>

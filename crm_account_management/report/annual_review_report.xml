@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_report_annual_review" model="ir.actions.report">
+        <field name="name">Annual Review Report</field>
+        <field name="model">organizational.unit</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">crm_account_management.report_annual_review</field>
+        <field name="report_file">crm_account_management.report_annual_review</field>
+        <field name="print_report_name">'Annual Review - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_organizational_unit"/>
+        <field name="binding_type">report</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="conversation_inbox_reply_wizard_view_form" model="ir.ui.view">
+        <field name="name">conversation.inbox.reply.wizard.view.form</field>
+        <field name="model">conversation.inbox.reply.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Compose">
+                <field name="transport_id" invisible="1" />
+                <field name="external_id" invisible="1" />
+                <field name="in_reply_to" invisible="1" />
+                <group>
+                    <field name="action_type" widget="radio" />
+                    <field name="to_emails" placeholder="someone@example.com, ..." />
+                    <field name="cc_emails" placeholder="Comma-separated" />
+                    <field name="bcc_emails" placeholder="Comma-separated" />
+                    <field name="subject" />
+                    <field
+            name="forwarded_filenames"
+            invisible="not forwarded_filenames"
+          />
+                    <!-- Above the body, not after it. Whether this
+                         exchange is kept in Odoo is a decision the user
+                         makes about the message they are writing, so it
+                         has to be visible while they write it: below a
+                         full html editor it sits under the fold on any
+                         message of ordinary length, which is how the
+                         attachments control got moved out of there too. -->
+                    <field name="file_in_odoo" />
+                    <field
+            name="filing_mode"
+            widget="radio"
+            invisible="not file_in_odoo"
+            required="file_in_odoo"
+          />
+                    <field
+            name="conversation_id"
+            invisible="not file_in_odoo or filing_mode != 'existing'"
+            required="file_in_odoo and filing_mode == 'existing'"
+            options="{'no_create': True}"
+          />
+                </group>
+                <!-- Forwarding with no added comment is ordinary use; a
+                     reply with an empty body is not. -->
+                <field name="body" required="action_type != 'forward'" />
+                <footer>
+                    <button
+            name="action_send"
+            string="Send"
+            type="object"
+            class="btn-primary"
+          />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
+                    <!-- In the footer, not under the body: the body is a
+                         full html editor, so anything placed after it is
+                         below the fold on a message of ordinary length
+                         and the user has to scroll past the whole draft
+                         to attach a file. Stock mail.compose.message
+                         puts the widget here for the same reason. -->
+                    <field name="attachment_ids" widget="many2many_binary" />
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

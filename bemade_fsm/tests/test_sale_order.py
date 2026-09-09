@@ -1,6 +1,6 @@
 from .test_task_template import BemadeFSMBaseTest
 from odoo.tests import tagged, Form
-from odoo import Command
+from odoo import Command, fields
 
 
 @tagged("-at_install", "post_install")
@@ -295,6 +295,114 @@ class TestSalesOrder(BemadeFSMBaseTest):
         self.assertEqual(so2.order_line[0].visit_id, visit2)
         self.assertEqual(visit2.label, visit.label)
         self.assertFalse(visit2.approx_date)
+
+    def test_duplicate_sale_order_visits_have_distinct_section_lines(self):
+        """When duplicating an SO to create an alternative quotation, visits must be
+        duplicated with NEW section lines (not shared with original), and must NOT
+        be linked to any existing tasks from the original SO.
+
+        This is the core requirement for "Créer Alternative" functionality:
+        - Each visit gets a new section line (duplicated from original)
+        - Visits are linked to their own section lines (not the old ones)
+        - Visits have no tasks attached (task_ids not copied)
+        - Approximate dates are not copied (copy=False on approx_date)
+        - Visit labels are preserved
+
+        This ensures the alternative SO can be modified independently of the original,
+        and can have its own visits scheduled as new tasks when confirmed.
+        """
+        so, visit, line1, line2 = self._generate_so_with_one_visit_two_lines()
+
+        # Set approximate date to verify it's not copied
+        visit.approx_date = fields.Date.today()
+
+        so2 = so.copy()
+
+        # 1. Verify visit exists on new SO
+        self.assertEqual(len(so2.visit_ids), 1, "Alternative SO should have one visit")
+        visit2 = so2.visit_ids[0]
+
+        # 2. Verify visits are different records
+        self.assertNotEqual(visit, visit2, "Visits should be distinct records")
+
+        # 3. Verify section lines are different (not shared)
+        self.assertNotEqual(
+            visit.so_section_id, visit2.so_section_id,
+            "Visits should have different section lines"
+        )
+        self.assertEqual(
+            visit2.so_section_id.order_id, so2,
+            "New visit's section line should belong to the alternative SO"
+        )
+
+        # 4. Verify visit label is preserved
+        self.assertEqual(visit2.label, visit.label, "Visit label should be preserved")
+
+        # 5. Verify approximate date is NOT copied
+        self.assertFalse(visit2.approx_date, "Approximate date should not be copied")
+
+        # 6. Verify new visit has no tasks attached (task_ids is empty)
+        self.assertFalse(
+            visit2.task_ids, "New visit should not have any tasks attached"
+        )
+        self.assertFalse(
+            visit2.task_id, "New visit should not have a task attached"
+        )
+
+        # 7. Verify section lines are linked to new visit correctly
+        # The new section line should be linked to the new visit
+        self.assertEqual(
+            len(so2.order_line), 3,
+            "Alternative SO should have 3 lines: section + 2 products"
+        )
+        section_line = so2.order_line.filtered(lambda l: l.display_type == 'line_section')
+        self.assertEqual(len(section_line), 1, "Should have exactly one section line")
+        self.assertEqual(
+            section_line.visit_id, visit2,
+            "Section line should be linked to the new visit"
+        )
+
+    def test_duplicate_sale_order_visits_preserve_order_structure(self):
+        """When duplicating an SO with multiple visits, the order structure should be
+        preserved - each visit should be linked to its own section line, and section
+        lines should appear in the same order as in the original SO."""
+        so = self._generate_sale_order()
+        visit1 = self._generate_visit(sale_order=so, label="First Visit")
+        visit2 = self._generate_visit(sale_order=so, label="Second Visit")
+        product = self._generate_product()
+
+        # Create lines with specific ordering: visit1 -> line1 -> visit2 -> line2
+        line1 = self._generate_sale_order_line(sale_order=so, product=product)
+        line2 = self._generate_sale_order_line(sale_order=so, product=product)
+        visit1.so_section_id.sequence = 1
+        line1.sequence = 2
+        visit2.so_section_id.sequence = 3
+        line2.sequence = 4
+
+        so2 = so.copy()
+
+        # Verify both visits are duplicated
+        self.assertEqual(len(so2.visit_ids), 2, "Alternative SO should have two visits")
+
+        # Verify visits are ordered correctly (by section line sequence)
+        so2_visits = so2.visit_ids.sorted(key=lambda v: v.so_section_id.sequence)
+        self.assertEqual(so2_visits[0].label, "First Visit")
+        self.assertEqual(so2_visits[1].label, "Second Visit")
+
+        # Verify each visit has its own section line
+        self.assertNotEqual(
+            so2_visits[0].so_section_id, so2_visits[1].so_section_id,
+            "Each visit should have its own section line"
+        )
+
+        # Verify section lines are not shared with original SO
+        original_sections = so.order_line.filtered(lambda l: l.display_type == 'line_section')
+        new_sections = so2.order_line.filtered(lambda l: l.display_type == 'line_section')
+        for new_section in new_sections:
+            self.assertNotIn(
+                new_section, original_sections,
+                "New sections should not be in original SO"
+            )
 
     def test_confirming_sale_order_creates_visit_if_none_created(self):
         so = self._generate_sale_order()

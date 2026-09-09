@@ -8,3 +8,9 @@ class FollowupLine(models.Model):
         string="Place on Credit Hold",
         help="Place clients on account hold, restricting confirmation of new orders.",
     )
+    attach_credit_hold_report = fields.Boolean(
+        string="Attach Credit Hold Report",
+        help="DEPRECATED: PDF is now automatically sent with ALL followup emails for customers on credit hold.",
+        default=False,
+        invisible=True,
+    )

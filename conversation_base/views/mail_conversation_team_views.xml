@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="mail_conversation_team_view_form" model="ir.ui.view">
+        <field name="name">mail.conversation.team.view.form</field>
+        <field name="model">mail.conversation.team</field>
+        <field name="arch" type="xml">
+            <form string="Conversation Team">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" />
+                        <h1>
+                            <field name="name" />
+                        </h1>
+                    </div>
+                    <group>
+                        <field name="active" />
+                        <field name="default_user_id" />
+                        <field name="member_ids" widget="many2many_tags" />
+                        <field name="inbox_transport_ids" widget="many2many_tags" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="mail_conversation_team_view_list" model="ir.ui.view">
+        <field name="name">mail.conversation.team.view.list</field>
+        <field name="model">mail.conversation.team</field>
+        <field name="arch" type="xml">
+            <list string="Conversation Teams">
+                <field name="name" />
+                <field name="default_user_id" />
+                <field name="member_ids" widget="many2many_tags" />
+            </list>
+        </field>
+    </record>
+
+    <record id="mail_conversation_team_action" model="ir.actions.act_window">
+        <field name="name">Conversation Teams</field>
+        <field name="res_model">mail.conversation.team</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem
+    id="menu_mail_conversation_team"
+    name="Teams"
+    parent="menu_mail_conversation_root"
+    action="mail_conversation_team_action"
+    sequence="20"
+  />
+</odoo>

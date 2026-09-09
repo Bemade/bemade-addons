@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="template_followup_report_invoice_list"
+              inherit_id="account_followup.template_followup_report">
+        <!--
+            Odoo 18 removed the inline invoice table from follow-up email bodies.
+            This template adds it back after the summary/body text.
+        -->
+        <xpath expr="//div[hasclass('o_account_reports_summary')]" position="after">
+            <t t-set="report_lines" t-value="report._get_followup_report_lines(options)"/>
+            <t t-set="col_headers" t-value="report._get_followup_report_columns_name()"/>
+            <t t-if="report_lines">
+                <table style="width:100%; border-collapse:collapse; margin-top:20px; font-size:13px;">
+                    <thead>
+                        <tr style="background-color:#f5f5f5; border-bottom:2px solid #dee2e6;">
+                            <!-- First header = "Reference", left-aligned -->
+                            <th style="text-align:left; padding:6px 8px; white-space:nowrap;">
+                                <t t-out="col_headers[0].get('name')"/>
+                            </th>
+                            <t t-foreach="col_headers[1:]" t-as="col_header">
+                                <th t-att-style="col_header.get('style', '') + ' padding:6px 8px;'">
+                                    <t t-out="col_header.get('name')"/>
+                                </th>
+                            </t>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="report_lines" t-as="line">
+                            <tr t-att-style="line.get('style', '')">
+                                <!-- First cell = invoice reference / line name -->
+                                <td style="padding:4px 8px;">
+                                    <t t-out="line.get('name', '')"/>
+                                </td>
+                                <t t-foreach="line.get('columns', [])" t-as="col">
+                                    <td t-att-style="'padding:4px 8px; ' + col.get('style', '')"
+                                        t-att-class="col.get('class', '')">
+                                        <t t-out="col.get('name', '')"/>
+                                    </td>
+                                </t>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+            </t>
+        </xpath>
+    </template>
+</odoo>

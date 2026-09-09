@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2024 Bemade Inc. (<https://www.bemade.org>). -->
+<!-- License LGPL-3 or later (http://www.gnu.org/licenses/lgpl). -->
+<odoo>
+    <record id="view_partner_form_address_ranking" model="ir.ui.view">
+        <field name="name">res.partner.form.address.ranking</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <!-- Insert favorite-address checkboxes after the address type span,
+                 only visible on child contacts (parent_id set, not a company). -->
+            <xpath expr="//span[@name='address_name']" position="after">
+                <group invisible="not parent_id or is_company" name="favorite_address_group">
+                    <field name="is_favorite_invoice"/>
+                    <field name="is_favorite_delivery"/>
+                </group>
+            </xpath>
+
+            <!-- Inject hidden field declarations into the inline kanban card so
+                 the boolean values are available for t-if rendering. -->
+            <xpath expr="//field[@name='child_ids']/kanban/templates/t[@t-name='card']/main"
+                   position="inside">
+                <field name="is_favorite_invoice" invisible="1"/>
+                <field name="is_favorite_delivery" invisible="1"/>
+            </xpath>
+
+            <!-- Overlay two star icons at the top-right of each kanban card:
+                 yellow star = favorite invoice address,
+                 blue star   = favorite delivery address. -->
+            <xpath expr="//field[@name='child_ids']/kanban/templates/t[@t-name='card']"
+                   position="inside">
+                <div class="position-absolute top-0 end-0 p-2 d-flex gap-1">
+                    <i t-if="record.is_favorite_invoice.raw_value"
+                       class="fa fa-star text-warning"
+                       title="Favorite invoice address"
+                       role="img" aria-label="Favorite invoice address"/>
+                    <i t-if="record.is_favorite_delivery.raw_value"
+                       class="fa fa-star text-primary"
+                       title="Favorite delivery address"
+                       role="img" aria-label="Favorite delivery address"/>
+                </div>
+            </xpath>
+
+            <!-- Expose the favorite toggles in the inline modal form that opens
+                 when a child-contact card is clicked. Gated to non-contact types
+                 to match the existing module's address-only fields convention. -->
+            <xpath expr="//field[@name='child_ids']/form//field[@name='mobile']"
+                   position="after">
+                <field name="is_favorite_invoice" widget="boolean_toggle"
+                       invisible="type == 'contact'"/>
+                <field name="is_favorite_delivery" widget="boolean_toggle"
+                       invisible="type == 'contact'"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -50,16 +50,16 @@
 <odoo>
     <data noupdate="0">
         
-        <!-- Record rule for portal treatment professionals to access mail.activity records -->
-        <!-- BROAD ACL ACCESS: Full CRUD on sports-related activities - controller enforces team filtering -->
+        <!-- Record rule for portal treatment professionals to access mail.activity records.
+             Activities are only visible when the related sports record is currently in the
+             user's team-staff scope. The previous OR branch granting visibility purely on
+             user_id == self left orphan assignee activities readable while their related
+             record was not — causing 403s on portal pages that browse the related record
+             (e.g. /my/activities rendering injury.display_name). -->
         <record id="mail_activity_portal_treatment_professional_rule" model="ir.rule">
             <field name="name">Portal Treatment Professional: Mail Activity Access</field>
             <field name="model_id" ref="mail.model_mail_activity"/>
-            <field name="domain_force">[  
-                '|',
-                '&amp;',
-                ('user_id', '=', user.id),
-                ('res_model', 'in', ['sports.patient', 'sports.patient.injury', 'sports.team', 'sports.event']),
+            <field name="domain_force">[
                 '|', '|', '|',
                 '&amp;', '&amp;',
                 ('res_model', '=', 'sports.patient'),
@@ -89,10 +89,6 @@
             <field name="name">Portal Team Coach: Mail Activity Read Access</field>
             <field name="model_id" ref="mail.model_mail_activity"/>
             <field name="domain_force">[
-                '|',
-                '&amp;',
-                ('user_id', '=', user.id),
-                ('res_model', 'in', ['sports.patient', 'sports.patient.injury', 'sports.team', 'sports.event']),
                 '|', '|', '|',
                 '&amp;', '&amp;',
                 ('res_model', '=', 'sports.patient'),

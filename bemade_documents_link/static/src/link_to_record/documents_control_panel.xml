@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!--
+        Add a "Link to Record" item to the Documents app's custom "Action"
+        dropdown (task #3678 defect 1). The Documents app renders its own
+        dropdown rather than the standard ActionMenus, so a bound server action
+        never shows up here; we add the entry point explicitly.
+    -->
+    <t t-name="bemade_documents_link.ControlPanel"
+       t-inherit="documents.ControlPanel"
+       t-inherit-mode="extension">
+        <xpath expr="//button[contains(@t-on-click, 'onDuplicate')]" position="after">
+            <button class="dropdown-item w-100 o_documents_link_to_record"
+                t-on-click="() => this.onLinkToRecord()"
+                t-if="canLinkToRecord">
+                <i class="fa fa-fw fa-link me-1"/>
+                <span class="d-inline-block">Link to Record</span>
+            </button>
+        </xpath>
+    </t>
+
+</templates>

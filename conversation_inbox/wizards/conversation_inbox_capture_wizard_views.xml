@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="conversation_inbox_capture_wizard_view_form" model="ir.ui.view">
+        <field name="name">conversation.inbox.capture.wizard.view.form</field>
+        <field name="model">conversation.inbox.capture.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Capture Inbox Item">
+                <group>
+                    <field name="transport_id" invisible="1" />
+                    <field name="external_id" invisible="1" />
+                    <field name="subject" />
+                    <field name="mode" widget="radio" />
+                </group>
+                <group invisible="mode != 'existing'">
+                    <field name="conversation_id" required="mode == 'existing'" />
+                </group>
+                <group invisible="mode != 'link'">
+                    <field name="res_model_id" required="mode == 'link'" />
+                    <field name="res_id" required="mode == 'link'" />
+                </group>
+                <group string="Assign (optional)">
+                    <field name="user_id" />
+                    <field name="team_id" />
+                </group>
+                <footer>
+                    <button
+            name="action_capture"
+            string="Capture"
+            type="object"
+            class="btn-primary"
+          />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,116 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* delivery_notification
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-10-08 12:00+0000\n"
+"PO-Revision-Date: 2025-10-08 12:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+"Language: fr\n"
+
+#. module: delivery_notification
+#: model:ir.model,name:delivery_notification.model_stock_picking
+msgid "Transfer"
+msgstr "Transfert"
+
+#. module: delivery_notification
+#: model:mail.message.subtype,name:delivery_notification.mt_tracking_number_set
+msgid "Tracking Number Set"
+msgstr "Numéro de suivi ajouté"
+
+#. module: delivery_notification
+#: model:mail.message.subtype,description:delivery_notification.mt_tracking_number_set
+msgid "Tracking number has been added to the delivery"
+msgstr "Le numéro de suivi a été ajouté à la livraison"
+
+#. module: delivery_notification
+#: model:mail.template,name:delivery_notification.mail_template_tracking_notification
+msgid "Delivery: Tracking Number Notification"
+msgstr "Livraison : Notification de numéro de suivi"
+
+#. module: delivery_notification
+#: model:mail.template,subject:delivery_notification.mail_template_tracking_notification
+#: code:addons/delivery_notification/models/stock_picking.py:73
+#, python-format
+msgid "Shipment Tracking Information"
+msgstr "Informations de suivi d'expédition"
+
+#. module: delivery_notification
+#: model:mail.template,description:delivery_notification.mail_template_tracking_notification
+msgid "Message posted to sale order when tracking number is added"
+msgstr "Message publié sur la commande client lorsque le numéro de suivi est ajouté"
+
+#. module: delivery_notification
+#: model:mail.template,body_html:delivery_notification.mail_template_tracking_notification
+msgid ""
+"<div style=\"font-family: Arial, sans-serif;\">\n"
+"    <p>Your order has been shipped with the following details:</p>\n"
+"    <ul>\n"
+"        <li>\n"
+"            <strong>Carrier:</strong>\n"
+"            <t t-set=\"picking\" t-value=\"object.picking_ids.filtered(lambda p: p.carrier_tracking_ref == tracking_ref)\"/>\n"
+"            <t t-out=\"picking.carrier_id.name if picking and picking.carrier_id else 'Not specified'\"/>\n"
+"        </li>\n"
+"        <li>\n"
+"            <strong>Tracking Number:</strong>\n"
+"            <t t-out=\"tracking_ref or 'Not available'\"/>\n"
+"        </li>\n"
+"        <t t-if=\"tracking_url\">\n"
+"            <li>\n"
+"                <strong>Tracking:</strong>\n"
+"                <a t-att-href=\"tracking_url\" target=\"_blank\">Click to track your shipment</a>\n"
+"            </li>\n"
+"        </t>\n"
+"        <t t-if=\"object.client_order_ref\">\n"
+"            <li>\n"
+"                <strong>Your PO Number:</strong>\n"
+"                <t t-out=\"object.client_order_ref\"/>\n"
+"            </li>\n"
+"        </t>\n"
+"    </ul>\n"
+"    <p>Thank you for your business!</p>\n"
+"</div>\n"
+"        "
+msgstr ""
+"<div style=\"font-family: Arial, sans-serif;\">\n"
+"    <p>Votre commande a été expédiée avec les détails suivants :</p>\n"
+"    <ul>\n"
+"        <li>\n"
+"            <strong>Transporteur :</strong>\n"
+"            <t t-set=\"picking\" t-value=\"object.picking_ids.filtered(lambda p: p.carrier_tracking_ref == tracking_ref)\"/>\n"
+"            <t t-out=\"picking.carrier_id.name if picking and picking.carrier_id else 'Non spécifié'\"/>\n"
+"        </li>\n"
+"        <li>\n"
+"            <strong>Numéro de suivi :</strong>\n"
+"            <t t-out=\"tracking_ref or 'Non disponible'\"/>\n"
+"        </li>\n"
+"        <t t-if=\"tracking_url\">\n"
+"            <li>\n"
+"                <strong>Suivi :</strong>\n"
+"                <a t-att-href=\"tracking_url\" target=\"_blank\">Cliquez pour suivre votre expédition</a>\n"
+"            </li>\n"
+"        </t>\n"
+"        <t t-if=\"object.client_order_ref\">\n"
+"            <li>\n"
+"                <strong>Votre numéro de BC :</strong>\n"
+"                <t t-out=\"object.client_order_ref\"/>\n"
+"            </li>\n"
+"        </t>\n"
+"    </ul>\n"
+"    <p>Merci pour votre confiance !</p>\n"
+"</div>\n"
+"        "
+
+#. module: delivery_notification
+#: code:addons/delivery_notification/models/stock_picking.py:54
+#, python-format
+msgid "Failed to get tracking link for picking %s: %s"
+msgstr "Impossible d'obtenir le lien de suivi pour le prélèvement %s : %s"

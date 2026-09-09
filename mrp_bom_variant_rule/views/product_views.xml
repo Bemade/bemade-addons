@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 Bemade Inc.
+     License LGPL-3 - See https://www.gnu.org/licenses/lgpl-3.0.html -->
+<odoo>
+    <!-- Generation is per variant, so the control belongs on the variant
+         form. A template has no single configuration to resolve rules
+         against. -->
+    <record id="view_product_form_bom_rule" model="ir.ui.view">
+        <field name="name">product.product.form.bom.rule</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_normal_form_view" />
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <field name="bom_rule_set_id" invisible="1" />
+                <button
+          name="action_bom_rule_regenerate"
+          type="object"
+          string="Regenerate BOM from Rules"
+          groups="mrp.group_mrp_manager"
+          invisible="not bom_rule_set_id"
+          title="Rebuild this variant's generated bill of materials
+                 from the ruleset as it stands now."
+        />
+            </xpath>
+        </field>
+    </record>
+
+    <!-- The variant reached from a template's Variants button is opened with
+         product_variant_easy_edit_view, which is a base view rather than an
+         inheritor of the normal form - so extending the normal form alone
+         leaves the control missing on the one route most people take to a
+         variant. Both forms need it. -->
+    <record id="view_product_variant_easy_form_bom_rule" model="ir.ui.view">
+        <field name="name">product.product.variant.easy.form.bom.rule</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_variant_easy_edit_view" />
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <field name="bom_rule_set_id" invisible="1" />
+                <button
+          name="action_bom_rule_regenerate"
+          type="object"
+          string="Regenerate BOM from Rules"
+          groups="mrp.group_mrp_manager"
+          invisible="not bom_rule_set_id"
+          title="Rebuild this variant's generated bill of materials from the ruleset as it stands now."
+        />
+            </xpath>
+        </field>
+    </record>
+</odoo>

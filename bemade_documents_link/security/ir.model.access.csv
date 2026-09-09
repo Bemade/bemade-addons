@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_documents_link_wizard_user,documents.link.wizard.user,model_documents_link_wizard,base.group_user,1,1,1,1
+access_bemade_documents_link_user,bemade.documents.link.user,model_bemade_documents_link,base.group_user,1,1,1,1

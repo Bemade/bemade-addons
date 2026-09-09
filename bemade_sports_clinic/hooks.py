@@ -1,14 +1,11 @@
-from odoo import api, SUPERUSER_ID
-
-
-def post_init_hook(cr, registry):
+def post_init_hook(env):
     """Migrate legacy team_id to team_ids on sports.event and recompute partner_id.
 
     - For any event having a non-null team_id column (from previous versions),
       set team_ids to that single team.
     - Recompute partner_id based on team_ids.
     """
-    env = api.Environment(cr, SUPERUSER_ID, {})
+    cr = env.cr
     Event = env['sports.event']
 
     # Best-effort: detect if legacy column exists; if not, skip silently

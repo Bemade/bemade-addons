@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<odoo>
+
+    <record id="mail_alias_view_form_utm" model="ir.ui.view">
+        <field name="name">mail.alias.view.form.utm.tracking</field>
+        <field name="model">mail.alias</field>
+        <field name="inherit_id" ref="mail.mail_alias_view_form"/>
+        <field name="arch" type="xml">
+            <field name="alias_defaults" position="after">
+                <field name="track_utm_source"/>
+                <field name="utm_source_id"
+                       required="track_utm_source"
+                       invisible="not track_utm_source"/>
+                <field name="utm_medium_id"
+                       invisible="not track_utm_source"/>
+                <field name="utm_campaign_id"
+                       invisible="not track_utm_source"/>
+            </field>
+        </field>
+    </record>
+
+</odoo>

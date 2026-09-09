@@ -1,0 +1,116 @@
+---
+# CI for bemade_mail_gateway (Odoo addon).
+#
+# Two stages run on every push:
+#   - lint     : ruff (Python style + bugbear + isort + simplify)
+#   - validate : structural checks on manifest, security XML, ACL CSV,
+#                view XMLs — catches typos that would only surface at
+#                Odoo install time.
+#
+# A `test` stage is documented but commented out: running Odoo tests in
+# CI requires either pulling a Bemade-internal Odoo image (the same one
+# bemade/odoo-ci's `build` stage produces for tenant repos) or a working
+# odoo:19.0 + postgres dind setup that knows about the addons path. That
+# wiring belongs in a follow-up — for now, contributors run the suite
+# locally:
+#
+#     odoo-bin -d test -i bemade_mail_gateway --test-enable \\
+#         --stop-after-init --log-level=test \\
+#         --test-tags=bemade_mail_gateway
+
+stages:
+  - lint
+  - validate
+
+variables:
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  PYTHONDONTWRITEBYTECODE: "1"
+
+.python:
+  image: python:3.12-slim
+  tags:
+    - docker
+  cache:
+    key:
+      files:
+        - pyproject.toml
+    paths:
+      - .cache/pip
+
+# ---------- Lint stage ----------
+
+ruff:
+  extends: .python
+  stage: lint
+  before_script:
+    - pip install --cache-dir .cache/pip ruff==0.5.*
+  script:
+    - ruff check .
+    - ruff format --check .
+
+# ---------- Validate stage ----------
+# Catches typos that would otherwise only surface when Odoo loads the
+# module. Cheap, fast, no Odoo install needed.
+
+manifest:
+  extends: .python
+  stage: validate
+  script:
+    - |
+      python3 -c "
+      import ast, pathlib
+      raw = pathlib.Path('__manifest__.py').read_text()
+      # Strip the leading copyright comment lines
+      body = '\n'.join(l for l in raw.splitlines() if not l.lstrip().startswith('#'))
+      m = ast.literal_eval(body)
+      required = ['name', 'version', 'license', 'depends', 'data']
+      for k in required:
+          assert k in m, f'manifest missing required key: {k}'
+      assert m['license'] == 'AGPL-3', m['license']
+      assert 'mail' in m['depends'], 'must depend on mail'
+      assert m['version'].startswith('19.0.'), m['version']
+      print('OK:', m['name'], 'v' + m['version'])
+      "
+
+xml-wellformed:
+  extends: .python
+  stage: validate
+  script:
+    - |
+      python3 -c "
+      import xml.etree.ElementTree as ET, glob, sys
+      errors = 0
+      for path in sorted(glob.glob('**/*.xml', recursive=True)):
+          try:
+              ET.parse(path)
+              print('OK:', path)
+          except ET.ParseError as e:
+              print('FAIL:', path, '->', e)
+              errors += 1
+      sys.exit(1 if errors else 0)
+      "
+
+acl-csv:
+  extends: .python
+  stage: validate
+  script:
+    - |
+      python3 -c "
+      import csv, sys
+      with open('security/ir.model.access.csv') as f:
+          rows = list(csv.DictReader(f))
+      assert rows, 'ACL CSV is empty (at least one model access row required)'
+      required_cols = {'id','name','model_id:id','group_id:id','perm_read','perm_write','perm_create','perm_unlink'}
+      missing = required_cols - set(rows[0].keys())
+      assert not missing, f'ACL CSV missing columns: {missing}'
+      for r in rows:
+          assert r['id'].startswith('access_'), f\"ACL row {r['id']!r} should start with 'access_'\"
+          assert r['model_id:id'].startswith('model_'), f\"ACL row {r['id']!r} model ref should start with 'model_'\"
+      print(f'OK: {len(rows)} ACL row(s) validated')
+      "
+
+py-syntax:
+  extends: .python
+  stage: validate
+  script:
+    - python3 -m compileall -q -f .

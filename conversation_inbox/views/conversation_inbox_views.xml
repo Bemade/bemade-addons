@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- The OWL inbox viewer client action (task #3965, AC5). The viewer
+         surface only renders for browsable transports: the component
+         itself hides the whole page (with an explanatory message) if the
+         current user has no browsable transport configured. -->
+    <record id="conversation_inbox_client_action" model="ir.actions.client">
+        <field name="name">Inbox</field>
+        <field name="tag">conversation_inbox</field>
+    </record>
+
+    <menuitem
+    id="menu_conversation_inbox"
+    name="Inbox"
+    parent="conversation_base.menu_mail_conversation_root"
+    action="conversation_inbox_client_action"
+    sequence="5"
+  />
+</odoo>

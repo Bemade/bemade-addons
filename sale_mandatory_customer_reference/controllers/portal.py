@@ -1,4 +1,5 @@
-from odoo import http
+from odoo import _, http
+from odoo.exceptions import AccessError, MissingError
 from odoo.http import request
 from odoo.addons.sale.controllers.portal import CustomerPortal
 from odoo.addons.portal.controllers.portal import pager as portal_pager
@@ -46,31 +47,14 @@ class CustomerPortalInherit(CustomerPortal):
         self, order_id, reference, access_token=None, **kw
     ):
         try:
-            order = request.env["sale.order"].browse(order_id)
-            if not order.exists():
-                return {"error": "Order not found"}
+            order_sudo = self._document_check_access(
+                "sale.order", order_id, access_token=access_token
+            )
+        except (AccessError, MissingError):
+            return {"error": _("Access Denied")}
 
-            # Try user access first
-            try:
-                # These will raise if access denied
-                order.check_access_rights("write")
-                order.check_access_rule("write")
-            except Exception:
-                # If user access fails, try token access
-                if access_token:
-                    order = request.env["sale.order"].sudo().browse(order_id)
-                    try:
-                        order.check_access_token(access_token)
-                    except Exception:
-                        return {"error": "Access Denied"}
-                else:
-                    return {"error": "Access Denied"}
+        if order_sudo.state not in ("draft", "sent"):
+            return {"error": _("Order cannot be modified in its current state")}
 
-            if order.state not in ("draft", "sent"):
-                return {"error": "Order cannot be modified in its current state"}
-
-            order.write({"client_order_ref": reference})
-            return {"success": True}
-
-        except Exception as e:
-            return {"error": str(e)}
+        order_sudo.write({"client_order_ref": reference})
+        return {"success": True}

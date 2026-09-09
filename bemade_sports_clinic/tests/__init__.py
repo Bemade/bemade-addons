@@ -6,6 +6,13 @@ from . import test_treatment_professional_consistency
 from . import test_player_removal
 from . import test_mail_activity_portal_access
 from . import test_mail_activity_portal_integration
-from . import test_project_task_portal_security
 from . import test_portal_activity_default_todo
 from . import test_portal_injury_autoassign_integration
+from . import test_event_invoicing_wizard
+from . import test_team_org_backlink
+from . import test_therapist_access_revoke
+from . import test_silent_therapist
+from . import test_event_auto_access
+from . import test_hide_injury_from_coach
+from . import test_events_calendar_portal
+from . import test_portal_injury_cards

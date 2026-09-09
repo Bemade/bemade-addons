@@ -1,7 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_odoo_to_bemade_sync_model_admin,odoo.to.bemade.sync.model admin,model_odoo_to_bemade_sync_model,base.group_system,1,1,1,1
-access_odoo_to_bemade_sync_model_user,odoo.to.bemade.sync.model user,model_odoo_to_bemade_sync_model,base.group_user,1,0,0,0
-access_odoo_to_bemade_sync_model_field_admin,odoo.to.bemade.sync.model.field admin,model_odoo_to_bemade_sync_model_field,base.group_system,1,1,1,1
-access_odoo_to_bemade_sync_model_field_user,odoo.to.bemade.sync.model.field user,model_odoo_to_bemade_sync_model_field,base.group_user,1,0,0,0
-access_odoo_to_bemade_instance_admin,odoo.to.bemade.instance admin,model_odoo_to_bemade_instance,base.group_system,1,1,1,1
-access_odoo_to_bemade_instance_user,odoo.to.bemade.instance user,model_odoo_to_bemade_instance,base.group_user,1,0,0,0

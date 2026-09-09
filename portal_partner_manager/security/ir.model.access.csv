@@ -1,7 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_portal_access_manager,portal.access manager,model_portal_access,group_portal_manager,1,1,1,1
-access_portal_access_user,portal.access user,model_portal_access,base.group_user,1,0,0,0
-
-access_portal_activity_log_manager,portal.activity.log manager,model_portal_activity_log,group_portal_manager,1,1,1,1
-access_portal_activity_log_user,portal.activity.log user,model_portal_activity_log,base.group_user,1,0,0,0
-access_portal_activity_log_portal,portal.activity.log portal,model_portal_activity_log,base.group_portal,0,0,0,0

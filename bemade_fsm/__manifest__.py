@@ -20,7 +20,7 @@
 ########################################################################################
 {
     "name": "Improved Field Service Management",
-    "version": "18.0.0.4.4",
+    "version": "18.0.0.4.5",
     "summary": (
         "Adds functionality necessary for managing field service operations at Durpro."
     ),
@@ -50,6 +50,7 @@
         "views/res_partner.xml",
         "views/menus.xml",
         "views/task_views.xml",
+        "views/fsm_visit_views.xml",
         "views/sale_order_views.xml",
         "reports/worksheet_custom_report_templates.xml",
         "reports/worksheet_custom_reports.xml",
@@ -67,6 +68,11 @@
         "web.assets_qweb": [
             "bemade_fsm/static/src/xml/project_view_buttons.xml",
             "bemade_fsm/static/src/xml/project_task_list_buttons.xml",
+        ],
+        # JS tour for the visit "Full Task Tree" recursive list (task 3360),
+        # loaded only into the test bundle.
+        "web.assets_tests": [
+            "bemade_fsm/static/tests/tours/**/*",
         ],
     },
     "installable": True,

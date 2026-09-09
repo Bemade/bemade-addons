@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="0">
+
+    <!-- 
+    This function runs on every module update to ensure OUs exist for all 
+    top-level company partners. It's idempotent - won't create duplicates.
+    -->
+    <function model="organizational.unit" name="_create_ous_for_existing_partners"/>
+
+</odoo>

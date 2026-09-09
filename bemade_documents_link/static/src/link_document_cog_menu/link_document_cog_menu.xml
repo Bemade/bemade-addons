@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="bemade_documents_link.LinkDocumentCogMenu">
+        <DropdownItem class="'o_link_existing_document'" onSelected.bind="linkDocument">
+            <i class="fa fa-link fa-fw"/> Link existing document
+        </DropdownItem>
+    </t>
+
+</templates>

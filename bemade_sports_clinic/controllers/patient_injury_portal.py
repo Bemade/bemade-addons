@@ -33,8 +33,11 @@ class PatientInjuryPortal(CustomerPortal, AccessControlMixin):
                 'error_message': str(e)
             })
             
-        # Resolve team context
-        patient_teams = patient.team_ids
+        # Resolve team context. Read the patient's teams via sudo so
+        # multi-team players still render the "which team is this injury
+        # for?" picker even when one of the teams is outside the user's
+        # tightened TP/coach scope.
+        patient_teams = patient.sudo().team_ids
         # Accept team context from both kwargs and request.params (GET)
         team_id_param = post.get('team_id') or request.params.get('team_id')
         selected_team_id = None
@@ -54,7 +57,8 @@ class PatientInjuryPortal(CustomerPortal, AccessControlMixin):
         require_team_selection = len(patient_teams) > 1 and not selected_team_id
         team = None
         if team_context_id:
-            team = request.env['sports.team'].browse(team_context_id)
+            # sudo so an out-of-scope team still renders by name in the form
+            team = request.env['sports.team'].sudo().browse(team_context_id)
         
         # Compute default return_url based on explicit team navigation context only
         return_url = post.get('return_url') or request.params.get('return_url')
@@ -115,8 +119,10 @@ class PatientInjuryPortal(CustomerPortal, AccessControlMixin):
                 'error_message': str(e)
             })
             
-        # Resolve team from submission or context
-        patient_teams = patient.team_ids
+        # Resolve team from submission or context. sudo so that
+        # multi-team players whose teams the user can't all read still
+        # validate the submitted team properly.
+        patient_teams = patient.sudo().team_ids
         submitted_team = post.get('team_id')
         team_id = None
         if submitted_team:
@@ -168,6 +174,10 @@ class PatientInjuryPortal(CustomerPortal, AccessControlMixin):
         # Handle internal notes for treatment professionals
         if is_treatment_prof and post.get('internal_notes'):
             vals['internal_notes'] = post.get('internal_notes')
+
+        # Hidden-from-coaches flag (TPs only — checkbox)
+        if is_treatment_prof:
+            vals['hidden_from_coaches'] = bool(post.get('hidden_from_coaches'))
             
         # Create the injury record - portal users now have create permission
         # Determine role flags to choose safe context
@@ -446,12 +456,15 @@ class PatientInjuryPortal(CustomerPortal, AccessControlMixin):
         if is_treatment_prof:
             if post.get('internal_notes'):
                 vals['internal_notes'] = post.get('internal_notes')
-                
+
             if post.get('stage'):
                 vals['stage'] = post.get('stage')
-                
+
             if post.get('parental_consent'):
                 vals['parental_consent'] = post.get('parental_consent')
+
+            # Checkbox: present in form ⇒ True, absent ⇒ False
+            vals['hidden_from_coaches'] = bool(post.get('hidden_from_coaches'))
                 
         # Update the injury
         injury.sudo().write(vals)
@@ -545,59 +558,59 @@ class PatientInjuryPortal(CustomerPortal, AccessControlMixin):
         
     @http.route(['/my/injury/note/add'], type='http', auth='user', website=True, methods=['POST'])
     def add_treatment_note(self, **post):
-        """Add a new treatment note to a patient, optionally linked to an injury"""
-        # Get context - are we adding a note to an injury or just to a patient?
+        """Add a new treatment note to a patient, optionally linked to an injury.
+
+        Honors an optional `return_url` form field so the caller (e.g.
+        the new Notes tab on the player page) can redirect back to its
+        origin instead of the standalone notes page.
+        """
         injury_id = post.get('injury_id')
         patient_id = post.get('patient_id')
-        
-        # Either injury_id or patient_id must be provided
+        return_url = post.get('return_url')
+
         if not injury_id and not patient_id:
             return request.redirect('/my/players')
-            
-        # Check if user is a treatment professional
+
+        def _redirect(qs):
+            target = return_url or f'/my/patient/notes?patient_id={patient_id or ""}'
+            # Insert qs before any URL fragment so the #notes anchor
+            # (or any other anchor) survives the redirect.
+            base, frag = (target.split('#', 1) + [''])[:2]
+            sep = '&' if '?' in base else '?'
+            tail = f"#{frag}" if frag else ''
+            return request.redirect(f"{base}{sep}{qs}{tail}")
+
         is_treatment_prof = request.env.user.has_group('bemade_sports_clinic.group_portal_treatment_professional')
         if not is_treatment_prof:
-            # Determine redirect URL based on context
-            if injury_id:
-                return request.redirect(f'/my/patient/notes?patient_id={patient_id or ""}&error=permission_denied')
-            else:
-                return request.redirect(f'/my/patient/notes?patient_id={patient_id}&error=permission_denied')
-        
-        # Get note content and validate
+            return _redirect('error=permission_denied')
+
         note_content = post.get('note')
         if not note_content or not note_content.strip():
-            if injury_id:
-                return request.redirect(f'/my/patient/notes?patient_id={patient_id or ""}&error=empty_note')
-            else:
-                return request.redirect(f'/my/patient/notes?patient_id={patient_id}&error=empty_note')
-        
-        # Determine context and add the note
+            return _redirect('error=empty_note')
+
         if injury_id:
-            # Injury context
             try:
                 injury = self._check_access_to_injury(injury_id)
                 patient = injury.patient_id
                 self._add_treatment_note(patient, note_content, injury)
-                return request.redirect(f'/my/patient/notes?patient_id={patient.id}&success=note_added')
+                return _redirect('success=note_added')
             except UserError as e:
                 return request.render('http_routing.http_error', {
-                    'status_code': 403, 
+                    'status_code': 403,
                     'status_message': 'Forbidden',
-                    'error_message': str(e)
+                    'error_message': str(e),
                 })
-        else:
-            # Patient context
-            try:
-                patient = self._check_access_to_patient(patient_id)
-            except UserError as e:
-                return request.render('http_routing.http_error', {
-                    'status_code': 403, 
-                    'status_message': 'Forbidden',
-                    'error_message': str(e)
-                })
-                
-            self._add_treatment_note(patient, note_content)
-            return request.redirect(f'/my/patient/notes?patient_id={patient_id}&success=note_added')
+
+        try:
+            patient = self._check_access_to_patient(patient_id)
+        except UserError as e:
+            return request.render('http_routing.http_error', {
+                'status_code': 403,
+                'status_message': 'Forbidden',
+                'error_message': str(e),
+            })
+        self._add_treatment_note(patient, note_content)
+        return _redirect('success=note_added')
         
     @http.route(['/my/injury/documents'], type='http', auth='user', website=True)
     def view_injury_documents(self, injury_id=None, team_id=None, **post):
@@ -781,9 +794,18 @@ class PatientInjuryPortal(CustomerPortal, AccessControlMixin):
                 'error_message': str(e)
             })
 
+        return_url = post.get('return_url') or f'/my/player?player_id={patient.id}#documents'
+
+        def _redirect(qs):
+            # Insert qs before any URL fragment so the anchor survives.
+            base, frag = (return_url.split('#', 1) + [''])[:2]
+            sep = '&' if '?' in base else '?'
+            tail = f"#{frag}" if frag else ''
+            return request.redirect(f"{base}{sep}{qs}{tail}")
+
         attachment = post.get('attachment')
         if not attachment:
-            return request.redirect(f'/my/player?player_id={patient.id}&error=no_file')
+            return _redirect('error=no_file')
 
         try:
             name = attachment.filename
@@ -793,7 +815,7 @@ class PatientInjuryPortal(CustomerPortal, AccessControlMixin):
 
             # 10MB limit
             if file_size > 10 * 1024 * 1024:
-                return request.redirect(f'/my/player?player_id={patient.id}&error=file_too_large')
+                return _redirect('error=file_too_large')
 
             # Create patient-linked document (injury optional)
             request.env['sports.injury.document'].sudo().create({
@@ -807,11 +829,11 @@ class PatientInjuryPortal(CustomerPortal, AccessControlMixin):
                 'created_by_id': request.env.user.id,
             })
 
-            return request.redirect(f'/my/player?player_id={patient.id}&success=document_uploaded')
+            return _redirect('success=document_uploaded')
 
         except Exception as e:
             _logger.error(f"Error uploading patient document: {e}")
-            return request.redirect(f'/my/player?player_id={patient.id}&error=upload_failed')
+            return _redirect('error=upload_failed')
         
     @http.route(['/my/injury/document/delete/<int:document_id>'], type='http', auth='user', website=True)
     def delete_injury_document(self, document_id, **post):
@@ -842,20 +864,23 @@ class PatientInjuryPortal(CustomerPortal, AccessControlMixin):
     @http.route(['/my/injury/verify'], type='http', auth='user', website=True, methods=['POST'])
     def verify_injury(self, injury_id, **post):
         """Verify an injury (change status from unverified to active)"""
+        # Only treatment professionals / admins may verify injuries...
+        if not (request.env.user.has_group('bemade_sports_clinic.group_portal_treatment_professional') or
+                request.env.user.has_group('base.group_system')):
+            return request.redirect('/my')
+
+        # ...and only for an injury on a team they staff. Task 640 follow-up: the
+        # role check alone let a TP verify ANY injury by id (per-record access was
+        # never enforced). _check_access_to_injury raises UserError when the user
+        # has no team overlap with the injury's patient (or it doesn't exist).
         try:
-            injury = request.env['sports.patient.injury'].browse(int(injury_id))
-            
-            # Check access - user must be a treatment professional or admin
-            if not (request.env.user.has_group('bemade_sports_clinic.group_portal_treatment_professional') or 
-                   request.env.user.has_group('base.group_system')):
-                return request.redirect('/my')
-                
-            # Verify the injury
+            injury = self._check_access_to_injury(injury_id)
+        except UserError:
+            return request.redirect('/my')
+
+        try:
             injury.action_verify_injury()
-            
-            # Redirect back to the player page
             return request.redirect(f'/my/player?player_id={injury.patient_id.id}')
-            
         except Exception as e:
             _logger.error(f"Error verifying injury: {e}")
             return request.redirect('/my')

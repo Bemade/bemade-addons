@@ -1,8 +1,11 @@
-from odoo.tests import TransactionCase
-from unittest.mock import patch, MagicMock
-from .common import CaldavTestCommon
-import caldav
 import logging
+from unittest.mock import MagicMock, patch
+
+import caldav
+
+from odoo.tests import TransactionCase
+
+from .common import CaldavTestCommon
 
 _logger = logging.getLogger(__name__)
 

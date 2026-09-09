@@ -9,31 +9,29 @@ class TestMailThread(TransactionCase):
         super().setUpClass()
 
     def test_alternate_recipient_is_notified(self):
-        empl_1, empl_2 = self.env["hr.employee"].create(
-            [
-                {"name": "Test 1"},
-                {"name": "Test 2"},
-            ]
-        )
         user_1, user_2 = self.env["res.users"].create(
             [
                 {
                     "name": "Test 1",
                     "login": "test1",
-                    "employee_ids": [(6, 0, [empl_1.id])],
                     "notification_type": "inbox",
                 },
                 {
                     "name": "Test 2",
                     "login": "test2",
-                    "employee_ids": [(6, 0, [empl_2.id])],
                     "notification_type": "inbox",
                 },
             ]
         )
+        empl_1, empl_2 = self.env["hr.employee"].create(
+            [
+                {"name": "Test 1", "user_id": user_1.id},
+                {"name": "Test 2", "user_id": user_2.id},
+            ]
+        )
         leave = self.env["hr.leave"].create(
             {
-                "employee_id": user_1.employee_id.id,
+                "employee_id": empl_1.id,
                 "request_date_from": datetime.now() - timedelta(days=1),
                 "request_date_to": datetime.now() + timedelta(days=1),
                 "holiday_status_id": self.env.ref(

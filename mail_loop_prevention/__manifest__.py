@@ -4,7 +4,7 @@
 {
     "name": "Mail Loop Prevention",
     "summary": "Prevent auto-reply communication loops between mail servers",
-    "version": "18.0.1.0.1",
+    "version": "18.0.2.0.0",
     "license": "LGPL-3",
     "author": "Bemade Inc",
     "website": "https://github.com/durpro/durpro",

@@ -162,17 +162,20 @@ class EventsPortal(CustomerPortal, AccessControlMixin):
         if not (is_therapist or is_coach or user.has_group('base.group_system')):
             raise AccessError(_("You don't have access to events."))
         
-        # Default date filter: from yesterday, similar to internal "Upcoming" behavior
+        # Default date filter: from today (in the *user's* timezone), matching
+        # the internal "Upcoming" behavior. fields.Date.today() / datetime.today()
+        # are server-local (typically UTC) and would advance the date for EDT
+        # users in the late-evening / early-morning window.
         # Only apply when user did not specify any date filters AND no explicit clear flag
         # AND we are not using a view type that manages its own date constraints.
         if view_type != 'missing_timesheets' and not date_from and not date_to and not no_default_dates:
             try:
-                # Use date (not datetime) input format 'YYYY-MM-DD' for the portal date picker
-                yesterday = (fields.Date.today() - timedelta(days=1))
-                date_from = fields.Date.to_string(yesterday)
+                user_tz = pytz.timezone(http.request.env.user.tz or 'UTC')
+                local_today = datetime.now(pytz.utc).astimezone(user_tz).date()
+                date_from = fields.Date.to_string(local_today)
             except Exception:
-                # Fallback using datetime in rare cases
-                date_from = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
+                # Fallback using server local date
+                date_from = datetime.today().strftime('%Y-%m-%d')
 
         # For missing_timesheets view, avoid the default date_from=yesterday.
         # Also default the end date to today (inclusive) to match the "missing" logic.
@@ -410,6 +413,100 @@ class EventsPortal(CustomerPortal, AccessControlMixin):
         
         return http.request.render('bemade_sports_clinic.portal_events_list', values)
 
+    @http.route(['/my/events/calendar'], type='http', auth='user', website=True)
+    def view_events_calendar(self, **kw):
+        """Calendar (month view) of accessible sports events for the user.
+
+        Renders an HTML shell; FullCalendar in the template fetches events
+        via /my/events/calendar/data.
+        """
+        user = http.request.env.user
+        is_therapist = user.has_group('bemade_sports_clinic.group_portal_treatment_professional') or \
+                      user.has_group('bemade_sports_clinic.group_sports_clinic_treatment_professional')
+        is_coach = user.has_group('bemade_sports_clinic.group_portal_team_coach')
+        if not (is_therapist or is_coach or user.has_group('base.group_system')):
+            raise AccessError(_("You don't have access to events."))
+        return http.request.render('bemade_sports_clinic.portal_events_calendar', {
+            'page_name': 'events_calendar',
+        })
+
+    @http.route(['/my/events/calendar/data'], type='http', auth='user', methods=['GET'], website=True)
+    def view_events_calendar_data(self, start=None, end=None, **kw):
+        """JSON feed for FullCalendar.
+
+        Returns events the current user is allowed to see (record rules
+        already enforce coach team scoping; therapists see all). Honors
+        the `start`/`end` ISO datetime window FullCalendar provides; if
+        omitted, returns a wide rolling window. Past events are included.
+        """
+        import json as _json
+        user = http.request.env.user
+        is_therapist = user.has_group('bemade_sports_clinic.group_portal_treatment_professional') or \
+                      user.has_group('bemade_sports_clinic.group_sports_clinic_treatment_professional')
+        is_coach = user.has_group('bemade_sports_clinic.group_portal_team_coach')
+        if not (is_therapist or is_coach or user.has_group('base.group_system')):
+            return http.request.make_response('[]', headers=[('Content-Type', 'application/json')])
+
+        domain = self._prepare_events_domain('all')
+        # FullCalendar passes ISO datetimes (with or without tz). Normalize
+        # to naive UTC so the comparison against Odoo's UTC-stored
+        # date_start / date_end fields is correct regardless of the
+        # offset the client sent.
+        def _parse(dt_str):
+            if not dt_str:
+                return None
+            try:
+                if dt_str.endswith('Z'):
+                    # Trailing 'Z' is valid ISO-8601 but not accepted by
+                    # fromisoformat on older Pythons — drop it; the value
+                    # is already UTC.
+                    return datetime.fromisoformat(dt_str[:-1])
+                dt = datetime.fromisoformat(dt_str)
+                if dt.tzinfo is not None:
+                    return dt.astimezone(pytz.UTC).replace(tzinfo=None)
+                return dt
+            except Exception:
+                return None
+
+        start_dt = _parse(start)
+        end_dt = _parse(end)
+        if start_dt is not None:
+            domain.append(('date_end', '>=', fields.Datetime.to_string(start_dt)))
+        if end_dt is not None:
+            domain.append(('date_start', '<=', fields.Datetime.to_string(end_dt)))
+
+        events = http.request.env['sports.event'].search(domain, limit=500)
+        payload = []
+        # Resolve team and assigned-user names with sudo so the popover
+        # can show ALL covered teams / assigned therapists, even when
+        # the current user can't directly read those records (e.g. a
+        # coach seeing a co-team's therapist on a multi-team event).
+        events_sudo_by_id = {ev.id: ev for ev in events.sudo()}
+        for ev in events:
+            ev_sudo = events_sudo_by_id.get(ev.id, ev)
+            # date_start / date_end are stored as naive UTC. Emit ISO 8601
+            # with an explicit UTC offset so FullCalendar localizes to the
+            # browser's time zone instead of treating the wall-clock string
+            # as already-local (which previously shifted every event by the
+            # client's UTC offset — e.g. 11 AM EDT → 3 PM in the calendar).
+            payload.append({
+                'id': ev.id,
+                'title': ev.name or '',
+                'start': pytz.UTC.localize(ev.date_start).isoformat() if ev.date_start else None,
+                'end': pytz.UTC.localize(ev.date_end).isoformat() if ev.date_end else None,
+                'url': f'/my/event?event_id={ev.id}',
+                'extendedProps': {
+                    'teams': ev_sudo.team_ids.mapped('name'),
+                    'assigned': ev_sudo.assigned_staff_ids.mapped('name'),
+                    'event_type': ev.event_type or '',
+                    'state': ev.state,
+                },
+            })
+        return http.request.make_response(
+            _json.dumps(payload),
+            headers=[('Content-Type', 'application/json')],
+        )
+
     @http.route(['/my/event', '/my/event/<int:event_id>'], type='http', auth='user', website=True)
     def view_event_detail(self, event_id=None, **kw):
         """View individual event detail"""
@@ -472,32 +569,35 @@ class EventsPortal(CustomerPortal, AccessControlMixin):
             local_dt = utc_dt.astimezone(user_tz)
             return local_dt.strftime('%Y-%m-%dT%H:%M')
 
-        # Timesheet context for current user
-        my_ts = http.request.env['sports.event.timesheet'].search([
-            ('event_id', '=', event.id),
-            ('user_id', '=', user.id),
-        ], order='id desc', limit=1)
-        has_my_timesheet = bool(my_ts)
-
-        # Build user-local datetime strings for datetime-local inputs in per-row edit modals
-        # Format: '%Y-%m-%dT%H:%M' expected by HTML input type=datetime-local
+        # Timesheet context for current user — TPs only. Coaches don't
+        # have read access to sports.event.timesheet, so we skip every
+        # timesheet read for them and the template hides the tab.
+        my_ts = http.request.env['sports.event.timesheet']
+        has_my_timesheet = False
         local_dt_map = {}
-        try:
-            my_timesheets = event.timesheet_ids.filtered(lambda t: t.user_id.id == user.id)
-            for ts in my_timesheets:
-                local_dt_map[ts.id] = {
-                    'travel_start': _format_dt_local(ts.travel_start),
-                    'coverage_start': _format_dt_local(ts.coverage_start),
-                    'coverage_end': _format_dt_local(ts.coverage_end),
-                    'travel_end': _format_dt_local(ts.travel_end),
-                }
-        except Exception:
-            local_dt_map = {}
-
-        # Missing timesheets info
-        missing_users = event._get_missing_timesheet_user_ids() if hasattr(event, '_get_missing_timesheet_user_ids') else http.request.env['res.users']
-        missing_count = len(missing_users)
-        missing_names = ', '.join(missing_users.mapped('name')) if missing_users else ''
+        missing_users = http.request.env['res.users']
+        missing_count = 0
+        missing_names = ''
+        if is_therapist or user.has_group('base.group_system'):
+            my_ts = http.request.env['sports.event.timesheet'].search([
+                ('event_id', '=', event.id),
+                ('user_id', '=', user.id),
+            ], order='id desc', limit=1)
+            has_my_timesheet = bool(my_ts)
+            try:
+                my_timesheets = event.timesheet_ids.filtered(lambda t: t.user_id.id == user.id)
+                for ts in my_timesheets:
+                    local_dt_map[ts.id] = {
+                        'travel_start': _format_dt_local(ts.travel_start),
+                        'coverage_start': _format_dt_local(ts.coverage_start),
+                        'coverage_end': _format_dt_local(ts.coverage_end),
+                        'travel_end': _format_dt_local(ts.travel_end),
+                    }
+            except Exception:
+                local_dt_map = {}
+            missing_users = event._get_missing_timesheet_user_ids() if hasattr(event, '_get_missing_timesheet_user_ids') else http.request.env['res.users']
+            missing_count = len(missing_users)
+            missing_names = ', '.join(missing_users.mapped('name')) if missing_users else ''
 
         # Optional return URL (to preserve filtered events list context)
         return_url = http.request.httprequest.args.get('return_url')
@@ -536,10 +636,20 @@ class EventsPortal(CustomerPortal, AccessControlMixin):
             except Exception:
                 event_return_url = event_return_url
 
+        # Timesheets are TP-only — coaches don't have read access to
+        # sports.event.timesheet, so even iterating raises AccessError.
+        # The template hides the tab and content when this is False.
+        can_view_timesheets = is_therapist or user.has_group('base.group_system')
+        # Sudo recordset so display-only fields (team names, assigned
+        # therapists) render fully even when a coach can't read every
+        # team on a multi-team event.
+        event_sudo = event.sudo()
         values = {
             'event': event,
+            'event_sudo': event_sudo,
             'page_name': 'event_detail',
             'can_edit': can_edit,
+            'can_view_timesheets': can_view_timesheets,
             'return_url': return_url,
             'event_return_url': event_return_url,
             'timesheet_local_dt': local_dt_map,
@@ -985,12 +1095,6 @@ class EventsPortal(CustomerPortal, AccessControlMixin):
             # Task creation is handled by the model's create() default logic
 
             event = http.request.env['sports.event'].create(create_vals)
-
-            # Surgical sudo: create management task as superuser to bypass project/analytic ACLs
-            try:
-                event.sudo().create_management_task()
-            except Exception as task_err:
-                _logger.warning(f"Portal task creation failed for event {event.id}: {task_err}")
 
             return http.request.redirect(f'/my/event/{event.id}?created=1')
 

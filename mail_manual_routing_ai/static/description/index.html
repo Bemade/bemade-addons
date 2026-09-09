@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Lost Messages Routing - AI Improvements</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #875A7B;
+        }
+        h2 {
+            color: #875A7B;
+            border-bottom: 2px solid #875A7B;
+            padding-bottom: 5px;
+        }
+        .feature {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-left: 4px solid #875A7B;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Lost Messages Routing - AI Improvements</h1>
+
+    <p>Automatically classify lost/unattached email messages using AI-powered analysis through OpenWebUI.</p>
+
+    <h2>Features</h2>
+
+    <div class="feature">
+        <h3>🤖 Automatic AI Classification</h3>
+        <p>Uses OpenWebUI (or any OpenAI-compatible API) to automatically classify lost messages into categories:</p>
+        <ul>
+            <li>Spam / Advertising</li>
+            <li>Bounce / DSN</li>
+            <li>Auto-Reply</li>
+            <li>Legitimate Reply</li>
+            <li>New Inquiry</li>
+            <li>Finance</li>
+            <li>Supplier / Vendor</li>
+        </ul>
+    </div>
+
+    <div class="feature">
+        <h3>📊 Confidence Scoring</h3>
+        <p>Each classification includes a confidence percentage (0-100%):</p>
+        <ul>
+            <li><strong style="color: green;">Green</strong>: ≥80% confidence (high)</li>
+            <li><strong style="color: orange;">Orange</strong>: 50-79% confidence (medium)</li>
+            <li><strong style="color: red;">Red</strong>: &lt;50% confidence (low)</li>
+        </ul>
+    </div>
+
+    <div class="feature">
+        <h3>⚙️ Easy Configuration</h3>
+        <p>Simple setup in <strong>Settings > General Settings > Lost Messages AI</strong>:</p>
+        <ul>
+            <li>OpenWebUI server URL</li>
+            <li>API key (optional)</li>
+            <li>Model selection (glm-5:cloud, llama3, mistral, gpt-4, etc.)</li>
+            <li>Auto-classification toggle</li>
+            <li>Confidence threshold</li>
+        </ul>
+    </div>
+
+    <div class="feature">
+        <h3>🎯 Manual & Automatic Modes</h3>
+        <p><strong>Manual:</strong> Click "AI Classify" button on any message or batch classify from list view</p>
+        <p><strong>Automatic:</strong> Enable auto-classification to process new messages automatically</p>
+    </div>
+
+    <h2>Requirements</h2>
+    <ul>
+        <li>mail_manual_routing</li>
+        <li>mail_manual_routing_ux</li>
+        <li>OpenWebUI server or OpenAI-compatible API</li>
+        <li>Python <code>requests</code> library</li>
+    </ul>
+
+    <h2>Quick Start</h2>
+    <ol>
+        <li>Install and configure OpenWebUI on your server</li>
+        <li>Install this module</li>
+        <li>Go to Settings > General Settings > Lost Messages AI</li>
+        <li>Enter your OpenWebUI URL and select a model</li>
+        <li>Enable auto-classification if desired</li>
+        <li>Done! New unattached messages will be classified automatically</li>
+    </ol>
+
+    <h2>Author</h2>
+    <p><strong>Bemade Inc.</strong><br>
+    <a href="https://bemade.org">https://bemade.org</a></p>
+
+    <h2>License</h2>
+    <p>LGPL-3</p>
+</body>
+</html>

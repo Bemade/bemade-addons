@@ -162,9 +162,23 @@
                                             <div class="col-lg-12">
                                                 <div class="form-group">
                                                     <label for="internal_notes">Internal Notes (Medical Staff Only)</label>
-                                                    <textarea name="internal_notes" id="internal_notes" class="form-control" 
+                                                    <textarea name="internal_notes" id="internal_notes" class="form-control"
                                                         rows="3"></textarea>
                                                     <small class="text-muted">Notes visible only to treatment professionals</small>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Hide-from-coaches toggle (TPs only) -->
+                                        <div t-if="is_treatment_prof" class="row mt-2">
+                                            <div class="col-lg-12">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox"
+                                                           name="hidden_from_coaches" id="hidden_from_coaches" value="1"/>
+                                                    <label class="form-check-label" for="hidden_from_coaches">
+                                                        Hide from coaches
+                                                    </label>
+                                                    <small class="d-block text-muted">When checked, team coaches will not see this injury anywhere in the portal.</small>
                                                 </div>
                                             </div>
                                         </div>

@@ -44,6 +44,20 @@
         <field name="priority">80</field>
     </record>
 
+    <!-- Hourly: detach past or cancelled events from auto-created event-coverage staff records (task 539) -->
+    <record id="ir_cron_cleanup_auto_event_staff" model="ir.cron">
+        <field name="name">Cleanup Auto Event-Coverage Staff</field>
+        <field name="model_id" ref="model_sports_event"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_cleanup_auto_event_staff()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">hours</field>
+        <field name="nextcall">2026-05-03 00:00:00</field>
+        <field name="active" eval="True"/>
+        <field name="user_id" ref="base.user_root"/>
+        <field name="priority">85</field>
+    </record>
+
     <!-- Nightly maintenance: recompute followers and team staff groups at 2:00 AM -->
     <record id="ir_cron_recompute_sports_followers_and_groups" model="ir.cron">
         <field name="name">Recompute Sports Followers and Groups</field>

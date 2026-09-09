@@ -52,34 +52,21 @@ class TaskManagementPortal(CustomerPortal, AccessControlMixin):
             ('res_id', 'in', team_staff_rels.mapped('team_id.event_ids.id') or [0])
         ]
         
-        # Context-sensitive filtering:
-        # - General "My Activities" view: show activities assigned to the current user
-        #   (for sports clinic models) OR any activity accessible via team relationships.
-        # - Specific record activities: show activities for that record that are either
-        #   assigned to the current user OR accessible via team relationships.
-        
-        allowed_models = ['sports.patient', 'sports.patient.injury', 'sports.team', 'sports.event']
-        assigned_sports_domain = [
-            '&',
-            ('user_id', '=', user.id),
-            ('res_model', 'in', allowed_models),
-        ]
+        # Activities are scoped strictly by the team-based access domain. We used to
+        # OR-in `(user_id == self) AND res_model in [...]` so a portal user could see
+        # activities personally assigned to them, but that left orphan assignee
+        # activities (e.g. cron-created "Verify injury" tasks left over after a TP
+        # was unstaffed from a team) visible while their related record was no
+        # longer readable, causing 403s when the template browsed the related
+        # injury for display. Aligning with the ir.rule keeps the listing
+        # consistent with what the user can actually open.
 
         if model:
-            domain = [
-                '&',
-                ('res_model', '=', model),
-                '|',
-            ] + assigned_sports_domain + team_access_domain
-
+            domain = ['&', ('res_model', '=', model)] + team_access_domain
             if res_id:
-                domain = [
-                    '&',
-                    ('res_id', '=', int(res_id)),
-                ] + domain
-
+                domain = ['&', ('res_id', '=', int(res_id))] + domain
         else:
-            domain = ['|'] + assigned_sports_domain + team_access_domain
+            domain = team_access_domain
         
         # Search for activities with both assignment and team-based access control
         activities = request.env['mail.activity'].search(domain, order='date_deadline asc')
@@ -168,12 +155,14 @@ class TaskManagementPortal(CustomerPortal, AccessControlMixin):
         try:
             record = self._check_access_to_task_model(model, res_id)
         except UserError as e:
-            return request.render('http_routing.http_error', {
+            response = request.render('http_routing.http_error', {
                 'status_code': 403,
                 'status_message': 'Forbidden',
                 'error_message': str(e),
             })
-            
+            response.status_code = 403
+            return response
+
         # Get activity types
         activity_types = request.env['mail.activity.type'].search([])
         # Determine default activity type robustly
@@ -389,12 +378,14 @@ class TaskManagementPortal(CustomerPortal, AccessControlMixin):
         try:
             record = self._check_access_to_task_model(model, res_id)
         except UserError as e:
-            return request.render('http_routing.http_error', {
+            response = request.render('http_routing.http_error', {
                 'status_code': 403,
                 'status_message': 'Forbidden',
                 'error_message': str(e),
             })
-            
+            response.status_code = 403
+            return response
+
         # Validate required fields
         activity_type_id = post.get('activity_type_id')
         summary = post.get('summary')

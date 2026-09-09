@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.delivery.carrier.partner.account</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="stock.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@name='shipping_setting_container']" position="inside">
+                <setting
+                    string="Require Delivery Billing Mode"
+                    help="Require a delivery billing mode on sale orders before confirmation.">
+                    <field name="require_delivery_billing_mode"/>
+                </setting>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -4,23 +4,21 @@ from odoo import api, models
 class ResPartner(models.Model):
     _inherit = 'res.partner'
 
+    def _fr_ca_installed(self):
+        return self.env['res.lang'].search_count([('code', '=', 'fr_CA'), ('active', '=', True)]) > 0
+
     @api.model_create_multi
     def create(self, vals_list):
+        fr_ca_ok = self._fr_ca_installed()
         for vals in vals_list:
             # Only set language if it's not already specified
             if not vals.get('lang'):
                 state = vals.get('state_id')
-                country = vals.get('country_id')
-                
-                if state:
+                if state and fr_ca_ok:
                     state_rec = self.env['res.country.state'].browse(state)
                     # Check if the state is Quebec
                     if state_rec.code == 'QC' and state_rec.country_id.code == 'CA':
                         vals['lang'] = 'fr_CA'
-                    else:
-                        vals['lang'] = 'en_US'
-                else:
-                    vals['lang'] = 'en_US'
 
         return super().create(vals_list)
 

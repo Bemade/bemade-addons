@@ -1,5 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_ollama_model_stats_user,ollama.model.stats.user,model_ollama_model_stats,base.group_user,1,0,0,0
-access_ollama_model_stats_manager,ollama.model.stats.manager,model_ollama_model_stats,base.group_system,1,1,1,1
-access_ai_provider_ollama_user,ai.provider.ollama.user,model_ai_provider_ollama,base.group_user,1,0,0,0
-access_ai_provider_ollama_manager,ai.provider.ollama.manager,model_ai_provider_ollama,base.group_system,1,1,1,1

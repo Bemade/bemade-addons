@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.mail.routing.ai</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('settings')]" position="inside">
+                <div class="app_settings_block" data-string="Lost Messages AI" string="Lost Messages AI" data-key="mail_manual_routing_ai">
+                    <h2>Lost Messages AI Classification</h2>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="openwebui_url"/>
+                                <div class="text-muted">
+                                    Base URL of your OpenWebUI server
+                                </div>
+                                <field name="openwebui_url" placeholder="http://localhost:3000"/>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="openwebui_api_key"/>
+                                <div class="text-muted">
+                                    API key for authentication (leave empty if not required)
+                                </div>
+                                <field name="openwebui_api_key" password="True"/>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="openwebui_model"/>
+                                <div class="text-muted">
+                                    LLM model to use for classification
+                                </div>
+                                <field name="openwebui_model" placeholder="glm-5:cloud"/>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="auto_classify_messages"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="auto_classify_messages"/>
+                                <div class="text-muted">
+                                    Automatically classify new unattached messages using AI
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="min_confidence_threshold"/>
+                                <div class="text-muted">
+                                    Minimum confidence (0-100%) to auto-apply AI classification
+                                </div>
+                                <field name="min_confidence_threshold"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

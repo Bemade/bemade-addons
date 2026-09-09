@@ -1,60 +1,76 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <data noupdate="1">
-        <record id="subcategory_spam" model="lost.message.subcategory">
-            <field name="name">Spam / Advertising</field>
-            <field name="code">spam</field>
-            <field name="description">Unsolicited commercial emails, newsletters, marketing</field>
-            <field name="sequence">10</field>
-            <field name="color">1</field>
-        </record>
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <record id="subcategory_spam" model="lost.message.subcategory">
+        <field name="name">Spam / Advertising</field>
+        <field name="code">spam</field>
+        <field
+      name="description"
+    >Unsolicited commercial emails, newsletters, marketing</field>
+        <field name="sequence">10</field>
+        <field name="color">1</field>
+    </record>
 
-        <record id="subcategory_bounce" model="lost.message.subcategory">
-            <field name="name">Bounce / DSN</field>
-            <field name="code">bounce</field>
-            <field name="description">Delivery Status Notifications, bounce messages</field>
-            <field name="sequence">20</field>
-            <field name="color">2</field>
-        </record>
+    <record id="subcategory_bounce" model="lost.message.subcategory">
+        <field name="name">Bounce / DSN</field>
+        <field name="code">bounce</field>
+        <field name="description">Delivery Status Notifications, bounce messages</field>
+        <field name="sequence">20</field>
+        <field name="color">2</field>
+    </record>
 
-        <record id="subcategory_auto_reply" model="lost.message.subcategory">
-            <field name="name">Auto-Reply</field>
-            <field name="code">auto_reply</field>
-            <field name="description">Out of office, vacation, automatic acknowledgments</field>
-            <field name="sequence">30</field>
-            <field name="color">3</field>
-        </record>
+    <record id="subcategory_auto_reply" model="lost.message.subcategory">
+        <field name="name">Auto-Reply</field>
+        <field name="code">auto_reply</field>
+        <field
+      name="description"
+    >Out of office, vacation, automatic acknowledgments</field>
+        <field name="sequence">30</field>
+        <field name="color">3</field>
+    </record>
 
-        <record id="subcategory_legitimate" model="lost.message.subcategory">
-            <field name="name">Legitimate Reply</field>
-            <field name="code">legitimate</field>
-            <field name="description">Valid replies that need to be routed to existing records</field>
-            <field name="sequence">40</field>
-            <field name="color">10</field>
-        </record>
+    <record id="subcategory_legitimate" model="lost.message.subcategory">
+        <field name="name">Legitimate Reply</field>
+        <field name="code">legitimate</field>
+        <field
+      name="description"
+    >Valid replies that need to be routed to existing records</field>
+        <field name="sequence">40</field>
+        <field name="color">10</field>
+    </record>
 
-        <record id="subcategory_new_inquiry" model="lost.message.subcategory">
-            <field name="name">New Inquiry</field>
-            <field name="code">new_inquiry</field>
-            <field name="description">New business inquiries requiring follow-up</field>
-            <field name="sequence">50</field>
-            <field name="color">11</field>
-        </record>
+    <record id="subcategory_new_inquiry" model="lost.message.subcategory">
+        <field name="name">New Inquiry</field>
+        <field name="code">new_inquiry</field>
+        <field name="description">New business inquiries requiring follow-up</field>
+        <field name="sequence">50</field>
+        <field name="color">11</field>
+    </record>
 
-        <record id="subcategory_finance" model="lost.message.subcategory">
-            <field name="name">Finance</field>
-            <field name="code">finance</field>
-            <field name="description">Invoices, payments, accounting-related messages</field>
-            <field name="sequence">60</field>
-            <field name="color">4</field>
-        </record>
+    <record id="subcategory_finance" model="lost.message.subcategory">
+        <field name="name">Finance</field>
+        <field name="code">finance</field>
+        <field
+      name="description"
+    >Invoices, payments, accounting-related messages</field>
+        <field name="sequence">60</field>
+        <field name="color">4</field>
+    </record>
 
-        <record id="subcategory_vendor" model="lost.message.subcategory">
-            <field name="name">Supplier / Vendor</field>
-            <field name="code">vendor</field>
-            <field name="description">Messages from suppliers and vendors</field>
-            <field name="sequence">70</field>
-            <field name="color">5</field>
-        </record>
-    </data>
+    <record id="subcategory_vendor" model="lost.message.subcategory">
+        <field name="name">Supplier / Vendor</field>
+        <field name="code">vendor</field>
+        <field name="description">Messages from suppliers and vendors</field>
+        <field name="sequence">70</field>
+        <field name="color">5</field>
+    </record>
+
+    <record id="subcategory_forwarded" model="lost.message.subcategory">
+        <field name="name">Forwarded</field>
+        <field name="code">forwarded</field>
+        <field
+      name="description"
+    >Forwarded via a real outbound email to another recipient</field>
+        <field name="sequence">80</field>
+        <field name="color">6</field>
+    </record>
 </odoo>

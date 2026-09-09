@@ -67,10 +67,17 @@
 
         <!-- Staff submenu (admin visibility) -->
         <menuitem id="sports_clinic_staff_menu"
-                  name="Staff"
+                  name="Admin"
                   parent="sports_clinic_root"
                   groups="bemade_sports_clinic.group_sports_clinic_admin"
                   sequence="80"/>
+
+        <menuitem id="sports_clinic_patient_injuries_audit"
+                  name="Injuries (Audit)"
+                  parent="sports_clinic_staff_menu"
+                  groups="base.group_no_one"
+                  action="action_view_patient_injury_audit"
+                  sequence="5"/>
         <menuitem id="sports_clinic_staff_timesheets"
                   name="Timesheets"
                   parent="sports_clinic_staff_menu"

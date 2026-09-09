@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_bemade_mail_gateway_token_admin,bemade.mail_gateway.token (admin),model_bemade_mail_gateway_token,group_bemade_mail_gateway_admin,1,1,1,1
+access_bemade_mail_gateway_token_create_wizard_admin,bemade.mail_gateway.token.create.wizard (admin),model_bemade_mail_gateway_token_create_wizard,group_bemade_mail_gateway_admin,1,1,1,0

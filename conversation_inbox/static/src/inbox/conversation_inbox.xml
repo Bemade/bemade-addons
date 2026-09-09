@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-name="conversation_inbox.Inbox">
+        <div class="o_conversation_inbox h-100 d-flex flex-column p-3">
+            <t t-if="!state.transports.length">
+                <div class="alert alert-info" role="alert">
+                    No browsable mail account is configured for you yet. Ask an
+                    administrator to connect one under "My Mail Accounts", or
+                    connect your own if you have access.
+                </div>
+            </t>
+            <t t-else="">
+                <div class="d-flex align-items-center mb-3 gap-2">
+                    <label for="o_conversation_inbox_transport">Account</label>
+                    <select
+            id="o_conversation_inbox_transport"
+            class="form-select w-auto"
+            t-on-change="onTransportChange"
+          >
+                        <t
+              t-foreach="state.transports"
+              t-as="transport"
+              t-key="transport.id"
+            >
+                            <option
+                t-att-value="transport.id"
+                t-att-selected="transport.id === state.transportId"
+              >
+                                <t t-esc="transport.name" />
+                            </option>
+                        </t>
+                    </select>
+                    <div class="ms-auto d-flex gap-2">
+                        <button
+              class="btn btn-secondary"
+              t-on-click="onPrevPage"
+              t-att-disabled="state.page &lt;= 1"
+            >
+                            Previous
+                        </button>
+                        <span t-esc="'Page ' + state.page" />
+                        <button
+              class="btn btn-secondary"
+              t-on-click="onNextPage"
+              t-att-disabled="!state.hasMore"
+            >
+                            Next
+                        </button>
+                    </div>
+                </div>
+
+                <t t-if="state.loading">
+                    <div class="text-muted">Loading...</div>
+                </t>
+                <t t-elif="!state.items.length">
+                    <div class="text-muted">No messages on this page.</div>
+                </t>
+                <t t-else="">
+                    <div class="o_conversation_inbox_list flex-grow-1 overflow-auto">
+                        <t t-foreach="state.items" t-as="item" t-key="item.external_id">
+                            <div class="card mb-2">
+                                <div
+                  class="card-header d-flex justify-content-between align-items-center"
+                  style="cursor: pointer;"
+                  t-on-click="() => this.onExpand(item)"
+                >
+                                    <div>
+                                        <strong
+                      t-esc="item.subject || '(no subject)'"
+                    />
+                                        <span
+                      class="text-muted ms-2"
+                      t-esc="item.email_from"
+                    />
+                                    </div>
+                                    <span class="text-muted" t-esc="item.date" />
+                                </div>
+                                <t t-if="state.expandedId === item.external_id">
+                                    <div class="card-body">
+                                        <t t-if="state.expandedBody === null">
+                                            <div
+                        class="text-muted"
+                      >Loading message...</div>
+                                        </t>
+                                        <t t-else="">
+                                            <div
+                        class="o_conversation_inbox_body mb-3"
+                        t-out="state.expandedBody"
+                      />
+                                            <t t-if="state.expandedAttachments.length">
+                                                <div
+                          class="o_conversation_inbox_attachments mb-3 d-flex flex-wrap gap-2"
+                        >
+                                                    <t
+                            t-foreach="state.expandedAttachments"
+                            t-as="attachment"
+                            t-key="attachment.filename"
+                          >
+                                                        <span
+                              class="badge text-bg-light border"
+                              title="Attachment -- not inlined; capture the message to pull it into Odoo."
+                            >
+                                                            <i
+                                class="fa fa-paperclip me-1"
+                              />
+                                                            <t
+                                t-esc="attachment.filename"
+                              />
+                                                        </span>
+                                                    </t>
+                                                </div>
+                                            </t>
+                                            <div class="d-flex flex-wrap gap-2">
+                                                <button
+                          class="btn btn-primary btn-sm"
+                          t-on-click="() => this.onCapture(item, 'new')"
+                        >
+                                                    New Conversation
+                                                </button>
+                                                <button
+                          class="btn btn-secondary btn-sm"
+                          t-on-click="() => this.onCapture(item, 'existing')"
+                        >
+                                                    Add to Existing
+                                                </button>
+                                                <button
+                          class="btn btn-secondary btn-sm"
+                          t-on-click="() => this.onCapture(item, 'link')"
+                        >
+                                                    Link to Record
+                                                </button>
+                                                <button
+                          class="btn btn-secondary btn-sm"
+                          t-on-click="() => this.onReassign(item)"
+                        >
+                                                    Reassign
+                                                </button>
+                                                <t
+                          t-if="currentTransport and currentTransport.sendable"
+                        >
+                                                    <button
+                            class="btn btn-secondary btn-sm"
+                            t-on-click="() => this.onCompose(item, 'reply')"
+                          >
+                                                        Reply
+                                                    </button>
+                                                    <button
+                            class="btn btn-secondary btn-sm"
+                            t-on-click="() => this.onCompose(item, 'reply_all')"
+                          >
+                                                        Reply All
+                                                    </button>
+                                                    <button
+                            class="btn btn-secondary btn-sm"
+                            t-on-click="() => this.onCompose(item, 'forward')"
+                          >
+                                                        Forward
+                                                    </button>
+                                                </t>
+                                                <button
+                          class="btn btn-secondary btn-sm"
+                          t-on-click="() => this.onRouteViaAlias(item)"
+                        >
+                                                    Route via Alias
+                                                </button>
+                                                <button
+                          class="btn btn-outline-danger btn-sm ms-auto"
+                          t-on-click="() => this.onDismiss(item)"
+                        >
+                                                    Dismiss
+                                                </button>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </t>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+            </t>
+        </div>
+    </t>
+</templates>

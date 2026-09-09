@@ -58,6 +58,13 @@
                 <field name="approx_date" />
                 <field name="is_completed" widget="boolean" />
                 <field name="is_invoiced" widget="boolean" />
+                <button
+          name="%(action_visit_task_tree)d"
+          type="action"
+          string="Full Task Tree"
+          icon="fa-sitemap"
+          class="btn-link"
+        />
             </list>
         </field>
     </record>

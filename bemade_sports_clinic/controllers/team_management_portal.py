@@ -93,16 +93,24 @@ class TeamManagementPortal(CustomerPortal, AccessControlMixin):
             request.session['notification'] = {
                 'type': 'success',
                 'title': _('Player Removed'),
-                'message': _('%s has been successfully removed from the team.') % patient.name,
+                'message': _('%s has been successfully removed from the team.') % patient.sudo().name,
                 'sticky': False,
             }
             
             return request.redirect(f"/my/team/{team_id}")
             
         except Exception as e:
+            # Don't put the raw exception (often multi-line) in the redirect URL:
+            # newlines in a Location header raise a ValueError -> 500. Use a session
+            # notification instead, like the success path.
             _logger.error("Error removing player: %s", str(e), exc_info=True)
-            error_message = _("Error removing player: %s") % str(e)
-            return request.redirect(f"/my/team/{team_id}?error={error_message}".replace(' ', '+'))
+            request.session['notification'] = {
+                'type': 'danger',
+                'title': _('Error'),
+                'message': _("Could not remove the player. Please try again or contact an administrator."),
+                'sticky': False,
+            }
+            return request.redirect(f"/my/team/{team_id}")
     
     @http.route(['/my/team/<int:team_id>/add_player'],
                 type='http', auth="user", website=True)
@@ -166,11 +174,20 @@ class TeamManagementPortal(CustomerPortal, AccessControlMixin):
 
             team = self._check_team_access(team_id)
             
-            # Get all players for the team
+            # Get all players for the team, sorted by status severity so the
+            # most concerning players (injured/limited) surface first, then by name.
             players = request.env['sports.patient'].search([
                 ('team_ids', 'in', [team.id]),
                 ('active', '=', True)
             ], order='last_name, first_name')
+            stage_priority = {'no_play': 0, 'practice_ok': 1, 'healthy': 2}
+            players = players.sorted(
+                key=lambda p: (
+                    stage_priority.get(p.stage, 99),
+                    (p.last_name or '').lower(),
+                    (p.first_name or '').lower(),
+                )
+            )
             
             # Check user permissions for UI elements
             is_treatment_prof = request.env.user.has_group(
@@ -216,7 +233,15 @@ class TeamManagementPortal(CustomerPortal, AccessControlMixin):
             return request.redirect('/my/teams?error=%s' % str(e))
 
     def _find_existing_patient(self, first_name, last_name, email=None, phone=None):
-        """Search for an existing patient by name and contact information."""
+        """Search for an existing patient by name and contact information.
+
+        Task 640: for TPs/admins the lookup is done sudo so unteamed patients
+        hidden by per-record ir.rules can still be found (and subsequently linked
+        to a team). Coaches keep the rule-scoped, active-only behaviour.
+        """
+        is_tp_admin = request.env.user.has_group('bemade_sports_clinic.group_portal_treatment_professional') or \
+            request.env.user.has_group('base.group_system')
+        Patient = request.env['sports.patient'].sudo() if is_tp_admin else request.env['sports.patient']
         domain = [
             ('first_name', '=ilike', first_name.strip()),
             ('last_name', '=ilike', last_name.strip()),
@@ -239,18 +264,16 @@ class TeamManagementPortal(CustomerPortal, AccessControlMixin):
                 ('partner_id.phone', '!=', False)
             ]
         
-        # Search active records first (portal users always have access to active records)
-        active_patient = request.env['sports.patient'].search(domain + [('active', '=', True)], limit=1)
+        # Search active records first. For TPs/admins Patient is sudo (see above),
+        # so unteamed/rule-hidden patients are found; coaches stay rule-scoped.
+        active_patient = Patient.search(domain + [('active', '=', True)], limit=1)
         if active_patient:
             return active_patient
-            
-        # If no active patient found, check if user has permission to see inactive records
-        # Only treatment professionals or admins should see inactive/archived patients
-        # Use request.env.user.has_group() directly to avoid security violations
-        if request.env.user.has_group('bemade_sports_clinic.group_portal_treatment_professional') or \
-           request.env.user.has_group('base.group_system'):
-            return request.env['sports.patient'].search(domain + [('active', '=', False)], limit=1)
-            
+
+        # Archived records are only relevant to treatment professionals / admins.
+        if is_tp_admin:
+            return Patient.search(domain + [('active', '=', False)], limit=1)
+
         return request.env['sports.patient'].browse([])  # Empty recordset if no matches
 
     @http.route(['/my/team/<int:team_id>/player/add_link'], type='http', auth='user', website=True, methods=['GET'])
@@ -295,10 +318,13 @@ class TeamManagementPortal(CustomerPortal, AccessControlMixin):
                 ]
                 if dob:
                     domain.append(('date_of_birth', '=', dob))
-                active_rs = Patient.search(domain + [('active', '=', True)], limit=20)
-                if request.env.user.has_group('bemade_sports_clinic.group_portal_treatment_professional') or \
-                   request.env.user.has_group('base.group_system'):
-                    archived_rs = Patient.with_context(active_test=False).search(domain + [('active', '=', False)], limit=20)
+                # Task 640: this route is already restricted to TPs/admins above, who
+                # must be able to FIND any patient by name/DOB to add them to a team -
+                # including unteamed patients that the per-record ir.rules would hide.
+                # sudo() the identity-level lookup; only name/DOB are surfaced (see
+                # _to_dict). Full record access stays rule-gated elsewhere.
+                active_rs = Patient.sudo().search(domain + [('active', '=', True)], limit=20)
+                archived_rs = Patient.sudo().with_context(active_test=False).search(domain + [('active', '=', False)], limit=20)
 
             def _to_dict(p):
                 return {
@@ -787,7 +813,12 @@ class TeamManagementPortal(CustomerPortal, AccessControlMixin):
             last_name = (post.get('last_name') or '').strip()
             dob = (post.get('date_of_birth') or '').strip()
 
-            Patient = request.env['sports.patient']
+            # Task 640: route is restricted to TPs/admins (checked above), who may
+            # link ANY patient - including unteamed ones hidden by per-record ir.rules.
+            # sudo() so the lookup AND the team_ids write below succeed for a patient
+            # the portal user cannot yet read. Adding to a team they staff is the
+            # whole point of the feature; full record access remains rule-gated.
+            Patient = request.env['sports.patient'].sudo()
             existing = Patient.browse([])
             # Parse existing_id from POST if present (link flow)
             existing_id_str = post.get('existing_id')
@@ -797,7 +828,7 @@ class TeamManagementPortal(CustomerPortal, AccessControlMixin):
             if not existing_id and not (first_name or last_name):
                 raise UserError(_('Provide at least a first or last name'))
             if existing_id:
-                existing = Patient.with_context(active_test=False).browse(existing_id)
+                existing = Patient.with_context(active_test=False).browse(existing_id).exists()
             else:
                 # Try to find existing by name + optional dob (allow partials on whichever provided)
                 like_first = f"%{first_name}%" if first_name else "%"
@@ -810,9 +841,7 @@ class TeamManagementPortal(CustomerPortal, AccessControlMixin):
                     domain.append(('date_of_birth', '=', dob))
                 existing = Patient.search(domain + [('active', '=', True)], limit=1)
                 if not existing:
-                    if request.env.user.has_group('bemade_sports_clinic.group_portal_treatment_professional') or \
-                       request.env.user.has_group('base.group_system'):
-                        existing = Patient.with_context(active_test=False).search(domain + [('active', '=', False)], limit=1)
+                    existing = Patient.with_context(active_test=False).search(domain + [('active', '=', False)], limit=1)
 
             if existing:
                 action_taken = []

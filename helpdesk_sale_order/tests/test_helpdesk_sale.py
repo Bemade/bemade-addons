@@ -8,6 +8,7 @@ class TestHelpdeskSale(TransactionCase):
         # User needs to be part of a sales team, so set that up first
         sale_team = self.env.ref("sales_team.crm_team_1")
         helpdesk_team = self.env.ref("helpdesk.helpdesk_team1")
+        helpdesk_team.use_sale_orders = True
         self.env.user.sale_team_id = sale_team
 
         ticket = self.env["helpdesk.ticket"].create(
@@ -38,6 +39,7 @@ class TestHelpdeskSale(TransactionCase):
         # User needs to be part of a sales team, so set that up first
         sale_team = self.env.ref("sales_team.crm_team_1")
         helpdesk_team = self.env.ref("helpdesk.helpdesk_team1")
+        helpdesk_team.use_sale_orders = True
         self.env.user.sale_team_id = sale_team
 
         ticket = self.env["helpdesk.ticket"].create(

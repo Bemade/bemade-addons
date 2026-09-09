@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2026 Bemade Inc. -->
+<!-- License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl). -->
+<odoo>
+    <data>
+
+        <!--
+            Inject "Posted by:" author block into mail.mail_notification_layout
+            just above the message body.
+
+            author_display_name: partner name for internal authors; raw
+            email_from string for inbound emails without a matched partner.
+            author_display_email: partner email (clean address) for internal
+            authors; empty when no author_id (to avoid parsing email_from).
+        -->
+        <template id="mail_notification_layout"
+                  inherit_id="mail.mail_notification_layout">
+            <xpath expr="//div[@t-out='message.body']" position="before">
+                <t t-set="author_display_name"
+                   t-value="message.author_id.name or message.email_from or ''"/>
+                <t t-set="author_display_email"
+                   t-value="message.author_id.email or ''"/>
+                <div t-if="author_display_name or author_display_email"
+                     style="font-size: 12px; color: #555555; margin: 4px 0 8px 0; padding: 6px 8px; border-left: 3px solid #cccccc; background: #f7f7f7;">
+                    <strong>Posted by:</strong>&#160;<t t-if="author_display_name"><span t-out="author_display_name"/></t>
+                    <t t-if="author_display_email">
+                        &#160;&lt;<a t-att-href="'mailto:%s' % author_display_email"
+                               style="color: #555555; text-decoration: none;"
+                               t-out="author_display_email"/>&gt;
+                    </t>
+                </div>
+            </xpath>
+        </template>
+
+        <!--
+            Inject "Posted by:" author block into mail.mail_notification_light
+            just above the message body (the <t t-out="message.body"/> node
+            lives inside a <td>).
+        -->
+        <template id="mail_notification_light"
+                  inherit_id="mail.mail_notification_light">
+            <xpath expr="//td/t[@t-out='message.body']" position="before">
+                <t t-set="author_display_name"
+                   t-value="message.author_id.name or message.email_from or ''"/>
+                <t t-set="author_display_email"
+                   t-value="message.author_id.email or ''"/>
+                <div t-if="author_display_name or author_display_email"
+                     style="font-size: 12px; color: #555555; margin: 4px 0 8px 0; padding: 6px 8px; border-left: 3px solid #cccccc; background: #f7f7f7;">
+                    <strong>Posted by:</strong>&#160;<t t-if="author_display_name"><span t-out="author_display_name"/></t>
+                    <t t-if="author_display_email">
+                        &#160;&lt;<a t-att-href="'mailto:%s' % author_display_email"
+                               style="color: #555555; text-decoration: none;"
+                               t-out="author_display_email"/>&gt;
+                    </t>
+                </div>
+            </xpath>
+        </template>
+
+    </data>
+</odoo>

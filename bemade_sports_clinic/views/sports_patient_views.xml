@@ -189,7 +189,8 @@
                                                 <field name="sequence" widget="handle"/>
                                                 <field name="name"/>
                                                 <field name="contact_type"/>
-                                                <field name="mobile" widget="phone"/>
+                                                <field name="mobile" widget="phone" options="{'enable_sms': false}"/>
+                                                <field name="email"/>
                                             </list>
                                         </field>
                                     </group>

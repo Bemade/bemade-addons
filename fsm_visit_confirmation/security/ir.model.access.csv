@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+fsm_task_client_requirement_access_user,fsm.task.client.requirement.user,model_fsm_task_client_requirement,,1,0,0,0
+fsm_task_client_requirement_access_manager,fsm.task.client.requirement.manager,model_fsm_task_client_requirement,industry_fsm.group_fsm_manager,1,1,1,1

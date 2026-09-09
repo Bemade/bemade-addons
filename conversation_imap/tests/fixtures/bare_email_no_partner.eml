@@ -1,0 +1,9 @@
+MIME-Version: 1.0
+Date: Fri, 17 Jul 2026 09:00:00 -0400
+Message-ID: <bare-msg-1@example.com>
+Subject: Question
+From: stranger@example.com
+To: sales@example.com
+Content-Type: text/plain; charset="UTF-8"
+
+Hi, do you sell widgets? <script>alert(1)</script>

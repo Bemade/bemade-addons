@@ -1,8 +1,25 @@
-from odoo import models
+from odoo import models, fields
 
 
 class ProjectTask(models.Model):
     _inherit = "project.task"
+
+    # Many2many relation to client requirements - extensible without code changes
+    client_requirement_ids = fields.Many2many(
+        "fsm.task.client.requirement",
+        "project_task_client_requirement_rel",
+        "task_id",
+        "requirement_id",
+        string="Client Requirements",
+        help="Select client-facing requirements for this visit. "
+        "These will be communicated in the confirmation email.",
+    )
+
+    # Notes field for additional context about requirements
+    client_requirements_notes = fields.Text(
+        string="Requirements Notes",
+        help="Additional notes about requirements (e.g., duration, timing, specific instructions).",
+    )
 
     def write(self, vals):
         # Store old stage for comparison

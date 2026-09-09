@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Customer Account Statement",
-    "version": "18.0.1.0.11",
+    "version": "18.0.1.0.12",
     "license": "LGPL-3",
     "author": "Bemade Inc.",
     "website": "https://www.bemade.org",
@@ -24,6 +24,7 @@ The report can be generated from the partner form view.
         "report/partner_report.xml",
         "report/report_customer_account_statement.xml",
     ],
+    "post_init_hook": "post_init_hook",
     "installable": True,
     "application": False,
     "auto_install": False,

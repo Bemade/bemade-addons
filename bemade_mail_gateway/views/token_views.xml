@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2026 Bemade Inc.
+    License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+
+    Admin views for bemade.mail_gateway.token. The token_hash field is
+    intentionally NOT shown anywhere — admins only see metadata; the
+    raw token surfaces exactly once in the creation wizard.
+-->
+<odoo>
+    <data>
+
+        <!-- List view -->
+        <record id="view_bemade_mail_gateway_token_list" model="ir.ui.view">
+            <field name="name">bemade.mail_gateway.token.list</field>
+            <field name="model">bemade.mail_gateway.token</field>
+            <field name="arch" type="xml">
+                <list string="Mail Gateway Tokens"
+                      decoration-muted="not active"
+                      decoration-warning="expires_at and expires_at &lt; current_date"
+                      create="false">
+                    <field name="name"/>
+                    <field name="description" optional="hide"/>
+                    <field name="last_used_at"/>
+                    <field name="last_used_ip" optional="show"/>
+                    <field name="use_count"/>
+                    <field name="expires_at" optional="show"/>
+                    <field name="create_date" string="Created" optional="hide"/>
+                    <field name="create_uid" string="Created by" optional="hide"/>
+                    <field name="active" widget="boolean_toggle"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Form view -->
+        <record id="view_bemade_mail_gateway_token_form" model="ir.ui.view">
+            <field name="name">bemade.mail_gateway.token.form</field>
+            <field name="model">bemade.mail_gateway.token</field>
+            <field name="arch" type="xml">
+                <form string="Mail Gateway Token" create="false">
+                    <header>
+                        <button name="action_revoke"
+                                string="Revoke"
+                                type="object"
+                                class="btn-danger"
+                                invisible="not active"
+                                confirm="Revoking disables this token immediately. The integration using it will start receiving 401. Continue?"/>
+                        <field name="active" invisible="1"/>
+                    </header>
+                    <sheet>
+                        <widget name="web_ribbon"
+                                title="Revoked"
+                                bg_color="bg-danger"
+                                invisible="active"/>
+                        <div class="oe_title">
+                            <label for="name"/>
+                            <h1><field name="name" readonly="1"/></h1>
+                        </div>
+                        <group>
+                            <group string="Audit">
+                                <field name="last_used_at"/>
+                                <field name="last_used_ip"/>
+                                <field name="use_count"/>
+                                <field name="create_date"/>
+                                <field name="create_uid"/>
+                            </group>
+                            <group string="Lifecycle">
+                                <field name="expires_at"/>
+                                <field name="allowed_ips" placeholder="Reserved for V2 — IP allowlist"/>
+                            </group>
+                        </group>
+                        <group string="Description">
+                            <field name="description" nolabel="1"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Search view -->
+        <record id="view_bemade_mail_gateway_token_search" model="ir.ui.view">
+            <field name="name">bemade.mail_gateway.token.search</field>
+            <field name="model">bemade.mail_gateway.token</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="description"/>
+                    <field name="last_used_ip"/>
+                    <filter string="Active" name="active" domain="[('active','=',True)]"/>
+                    <filter string="Revoked" name="revoked" domain="[('active','=',False)]"/>
+                    <separator/>
+                    <filter string="Never used" name="unused" domain="[('use_count','=',0)]"/>
+                    <filter string="Expiring soon (next 30d)" name="expiring"
+                            domain="[('expires_at','&lt;=', (context_today() + relativedelta(days=30)).strftime('%Y-%m-%d'))]"/>
+                    <separator/>
+                    <!-- Group-by filters as direct siblings (Odoo 19 RNG no
+                         longer accepts the `<group string="Group By">` wrapper
+                         that earlier versions used). -->
+                    <filter string="Active state" name="grp_active" context="{'group_by':'active'}"/>
+                    <filter string="Created by" name="grp_create_uid" context="{'group_by':'create_uid'}"/>
+                </search>
+            </field>
+        </record>
+
+        <!-- Action: list → form -->
+        <record id="action_bemade_mail_gateway_token" model="ir.actions.act_window">
+            <field name="name">Mail Gateway Tokens</field>
+            <field name="res_model">bemade.mail_gateway.token</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_bemade_mail_gateway_token_search"/>
+            <field name="context">{"search_default_active": 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No tokens yet. Use the <b>Generate Token</b> button to create your first one.
+                </p>
+                <p>
+                    Tokens authenticate external mail relays (notably the
+                    <code>odoo-mail-gateway</code> sidecar) into this Odoo's
+                    <code>mail.thread.message_process</code>, without consuming
+                    a billable user license.
+                </p>
+                <p>
+                    Each token is generated with 256 bits of entropy, displayed
+                    once at creation, and only its sha256 hash is stored.
+                </p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,593 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* crm_account_management
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-01-30 00:00+0000\n"
+"PO-Revision-Date: 2026-01-30 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: French\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#. module: crm_account_management
+#: model:ir.model,name:crm_account_management.model_organizational_unit
+msgid "Organizational Unit (Customer Account)"
+msgstr "Unité organisationnelle (Compte client)"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__name
+msgid "Name"
+msgstr "Nom"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__owner_id
+msgid "Owning Partner"
+msgstr "Partenaire propriétaire"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__parent_id
+msgid "Parent Account"
+msgstr "Compte parent"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__child_ids
+msgid "Child Accounts"
+msgstr "Comptes enfants"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__member_ids
+msgid "Members"
+msgstr "Membres"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__user_id
+msgid "Account Manager"
+msgstr "Gestionnaire de compte"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__company_id
+msgid "Company"
+msgstr "Société"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__ytd_sales
+msgid "YTD Sales"
+msgstr "Ventes cumul annuel"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__ytd_sales_prior_year
+msgid "YTD Sales (Prior Year)"
+msgstr "Ventes cumul annuel (année précédente)"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__ytd_sales_change_pct
+msgid "YTD Sales Change %"
+msgstr "Variation ventes cumul annuel %"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__rolling_12m_sales
+msgid "Rolling 12M Sales"
+msgstr "Ventes 12 mois glissants"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__rolling_12m_sales_prior
+msgid "Rolling 12M Sales (Prior)"
+msgstr "Ventes 12 mois glissants (précédent)"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__rolling_12m_change_pct
+msgid "Rolling 12M Change %"
+msgstr "Variation 12 mois glissants %"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__open_quotations_count
+msgid "Open Quotations"
+msgstr "Devis ouverts"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__open_quotations_amount
+msgid "Open Quotations Amount"
+msgstr "Montant des devis ouverts"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__won_quotations_count
+msgid "Won Quotations (YTD)"
+msgstr "Bookings (cumul annuel)"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__won_quotations_amount
+msgid "Won Quotations Amount (YTD)"
+msgstr "Montant bookings (cumul annuel)"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__won_quotations_prior_count
+msgid "Bookings Prior (Count)"
+msgstr "Bookings précédent (nombre)"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__won_quotations_prior_amount
+msgid "Bookings Prior (Amount)"
+msgstr "Bookings précédent (montant)"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__open_orders_count
+msgid "Open Orders"
+msgstr "Commandes ouvertes"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__open_orders_amount
+msgid "Open Orders Amount"
+msgstr "Montant des commandes ouvertes"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__open_orders_to_invoice_amount
+msgid "To Invoice"
+msgstr "À facturer"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__open_orders_late_count
+msgid "Late Orders"
+msgstr "Commandes en retard"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__open_orders_late_amount
+msgid "Late Orders Amount"
+msgstr "Montant commandes en retard"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__open_orders_ontime_count
+msgid "On-Time Orders"
+msgstr "Commandes à temps"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__open_orders_ontime_amount
+msgid "On-Time Orders Amount"
+msgstr "Montant commandes à temps"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__last_sale_order_date
+msgid "Last Sales Order"
+msgstr "Dernière commande de vente"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__avg_gross_profit_percentage
+msgid "Avg Gross Profit %"
+msgstr "Marge brute moyenne %"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__fiscal_year_start_date
+msgid "Fiscal Year Start Date"
+msgstr "Date de début de l'exercice fiscal"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__open_opportunities_count
+msgid "Open Opportunities"
+msgstr "Opportunités ouvertes"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__open_opportunities_amount
+msgid "Open Opportunities Amount"
+msgstr "Montant des opportunités ouvertes"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__won_opportunities_count
+msgid "Won Opportunities (YTD)"
+msgstr "Opportunités gagnées (cumul annuel)"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__won_opportunities_amount
+msgid "Won Opportunities Amount (YTD)"
+msgstr "Montant des opportunités gagnées (cumul annuel)"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__currency_id
+msgid "Currency"
+msgstr "Devise"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_organizational_unit__active
+msgid "Active"
+msgstr "Actif"
+
+#. module: crm_account_management
+#: model:ir.actions.act_window,name:crm_account_management.organizational_unit_action
+msgid "Customer Accounts"
+msgstr "Comptes clients"
+
+#. module: crm_account_management
+#: model:ir.ui.menu,name:crm_account_management.menu_organizational_unit
+msgid "Customer Accounts"
+msgstr "Comptes clients"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.organizational_unit_view_form
+msgid "Dashboard"
+msgstr "Tableau de bord"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.organizational_unit_view_form
+msgid "YTD Sales (Fiscal)"
+msgstr "Ventes cumul annuel (fiscal)"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.organizational_unit_view_form
+msgid "YTD Change"
+msgstr "Variation cumul annuel"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.organizational_unit_view_form
+msgid "Rolling 12 Months"
+msgstr "12 mois glissants"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.organizational_unit_view_form
+msgid "Rolling 12M Change"
+msgstr "Variation 12 mois glissants"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.organizational_unit_view_form
+msgid "Account Details"
+msgstr "Détails du compte"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.organizational_unit_view_form
+msgid "Buying Trends"
+msgstr "Tendances d'achat"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.organizational_unit_view_search
+msgid "My Accounts"
+msgstr "Mes comptes"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.organizational_unit_view_search
+msgid "Has YTD Sales"
+msgstr "Avec ventes cumul annuel"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.organizational_unit_view_search
+msgid "YTD Growth"
+msgstr "Croissance cumul annuel"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.organizational_unit_view_search
+msgid "YTD Decline"
+msgstr "Déclin cumul annuel"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.organizational_unit_view_search
+msgid "Archived"
+msgstr "Archivé"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.organizational_unit_view_search
+msgid "Group By"
+msgstr "Grouper par"
+
+#. module: crm_account_management
+#: model:ir.actions.report,name:crm_account_management.action_report_annual_review
+msgid "Annual Review"
+msgstr "Revue annuelle"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.report_annual_review
+msgid "Sales Summary"
+msgstr "Résumé des ventes"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.report_annual_review
+msgid "Year-over-Year Change"
+msgstr "Variation d'une année à l'autre"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.report_annual_review
+msgid "Quotations & Orders"
+msgstr "Devis et commandes"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.report_annual_review
+msgid "Metric"
+msgstr "Métrique"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.report_annual_review
+msgid "Count"
+msgstr "Nombre"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.report_annual_review
+msgid "Amount"
+msgstr "Montant"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.report_annual_review
+msgid "Opportunities"
+msgstr "Opportunités"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.report_annual_review
+msgid "Top Products (Last 12 Months)"
+msgstr "Meilleurs produits (12 derniers mois)"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.report_annual_review
+msgid "Product"
+msgstr "Produit"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.report_annual_review
+msgid "Quantity"
+msgstr "Quantité"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.report_annual_review
+msgid "No products found for this period."
+msgstr "Aucun produit trouvé pour cette période."
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.report_annual_review
+msgid "Sales Trend (Last 12 Months)"
+msgstr "Tendance des ventes (12 derniers mois)"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.report_annual_review
+msgid "Period"
+msgstr "Période"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.report_annual_review
+msgid "Sales"
+msgstr "Ventes"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.report_annual_review
+msgid "No sales data available for this period."
+msgstr "Aucune donnée de vente disponible pour cette période."
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.report_annual_review
+msgid "Account Information"
+msgstr "Informations du compte"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.report_annual_review
+msgid "Primary Company"
+msgstr "Société principale"
+
+#. module: crm_account_management
+#: model_terms:ir.ui.view,arch_db:crm_account_management.organizational_unit_action
+msgid "Create your first customer account"
+msgstr "Créez votre premier compte client"
+
+#. module: crm_account_management
+#: model_terms:ir.ui.view,arch_db:crm_account_management.organizational_unit_action
+msgid "Customer accounts are automatically created for top-level company partners."
+msgstr "Les comptes clients sont automatiquement créés pour les partenaires sociétés de premier niveau."
+
+#. module: crm_account_management
+#: model_terms:ir.ui.view,arch_db:crm_account_management.organizational_unit_action
+msgid "You can also create accounts manually to group partners together."
+msgstr "Vous pouvez également créer des comptes manuellement pour regrouper des partenaires."
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_res_partner__owned_organizational_unit_ids
+msgid "Owned Customer Accounts"
+msgstr "Comptes clients détenus"
+
+#. module: crm_account_management
+#: model:ir.model.fields,field_description:crm_account_management.field_res_partner__organizational_unit_ids
+msgid "Member Of Accounts"
+msgstr "Membre des comptes"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.res_partner_view_form_inherit
+msgid "View Customer Account"
+msgstr "Voir le compte client"
+
+#. module: crm_account_management
+#: model:ir.cron,name:crm_account_management.ir_cron_refresh_ou_metrics
+msgid "Refresh Customer Account Metrics"
+msgstr "Actualiser les métriques des comptes clients"
+
+#. module: crm_account_management
+#: code:addons/crm_account_management/models/organizational_unit.py:0
+#, python-format
+msgid "Quotations"
+msgstr "Devis"
+
+#. module: crm_account_management
+#: code:addons/crm_account_management/models/organizational_unit.py:0
+#, python-format
+msgid "Orders for %s"
+msgstr "Commandes pour %s"
+
+#. module: crm_account_management
+#: code:addons/crm_account_management/models/organizational_unit.py:0
+#, python-format
+msgid "Invoices"
+msgstr "Factures"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.organizational_unit_view_form
+msgid "Print Annual Review"
+msgstr "Imprimer la revue annuelle"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.organizational_unit_view_form
+msgid "Sales Trend"
+msgstr "Tendance des ventes"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.organizational_unit_view_form
+msgid "Top Products (Last 12 Months)"
+msgstr "Meilleurs produits (12 derniers mois)"
+
+#. module: crm_account_management
+#: model_terms:ir.ui.view,arch_db:crm_account_management.buying_trends_widget
+msgid "Monthly"
+msgstr "Mensuel"
+
+#. module: crm_account_management
+#: model_terms:ir.ui.view,arch_db:crm_account_management.buying_trends_widget
+msgid "Quarterly"
+msgstr "Trimestriel"
+
+#. module: crm_account_management
+#: model_terms:ir.ui.view,arch_db:crm_account_management.buying_trends_widget
+msgid "Loading..."
+msgstr "Chargement..."
+
+#. module: crm_account_management
+#: model_terms:ir.ui.view,arch_db:crm_account_management.buying_trends_widget
+msgid "No data available"
+msgstr "Aucune donnée disponible"
+
+#. module: crm_account_management
+#: model:ir.model.fields,help:crm_account_management.field_organizational_unit__owner_id
+msgid "The top-level company partner that owns this account."
+msgstr "Le partenaire société de premier niveau qui possède ce compte."
+
+#. module: crm_account_management
+#: model:ir.model.fields,help:crm_account_management.field_organizational_unit__parent_id
+msgid "Parent organizational unit for hierarchical grouping."
+msgstr "Unité organisationnelle parente pour le regroupement hiérarchique."
+
+#. module: crm_account_management
+#: model:ir.model.fields,help:crm_account_management.field_organizational_unit__member_ids
+msgid "Additional partners explicitly assigned to this account."
+msgstr "Partenaires supplémentaires explicitement assignés à ce compte."
+
+#. module: crm_account_management
+#: model:ir.model.fields,help:crm_account_management.field_res_partner__owned_organizational_unit_ids
+msgid "Organizational units (customer accounts) owned by this partner."
+msgstr "Unités organisationnelles (comptes clients) détenues par ce partenaire."
+
+#. module: crm_account_management
+#: model:ir.model.fields,help:crm_account_management.field_res_partner__organizational_unit_ids
+msgid "Organizational units this partner is an explicit member of."
+msgstr "Unités organisationnelles dont ce partenaire est membre explicite."
+
+#. module: crm_account_management
+#: code:addons/crm_account_management/models/organizational_unit.py:0
+#, python-format
+msgid "An organizational unit must have either an owning partner or a parent account."
+msgstr "Une unité organisationnelle doit avoir soit un partenaire propriétaire, soit un compte parent."
+
+#. module: crm_account_management
+#: code:addons/crm_account_management/models/organizational_unit.py:0
+#, python-format
+msgid "You cannot create recursive account hierarchies."
+msgstr "Vous ne pouvez pas créer de hiérarchies de comptes récursives."
+
+#. module: crm_account_management
+#: code:addons/crm_account_management/models/organizational_unit.py:0
+#, python-format
+msgid "Open Orders"
+msgstr "Commandes ouvertes"
+
+#. module: crm_account_management
+#: code:addons/crm_account_management/models/organizational_unit.py:0
+#, python-format
+msgid "Bookings (YTD)"
+msgstr "Bookings (cumul annuel)"
+
+#. module: crm_account_management
+#: code:addons/crm_account_management/models/organizational_unit.py:0
+#, python-format
+msgid "Bookings (Prior YTD)"
+msgstr "Bookings (cumul annuel précédent)"
+
+#. module: crm_account_management
+#: code:addons/crm_account_management/models/organizational_unit.py:0
+#, python-format
+msgid "Late Orders"
+msgstr "Commandes en retard"
+
+#. module: crm_account_management
+#: code:addons/crm_account_management/models/organizational_unit.py:0
+#, python-format
+msgid "On-Time Orders"
+msgstr "Commandes à temps"
+
+#. module: crm_account_management
+#: code:addons/crm_account_management/models/organizational_unit.py:0
+#, python-format
+msgid "YTD Invoices"
+msgstr "Factures cumul annuel"
+
+#. module: crm_account_management
+#: code:addons/crm_account_management/models/organizational_unit.py:0
+#, python-format
+msgid "Prior YTD Invoices"
+msgstr "Factures cumul annuel précédent"
+
+#. module: crm_account_management
+#: code:addons/crm_account_management/models/organizational_unit.py:0
+#, python-format
+msgid "Invoices (Last 12 Months)"
+msgstr "Factures (12 derniers mois)"
+
+#. module: crm_account_management
+#: code:addons/crm_account_management/models/organizational_unit.py:0
+#, python-format
+msgid "Invoices (Prior 12 Months)"
+msgstr "Factures (12 mois précédents)"
+
+#. module: crm_account_management
+#: code:addons/crm_account_management/models/organizational_unit.py:0
+#, python-format
+msgid "Open Opportunities"
+msgstr "Opportunités ouvertes"
+
+#. module: crm_account_management
+#: code:addons/crm_account_management/models/organizational_unit.py:0
+#, python-format
+msgid "Won Opportunities (YTD)"
+msgstr "Opportunités gagnées (cumul annuel)"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.organizational_unit_view_form
+msgid "Bookings (YTD)"
+msgstr "Bookings (cumul annuel)"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.organizational_unit_view_form
+msgid "Bookings (Prior)"
+msgstr "Bookings (précédent)"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.organizational_unit_view_form
+msgid "Late"
+msgstr "En retard"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.organizational_unit_view_form
+msgid "On Time"
+msgstr "À temps"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.organizational_unit_view_form
+msgid "Remaining to Invoice"
+msgstr "Reste à facturer"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.organizational_unit_view_form
+msgid "Last Sales Order"
+msgstr "Dernière commande de vente"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.organizational_unit_view_form
+msgid "Avg Gross Profit %"
+msgstr "Marge brute moyenne %"
+
+#. module: crm_account_management
+#: model:ir.ui.view,arch_db:crm_account_management.res_partner_view_form_inherit_crm_account_management
+msgid "Customer Account"
+msgstr "Compte client"

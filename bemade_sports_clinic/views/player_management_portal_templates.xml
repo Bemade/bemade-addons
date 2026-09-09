@@ -105,6 +105,15 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row mt-2">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="last_consultation_date">Last Consultation Date</label>
+                                <input type="date" name="last_consultation_date" id="last_consultation_date" class="form-control"
+                                       t-att-value="(form_data and form_data.get('last_consultation_date')) or (patient_info and patient_info.get('last_consultation_date')) or ''"/>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </t>

@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from odoo import Command
 
 
@@ -22,5 +24,19 @@ class CaldavTestCommon:
             vals.update(caldav_password=caldav_password)
         if caldav_url:
             vals.update(caldav_calendar_url=caldav_url)
-        user = cls.env["res.users"].create(vals)
+        # Patch to skip external CalDAV validation during user creation
+        with patch.object(
+            cls.env["res.users"].__class__,
+            "_compute_is_caldav_enabled",
+            lambda self: self.write(
+                {
+                    "is_caldav_enabled": bool(
+                        self.caldav_username
+                        and self.caldav_password
+                        and self.caldav_calendar_url
+                    )
+                }
+            ),
+        ):
+            user = cls.env["res.users"].create(vals)
         return user

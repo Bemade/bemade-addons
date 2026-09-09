@@ -18,7 +18,7 @@
 #
 {
     'name': 'Sports Clinic Management',
-    'version': '18.0.2.1.0',
+    'version': '18.0.3.6.19',
     'summary': 'Comprehensive sports medicine clinic management with portal access and activity tracking.',
     'description': """
 Sports Clinic Management System
@@ -49,7 +49,7 @@ This module provides a complete sports medicine clinic management solution with 
         "contacts",
         "base_setup",  # For res.config.settings base view inheritance
         "phone_validation",  # For phone number formatting in patient contacts
-        "project",  # Required for project.task (Events) functionality
+        "project",  # Pulled in transitively by hr_timesheet; kept explicit so the 18.0.3.0.0 migration can clean up legacy event-spawned project.task records.
         "account",  # Ensure account portal templates (e.g., portal_my_home_invoice) are available
         "sale",  # Needed for creating quotations/sale orders from timesheets
         "purchase",  # For therapist-side POs
@@ -57,7 +57,6 @@ This module provides a complete sports medicine clinic management solution with 
     ],
     "external_dependencies": {
         "python": [
-            "openupgradelib",
             "pytz",  # For timezone handling in injury tracking
         ],
     },
@@ -68,7 +67,6 @@ This module provides a complete sports medicine clinic management solution with 
         "security/sports_clinic_rules.xml",
         "security/sports_clinic_portal_rules.xml",
         "security/mail_activity_portal_rules.xml",
-        "security/project_task_portal_rules.xml",
         "security/sports_event_rules.xml",
         "security/partner_access.xml",
         "security/sports_event_timesheet_rules.xml",
@@ -77,8 +75,8 @@ This module provides a complete sports medicine clinic management solution with 
         # "data/project_portal_demo_data.xml",  # Temporarily disabled for clean upgrade
         "data/cron_actions.xml",
         "views/sports_team_views.xml",
-        "views/sports_clinic_menus.xml",
         "views/sports_patient_injury_views.xml",
+        "views/sports_clinic_menus.xml",
         "views/sports_patient_views.xml",
         "views/sports_clinic_portal_views.xml",
         "views/sports_patient_injury_portal.xml",
@@ -86,8 +84,6 @@ This module provides a complete sports medicine clinic management solution with 
         "views/injury_management_portal_templates.xml",
         "views/task_management_portal_templates.xml",
         "views/events_portal_templates.xml",
-        "views/project_task_views.xml",
-        "views/project_task_security_test_views.xml",
         "views/event_invoicing_wizard_views.xml",
         "views/event_batch_invoicing_wizard_views.xml",
         "views/event_vendor_po_wizard_views.xml",
@@ -104,7 +100,6 @@ This module provides a complete sports medicine clinic management solution with 
         "views/portal_timesheets_templates.xml",
         "views/treatment_note_views.xml",
         "views/res_partner_views.xml",
-        "views/task_to_event_wizard_views.xml",
         "views/team_role_mass_assign_wizard_views.xml",
         "views/res_users_views.xml",
     ],

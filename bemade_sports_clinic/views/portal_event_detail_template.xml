@@ -147,7 +147,7 @@
                                                 <i class="fa fa-info-circle"/> Overview
                                             </button>
                                         </li>
-                                        <li class="nav-item" role="presentation">
+                                        <li class="nav-item" role="presentation" t-if="can_view_timesheets">
                                             <button class="nav-link" id="tab-timesheets-tab" data-bs-toggle="tab" data-bs-target="#tab-timesheets" type="button" role="tab" aria-controls="tab-timesheets" aria-selected="false">
                                                 <i class="fa fa-clock-o"/> Timesheets
                                             </button>
@@ -176,14 +176,16 @@
                                                 <dt class="col-sm-4">Teams:</dt>
                                                 <dd class="col-sm-8">
                                                     <i class="fa fa-users"/>
-                                                    <t t-if="event.team_ids">
-                                                        <t t-foreach="event.team_ids" t-as="t">
+                                                    <!-- Use sudo'd recordset so coaches see all team names
+                                                         on multi-team events, not only the team they staff. -->
+                                                    <t t-if="event_sudo.team_ids">
+                                                        <t t-foreach="event_sudo.team_ids" t-as="t">
                                                             <span class="badge rounded-pill me-1 mb-1 bg-secondary">
                                                                 <t t-esc="t.name"/>
                                                             </span>
                                                         </t>
                                                     </t>
-                                                    <t t-if="not event.team_ids">
+                                                    <t t-else="">
                                                         <span class="text-muted">No Team</span>
                                                     </t>
                                                 </dd>
@@ -253,7 +255,7 @@
                                     </t>
                                     </div>
 
-                                    <div class="tab-pane fade" id="tab-timesheets" role="tabpanel" aria-labelledby="tab-timesheets-tab">
+                                    <div class="tab-pane fade" id="tab-timesheets" role="tabpanel" aria-labelledby="tab-timesheets-tab" t-if="can_view_timesheets">
                                         <t t-if="event.timesheet_ids">
                                             <div class="table-responsive">
                                                 <table class="table table-sm align-middle">

@@ -1,8 +1,9 @@
-from odoo import models, fields, api
-from odoo.exceptions import UserError
-from odoo.tools import mute_logger
-import caldav
 import logging
+
+import caldav
+
+from odoo import api, fields, models
+from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
@@ -17,9 +18,12 @@ class ResUsers(models.Model):
 
     @api.depends("caldav_username", "caldav_password", "caldav_calendar_url")
     def _compute_is_caldav_enabled(self):
-        """Compute whether CalDAV is enabled for each user by validating their credentials.
-        We only check if we can connect to the server and access the principal, without
-        fetching any events to avoid timeouts with large calendars."""
+        """Compute whether CalDAV is enabled for each user.
+
+        Validates credentials by checking if we can connect to the server and
+        access the principal, without fetching any events to avoid timeouts
+        with large calendars.
+        """
         for rec in self:
             # If any required field is empty, CalDAV is disabled
             if not (

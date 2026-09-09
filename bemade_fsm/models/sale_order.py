@@ -44,7 +44,8 @@ class SaleOrder(models.Model):
     )
 
     visit_ids = fields.One2many(
-        comodel_name="bemade_fsm.visit", inverse_name="sale_order_id", readonly=False
+        comodel_name="bemade_fsm.visit", inverse_name="sale_order_id", readonly=False,
+        copy=False
     )
 
     is_fsm = fields.Boolean(
@@ -103,8 +104,22 @@ class SaleOrder(models.Model):
         pass
 
     def copy(self, default=None):
+        original_visits = self.visit_ids
+        original_lines = self.order_line.sorted("sequence")
         rec = super().copy(default)
-        rec.visit_ids = [Command.set(rec.order_line.visit_ids.ids)]
+        new_lines = rec.order_line.sorted("sequence")
+        line_map = {
+            orig.id: new.id
+            for orig, new in zip(original_lines, new_lines)
+        }
+        for visit in original_visits:
+            new_section_id = line_map.get(visit.so_section_id.id)
+            if not new_section_id:
+                continue
+            visit.copy({
+                "so_section_id": new_section_id,
+                "sale_order_id": rec.id,
+            })
         return rec
 
     def _create_default_visit(self):

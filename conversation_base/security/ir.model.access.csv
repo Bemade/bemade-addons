@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_mail_conversation_user,mail.conversation user,model_mail_conversation,base.group_user,1,1,1,1
+access_mail_conversation_link_user,mail.conversation.link user,model_mail_conversation_link,base.group_user,1,1,1,1
+access_mail_conversation_participant_user,mail.conversation.participant user,model_mail_conversation_participant,base.group_user,1,1,1,1
+access_mail_conversation_member_user,mail.conversation.member user,model_mail_conversation_member,base.group_user,1,1,1,1
+access_mail_conversation_team_user,mail.conversation.team user,model_mail_conversation_team,base.group_user,1,1,1,1
+access_mail_conversation_tag_user,mail.conversation.tag user,model_mail_conversation_tag,base.group_user,1,1,1,1
+access_conversation_transport_user,conversation.transport user,model_conversation_transport,base.group_user,1,1,1,1

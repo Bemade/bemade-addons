@@ -102,6 +102,7 @@
                     <group>
                         <group col="2">
                             <field name="patient_id" invisible="1"/>
+                            <field name="allowed_team_ids" invisible="1"/>
                             <field name="team_id" groups="base.group_no_one"/>
                             <span colspan="2">
                                 <label for="injury_date"/>
@@ -115,10 +116,12 @@
                         </group>
                         <group>
                             <field name="parental_consent"/>
-                            <field name="internal_notes" widget="html"/>
-                            <field name="external_notes" widget="html"/>
+                            <field name="internal_notes"/>
+                            <field name="external_notes"/>
                             <field name="treatment_professional_ids"
                                    widget="many2many_tags_avatar"/>
+                            <field name="hidden_from_coaches"
+                                   groups="bemade_sports_clinic.group_sports_clinic_treatment_professional,bemade_sports_clinic.group_sports_clinic_admin"/>
                         </group>
                     </group>
                     <notebook>
@@ -177,6 +180,7 @@
                   multi_edit="True">
                 <field name="patient_id" column_invisible="True"/>
                 <field name="injury_date" widget="date"/>
+                <field name="allowed_team_ids" column_invisible="1"/>
                 <field name="team_id" groups="base.group_no_one"/>
                 <field name="diagnosis"/>
                 <field name="predicted_resolution_date" widget="date"/>
@@ -191,6 +195,125 @@
                         context="{'default_patient_id': patient_id}"/>
             </list>
         </field>
+    </record>
+
+    <record id="sports_patient_injury_view_list_audit" model="ir.ui.view">
+        <field name="name">sports.patient.injury.view.list.audit</field>
+        <field name="model">sports.patient.injury</field>
+        <field name="arch" type="xml">
+            <list string="Patient Injuries (Audit)">
+                <field name="patient_id"/>
+                <field name="team_id"/>
+                <field name="stage"/>
+                <field name="injury_date" widget="date"/>
+                <field name="injury_date_na"/>
+                <field name="diagnosis"/>
+                <field name="parental_consent"/>
+                <field name="predicted_resolution_date" widget="date"/>
+                <field name="resolution_date" widget="date"/>
+                <field name="treatment_professional_ids" widget="many2many_avatar_user"/>
+                <field name="internal_notes" optional="hide"/>
+                <field name="external_notes" optional="hide"/>
+                <field name="document_count"/>
+                <field name="create_date" optional="hide"/>
+                <field name="write_date" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="sports_patient_injury_view_search_audit" model="ir.ui.view">
+        <field name="name">sports.patient.injury.view.search.audit</field>
+        <field name="model">sports.patient.injury</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="patient_id"/>
+                <field name="team_id"/>
+                <field name="stage"/>
+                <field name="diagnosis"/>
+                <field name="treatment_professional_ids"/>
+                <field name="injury_date"/>
+                <field name="predicted_resolution_date"/>
+                <field name="resolution_date"/>
+                <filter string="Unverified" name="stage_unverified" domain="[('stage', '=', 'unverified')]"/>
+                <filter string="Active" name="stage_active" domain="[('stage', '=', 'active')]"/>
+                <filter string="Resolved" name="stage_resolved" domain="[('stage', '=', 'resolved')]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_view_patient_injury_audit" model="ir.actions.act_window">
+        <field name="name">Injuries (Audit)</field>
+        <field name="res_model">sports.patient.injury</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="sports_patient_injury_view_search_audit"/>
+    </record>
+    <record id="action_view_patient_injury_audit_list" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">list</field>
+        <field name="act_window_id" ref="action_view_patient_injury_audit"/>
+        <field name="view_id" ref="sports_patient_injury_view_list_audit"/>
+    </record>
+    <record id="action_view_patient_injury_audit_form" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">form</field>
+        <field name="act_window_id" ref="action_view_patient_injury_audit"/>
+        <field name="view_id" ref="sports_patient_injury_view_form"/>
+    </record>
+
+    <record id="server_action_cleanup_injury_notes_strip_html" model="ir.actions.server">
+        <field name="name">Cleanup Injury Notes (Strip HTML)</field>
+        <field name="model_id" ref="model_sports_patient_injury"/>
+        <field name="binding_model_id" ref="model_sports_patient_injury"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="groups_id" eval="[(4, ref('bemade_sports_clinic.group_sports_clinic_admin'))]"/>
+        <field name="code"><![CDATA[
+updated = 0
+
+def _strip_html_tags(value):
+    if not value:
+        return value
+    out = []
+    in_tag = False
+    for ch in value:
+        if ch == '<':
+            in_tag = True
+            continue
+        if ch == '>':
+            in_tag = False
+            continue
+        if not in_tag:
+            out.append(ch)
+    return ''.join(out)
+
+for injury in records:
+    vals = {}
+
+    if injury.internal_notes and '<' in injury.internal_notes:
+        cleaned = (_strip_html_tags(injury.internal_notes) or '').strip()
+        if cleaned != (injury.internal_notes or '').strip():
+            vals['internal_notes'] = cleaned
+
+    if injury.external_notes and '<' in injury.external_notes:
+        cleaned = (_strip_html_tags(injury.external_notes) or '').strip()
+        if cleaned != (injury.external_notes or '').strip():
+            vals['external_notes'] = cleaned
+
+    if vals:
+        injury.write(vals)
+        updated += 1
+
+action = {
+    'type': 'ir.actions.client',
+    'tag': 'display_notification',
+    'params': {
+        'title': 'Cleanup complete',
+        'message': f'Updated {updated} injury record(s).',
+        'type': 'success',
+        'sticky': False,
+    }
+}
+        ]]></field>
     </record>
     </data>
 </odoo>

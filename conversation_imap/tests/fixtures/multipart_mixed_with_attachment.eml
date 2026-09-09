@@ -1,0 +1,32 @@
+MIME-Version: 1.0
+Date: Fri, 17 Jul 2026 10:00:00 -0400
+Message-ID: <mixed-msg-1@example.com>
+Subject: Invoice attached
+From: "Vendor Corp" <vendor@example.com>
+To: sales@example.com
+Content-Type: multipart/mixed; boundary="MIXED123"
+
+--MIXED123
+Content-Type: multipart/alternative; boundary="ALT123"
+
+--ALT123
+Content-Type: text/plain; charset="UTF-8"
+
+Please find the invoice attached.
+
+--ALT123
+Content-Type: text/html; charset="UTF-8"
+
+<p>Please find the <b>invoice</b> attached.</p>
+
+--ALT123--
+
+--MIXED123
+Content-Type: application/pdf; name="invoice.pdf"
+Content-Disposition: attachment; filename="invoice.pdf"
+Content-Transfer-Encoding: base64
+
+RkFLRSBQREYgQ09OVEVOVCBGT1IgVEVTVCBGSVhUVVJFLCBOT1QgQSBSRUFMIFBERiwgSlVTVCBC
+WVRFUyBGT1IgU0laRS9NRVRBREFUQSBBU1NFUlRJT05TLg==
+
+--MIXED123--

@@ -1,18 +1,9 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Lost Messages Routing - UX Improvements",
-    "version": "18.0.1.0.0",
+    "version": "18.0.1.1.0",
     "category": "Discuss",
     "summary": "Subcategories, batch actions and triage wizards for lost messages",
-    "description": """
-Enhanced UX for managing lost messages:
-
-1. **Subcategories**: Classify messages (spam, bounce, auto-reply, finance, etc.)
-2. **Batch Actions**: Categorize or delete multiple messages at once
-3. **Triage Wizards**: 
-   - Invalid Address Notification
-   - Finance Triage (helpdesk ticket or forward)
-    """,
     "author": "Bemade Inc.",
     "website": "https://bemade.org",
     "license": "LGPL-3",
@@ -20,6 +11,7 @@ Enhanced UX for managing lost messages:
         "mail_manual_routing",
         "mail_manual_routing_fix",
         "mail_loop_prevention",
+        "mail_composer_from_selector",
     ],
     "data": [
         "security/ir.model.access.csv",
@@ -29,6 +21,7 @@ Enhanced UX for managing lost messages:
         "wizards/mail_categorize_wizard_views.xml",
         "wizards/mail_invalid_address_wizard_views.xml",
         "wizards/mail_finance_triage_wizard_views.xml",
+        "wizards/mail_forward_wizard_views.xml",
         "views/menus.xml",
     ],
     "installable": True,

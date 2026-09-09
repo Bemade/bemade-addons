@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Add AI classification fields to mail.message form view -->
+    <record id="view_message_form_inherit_ai" model="ir.ui.view">
+        <field name="name">mail.message.form.inherit.ai</field>
+        <field name="model">mail.message</field>
+        <field name="inherit_id" ref="mail.view_message_form"/>
+        <field name="arch" type="xml">
+            <!-- Add AI classification button in header -->
+            <xpath expr="//header" position="inside">
+                <button name="action_ai_classify"
+                        string="AI Classify"
+                        type="object"
+                        class="btn-primary"
+                        invisible="not is_unattached"/>
+            </xpath>
+
+            <!-- Add AI fields after subject -->
+            <xpath expr="//field[@name='subject']" position="after">
+                <field name="lost_subcategory_id" invisible="not is_unattached"/>
+                <field name="classification_confidence"
+                       invisible="not classification_confidence"
+                       widget="percentage"/>
+                <field name="ai_classification_date"
+                       invisible="not ai_classification_date"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Add AI classification fields to mail.message tree view -->
+    <record id="view_message_tree_inherit_ai" model="ir.ui.view">
+        <field name="name">mail.message.tree.inherit.ai</field>
+        <field name="model">mail.message</field>
+        <field name="inherit_id" ref="mail_manual_routing.view_message_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='is_unattached']" position="after">
+                <field name="lost_subcategory_id" optional="show"/>
+                <field name="classification_confidence"
+                       optional="show"
+                       widget="percentage"
+                       decoration-success="classification_confidence &gt;= 80"
+                       decoration-warning="classification_confidence &lt; 80 and classification_confidence &gt;= 50"
+                       decoration-danger="classification_confidence &lt; 50"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Add AI classification action to tree view -->
+    <record id="view_message_tree_ai_action" model="ir.ui.view">
+        <field name="name">mail.message.tree.ai.action</field>
+        <field name="model">mail.message</field>
+        <field name="inherit_id" ref="mail_manual_routing.view_message_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//tree" position="attributes">
+                <attribute name="multi_edit">1</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Add action to classify messages -->
+    <record id="action_classify_messages" model="ir.actions.server">
+        <field name="name">AI Classify Messages</field>
+        <field name="model_id" ref="mail.model_mail_message"/>
+        <field name="binding_model_id" ref="mail.model_mail_message"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    action = records.action_ai_classify()
+        </field>
+    </record>
+</odoo>

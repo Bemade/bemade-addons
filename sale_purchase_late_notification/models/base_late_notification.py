@@ -18,6 +18,9 @@ class BaseLateNotificationMixin(models.AbstractModel):
     _late_activity_note = ""
     _late_activity_summary_default = "Vérifier commande en retard"
     _late_notification_days_default = 5
+    # Days to wait after a previous late-notification activity was marked Done
+    # before re-creating one while the order is still late.
+    _late_renotify_cooldown_days_default = 7
 
     late_notification_date = fields.Datetime(
         string="Late Notification Date",
@@ -84,6 +87,24 @@ class BaseLateNotificationMixin(models.AbstractModel):
             or self.env.user.id
         )
 
+    @api.model
+    def _get_renotify_cooldown_days(self):
+        """Number of days to wait after a prior late-notification activity was
+        marked Done before re-creating one while the order is still late.
+
+        Configurable per model via the
+        ``sale_purchase_late_notification.<prefix>_renotify_cooldown_days``
+        config parameter (exposed in the relevant app's settings). Falls back to
+        ``_late_renotify_cooldown_days_default``.
+        """
+        return int(
+            self._get_config_param(
+                "renotify_cooldown_days",
+                str(self._late_renotify_cooldown_days_default),
+            )
+            or self._late_renotify_cooldown_days_default
+        )
+
     @api.depends("partner_id.commercial_partner_id")
     def _compute_late_days_threshold(self):
         """Compute the number of days an order must be late before notification.
@@ -117,14 +138,18 @@ class BaseLateNotificationMixin(models.AbstractModel):
 
     @api.model
     def _get_late_orders_domain(self):
-        """Get the domain to find late orders that haven't been notified yet.
+        """Get the domain to find candidate late orders.
 
         Relies on the model's is_late field and its _search_is_late method to handle
         the actual late detection logic using stored/searchable fields.
+
+        NB: this no longer filters on ``late_notification_date = False``. Whether an
+        already-notified order is *re-notified* is decided per-order by
+        :meth:`_should_notify` (idempotent open-activity check + configurable
+        re-notification cooldown), which subsumes the old one-shot behaviour.
         """
         return [
             ("is_late", "=", True),
-            ("late_notification_date", "=", False),
         ]
 
     @api.model
@@ -145,9 +170,70 @@ class BaseLateNotificationMixin(models.AbstractModel):
         # Fallback: use domain search (less efficient)
         return self.search(self._get_late_orders_domain()).ids
 
+    def _get_open_late_activities(self):
+        """Return this order's currently-open late-notification activities.
+
+        ``activity_ids`` only exposes active (not-yet-done) activities, so a match
+        here means the user still has an open reminder for this order.
+        """
+        self.ensure_one()
+        activity_type = self._get_activity_type()
+        summary = self._get_late_activity_summary()
+        return cast("MailActivityMixin", self).activity_ids.filtered(
+            lambda act: act.activity_type_id == activity_type
+            and act.summary == summary
+        )
+
+    def _get_last_late_activity_done_date(self):
+        """Return when the most recent late-notification activity for this order
+        was marked Done, or ``False`` if none ever was.
+
+        When an activity is marked Done its record is unlinked (or archived), so we
+        cannot read it back directly. Instead we read the "activity done" message
+        that ``mail.activity._action_done`` posts on the record, identified by its
+        activity type and the ``mail.mt_activities`` subtype.
+        """
+        self.ensure_one()
+        activity_type = self._get_activity_type()
+        done_subtype = self.env.ref("mail.mt_activities", raise_if_not_found=False)
+        done_messages = cast("MailActivityMixin", self).message_ids.filtered(
+            lambda msg: msg.mail_activity_type_id == activity_type
+            and (not done_subtype or msg.subtype_id == done_subtype)
+        )
+        if not done_messages:
+            return False
+        return max(done_messages.mapped("date"))
+
+    def _should_notify(self):
+        """Decide whether to (re-)create a late activity for this order now.
+
+        - Skip if an open late activity already exists (idempotent — never stack).
+        - Notify if the order was never notified before.
+        - Otherwise re-notify only once the configured cooldown has elapsed since
+          the previous late activity was marked Done (subsumes the one-shot rule).
+        """
+        self.ensure_one()
+        if self._get_open_late_activities():
+            return False
+        if not self.late_notification_date:
+            return True
+        closed_on = self._get_last_late_activity_done_date()
+        if not closed_on:
+            # Previously notified but no done-message found (e.g. the activity is
+            # gone yet was not marked done via the standard flow). Fall back to the
+            # last notification timestamp so the cooldown still applies.
+            closed_on = self.late_notification_date
+        cooldown = timedelta(days=self._get_renotify_cooldown_days())
+        return fields.Datetime.now() - closed_on >= cooldown
+
     @api.model
     def create_late_activities(self):
-        """Create activities for late orders"""
+        """Create (or re-create) activities for late orders.
+
+        Re-creation respects a configurable cooldown after the previous activity
+        was marked Done, so a still-late order keeps reminding the user instead of
+        firing only once.
+        """
         late_orders = self._get_late_orders()
         if not late_orders:
             return
@@ -162,6 +248,8 @@ class BaseLateNotificationMixin(models.AbstractModel):
 
         for order in late_orders:
             if not order.is_past_threshold:
+                continue
+            if not order._should_notify():
                 continue
             cast("MailActivityMixin", order).activity_schedule(**activity_vals)
             order.late_notification_date = fields.Datetime.now()

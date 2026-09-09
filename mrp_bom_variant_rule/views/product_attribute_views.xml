@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 Bemade Inc.
+     License LGPL-3 - See https://www.gnu.org/licenses/lgpl-3.0.html -->
+<odoo>
+    <record id="view_product_attribute_value_form" model="ir.ui.view">
+        <field name="name">product.attribute.value.form.bom.rule</field>
+        <field name="model">product.attribute.value</field>
+        <field name="arch" type="xml">
+            <form string="Attribute Value">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" />
+                        <h1>
+                            <field name="name" placeholder="e.g. Large" />
+                        </h1>
+                    </div>
+                    <group>
+                        <field name="attribute_id" />
+                    </group>
+                    <separator string="Parameters" />
+                    <div class="text-muted mb-2">
+                        Named numbers this value contributes to bill-of-materials
+                        quantity expressions. A rule may then say
+                        <code>volume * 1.2</code> instead of naming a figure per
+                        variant. Two values on the same variant must not give
+                        the same name different numbers.
+                    </div>
+                    <field name="param_ids">
+                        <list string="Parameters" editable="bottom">
+                            <field name="name" placeholder="e.g. volume" />
+                            <field name="value" />
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_product_attribute_value_list" model="ir.ui.view">
+        <field name="name">product.attribute.value.list.bom.rule</field>
+        <field name="model">product.attribute.value</field>
+        <field name="arch" type="xml">
+            <list string="Attribute Values">
+                <field name="attribute_id" />
+                <field name="name" />
+                <field name="param_summary" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_product_attribute_value_search" model="ir.ui.view">
+        <field name="name">product.attribute.value.search.bom.rule</field>
+        <field name="model">product.attribute.value</field>
+        <field name="arch" type="xml">
+            <search string="Attribute Values">
+                <field name="name" />
+                <field name="attribute_id" />
+                <filter
+          name="filter_with_params"
+          string="With Parameters"
+          domain="[('param_ids', '!=', False)]"
+        />
+                <group expand="0" string="Group By">
+                    <filter
+            name="group_by_attribute"
+            string="Attribute"
+            context="{'group_by': 'attribute_id'}"
+          />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_product_attribute_value_param" model="ir.actions.act_window">
+        <field name="name">Attribute Value Parameters</field>
+        <field name="res_model">product.attribute.value</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_group_by_attribute': 1}</field>
+        <field name="search_view_id" ref="view_product_attribute_value_search" />
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No attribute values yet</p>
+            <p>
+                Attach named numbers to the attribute values a rule needs to do
+                arithmetic with — a tank size that means 1.5 cubic metres, a
+                train count that means two.
+            </p>
+        </field>
+    </record>
+
+    <record
+    id="action_product_attribute_value_param_list_view"
+    model="ir.actions.act_window.view"
+  >
+        <field name="sequence" eval="1" />
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_product_attribute_value_list" />
+        <field name="act_window_id" ref="action_product_attribute_value_param" />
+    </record>
+
+    <record
+    id="action_product_attribute_value_param_form_view"
+    model="ir.actions.act_window.view"
+  >
+        <field name="sequence" eval="2" />
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_product_attribute_value_form" />
+        <field name="act_window_id" ref="action_product_attribute_value_param" />
+    </record>
+
+    <!-- The values already live on the attribute form; the parameters have to
+         be reachable from there or nobody will find them. -->
+    <record id="view_product_attribute_form_bom_rule" model="ir.ui.view">
+        <field name="name">product.attribute.form.bom.rule</field>
+        <field name="model">product.attribute</field>
+        <field name="inherit_id" ref="product.product_attribute_view_form" />
+        <field name="arch" type="xml">
+            <xpath
+        expr="//field[@name='value_ids']/list/field[@name='default_extra_price']"
+        position="after"
+      >
+                <field name="param_summary" optional="show" readonly="1" />
+                <button
+          name="action_bom_rule_open_params"
+          type="object"
+          string="Parameters"
+          icon="fa-sliders"
+          title="Edit the parameters this value contributes to BOM rules"
+        />
+            </xpath>
+        </field>
+    </record>
+</odoo>

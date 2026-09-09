@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Mail template for tracking number notification message body -->
+    <record id="mail_template_tracking_notification" model="mail.template">
+        <field name="name">Delivery: Tracking Number Notification</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="subject">Shipment Tracking Information</field>
+        <field name="lang">{{ object.partner_id.lang }}</field>
+        <field name="description">Message posted to sale order when tracking number is added</field>
+        <field name="body_html" type="html">
+<div style="font-family: Arial, sans-serif;">
+    <p>Your order has been shipped with the following details:</p>
+    <ul>
+        <li>
+            <strong>Carrier:</strong>
+            <t t-set="picking" t-value="object.picking_ids.filtered(lambda p: p.carrier_tracking_ref == tracking_ref)"/>
+            <t t-out="picking.carrier_id.name if picking and picking.carrier_id else 'Not specified'"/>
+        </li>
+        <li>
+            <strong>Tracking Number:</strong>
+            <t t-out="tracking_ref or 'Not available'"/>
+        </li>
+        <t t-if="tracking_url">
+            <li>
+                <strong>Tracking:</strong>
+                <a t-att-href="tracking_url" target="_blank">Click to track your shipment</a>
+            </li>
+        </t>
+        <t t-if="object.client_order_ref">
+            <li>
+                <strong>Your PO Number:</strong>
+                <t t-out="object.client_order_ref"/>
+            </li>
+        </t>
+    </ul>
+    <p>Thank you for your business!</p>
+</div>
+        </field>
+    </record>
+</odoo>

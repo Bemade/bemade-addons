@@ -760,8 +760,10 @@ class Patient(models.Model):
         # Execute the removal
         self.write(update_vals)
         
-        # Check if this was the last team
-        should_archive, archive_message = self._archive_if_no_teams(team.name, current_user.name)
+        # Check if this was the last team. After removing the last team the
+        # patient is teamless, so the per-record ir.rule no longer grants the
+        # portal user read access to it -> read via sudo() (task 640 follow-up).
+        should_archive, archive_message = self.sudo()._archive_if_no_teams(team.name, current_user.name)
         if should_archive:
             log_message += "\n" + archive_message
             # The archiving cron job will handle this
@@ -904,7 +906,9 @@ class Patient(models.Model):
         for patient in self:
             patient = patient.sudo()
             current_followers = patient.message_partner_ids
-            future_followers = patient.team_ids.mapped("staff_ids").mapped("partner_id")
+            future_followers = patient.team_ids.mapped("staff_ids").filtered(
+                lambda s: not s.silent_notifications
+            ).mapped("partner_id")
             removed_followers = current_followers - future_followers
 
             # Run follower subscribe/unsubscribe operations in a silent mail context

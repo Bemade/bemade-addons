@@ -1,0 +1,27 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* bemade_mail_author_visibility
+#
+# Copyright (C) 2026 Bemade Inc. (<https://www.bemade.org>).
+# This file is distributed under the same license as the bemade_mail_author_visibility package.
+# Bemade Inc. <marc@bemade.org>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-22 00:00+0000\n"
+"PO-Revision-Date: 2026-04-22 00:00+0000\n"
+"Last-Translator: Bemade Inc. <marc@bemade.org>\n"
+"Language-Team: fr_CA <marc@bemade.org>\n"
+"Language: fr_CA\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#. module: bemade_mail_author_visibility
+#: model_terms:ir.ui.view,arch_db:bemade_mail_author_visibility.mail_notification_layout
+#: model_terms:ir.ui.view,arch_db:bemade_mail_author_visibility.mail_notification_light
+msgid "<strong>Posted by:</strong>"
+msgstr "<strong>Publié par :</strong>"

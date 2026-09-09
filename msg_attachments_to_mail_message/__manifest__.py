@@ -54,7 +54,9 @@
     ],
     'external_dependencies': {
         'python': [
-            'extract-msg'
+            'chardet',
+            'extract-msg',
+            'PyPDF2',
         ],
     },
     'installable': True,

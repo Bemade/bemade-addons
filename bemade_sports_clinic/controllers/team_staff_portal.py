@@ -1,9 +1,13 @@
+import urllib.parse
+
 from odoo.addons.portal.controllers.portal import CustomerPortal, pager
 from odoo import http, _
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, AccessError, MissingError
+
+from .access_control_mixin import AccessControlMixin
 
 
-class TeamStaffPortal(CustomerPortal):
+class TeamStaffPortal(CustomerPortal, AccessControlMixin):
     def _prepare_home_portal_values(self, counters):
         rtn = super()._prepare_home_portal_values(counters)
         teams_domain = self._prepare_teams_domain()
@@ -32,6 +36,15 @@ class TeamStaffPortal(CustomerPortal):
 
     @classmethod
     def _prepare_players_domain(cls, teams_domain):
+        # Treatment professionals can find any patient (including unteamed ones —
+        # patients can be created/transferred without a current team affiliation
+        # and TPs need to manage them regardless). Coaches only see players on
+        # the teams they staff.
+        user = http.request.env.user
+        is_tp = user.has_group('bemade_sports_clinic.group_portal_treatment_professional') or \
+                user.has_group('bemade_sports_clinic.group_sports_clinic_treatment_professional')
+        if is_tp or user.has_group('base.group_system'):
+            return []
         team_ids = http.request.env['sports.team'].search(teams_domain).ids
         return [
             ('team_ids', 'in', team_ids),
@@ -102,31 +115,56 @@ class TeamStaffPortal(CustomerPortal):
             return [('id', '=', 0)]  # No results
 
     @http.route(route=['/my/teams', '/my/teams/page/<int:page>'], type='http', auth='user', website=True)
-    def view_teams(self, page=0, **kw):
-        """ Display the list of teams that a portal user has access to """
+    def view_teams(self, page=0, search=None, **kw):
+        """ Display the list of teams that a portal user has access to.
+
+        Optional `search` query param does an `ilike` on team name and
+        the parent organization name — useful when a user has many
+        accessible teams.
+        """
         Teams = http.request.env['sports.team']
         domain = self._prepare_teams_domain()
+        search_term = (search or '').strip()
+        if search_term:
+            domain = domain + [
+                '|',
+                ('name', 'ilike', search_term),
+                ('parent_id.name', 'ilike', search_term),
+            ]
         teams_count = Teams.search_count(domain)
+        pgr_url_args = {'search': search_term} if search_term else None
         pgr = pager(url='/my/teams', total=teams_count,
-                    page=page, step=10, scope=5)
-        teams = http.request.env['sports.team'].search(self._prepare_teams_domain(),
-                                                       offset=pgr['offset'],
-                                                       limit=teams_count)
+                    page=page, step=10, scope=5,
+                    url_args=pgr_url_args)
+        teams = Teams.search(domain,
+                             offset=pgr['offset'],
+                             limit=teams_count)
         return http.request.render(template='bemade_sports_clinic.portal_my_teams',
                                    qcontext={
                                        'teams_count': teams_count,
                                        'teams': teams,
                                        'pager': pgr,
                                        'page_name': 'my_teams',
+                                       'search': search_term,
                                    })
 
     @http.route(route=['/my/team', '/my/team/page/<int:page>'], type='http', auth='user', website=True)
     def view_team(self, team_id, page=0, **kw):
         """ Display the information for a team including its list of players """
         team_id = int(team_id)
-        team = http.request.env['sports.team'].browse(team_id)
-        if not team:
-            raise UserError(_('This team could not be found.'))
+        # Team-gated (task 640 follow-up): coaches may only open teams they staff;
+        # TPs/admins may open any. Without this, any portal user could enumerate
+        # another team's full roster by passing its team_id.
+        try:
+            team = self._check_team_access(team_id)
+        except (AccessError, MissingError) as e:
+            response = http.request.render('http_routing.http_error', {
+                'status_code': 403,
+                'status_message': 'Forbidden',
+                'error_message': str(e),
+            })
+            response.status_code = 403
+            return response
         players_count = team.player_count
         # Use canonical query-string URL so pagination links match other
         # portal links (e.g., /my/team?team_id=...).
@@ -260,10 +298,21 @@ class TeamStaffPortal(CustomerPortal):
         """ Display the active injuries for a given player. """
         player_id = int(player_id)
         team_id = team_id and int(team_id)
-        player = http.request.env['sports.patient'].browse(player_id)
+        # Team-gated record access (task 640): being findable in the broadened
+        # player search does NOT grant access to the full record. Mirror the
+        # edit/sub-routes — only users who staff one of the player's teams (or
+        # admins) may open the detail page.
+        try:
+            player = self._check_access_to_patient(player_id)
+        except UserError as e:
+            response = http.request.render('http_routing.http_error', {
+                'status_code': 403,
+                'status_message': 'Forbidden',
+                'error_message': str(e),
+            })
+            response.status_code = 403
+            return response
         team = team_id and http.request.env['sports.team'].browse(team_id)
-        if not player:
-            raise UserError(_('This player could not be found.'))
             
         # Check if user is a treatment professional (portal version)
         user = http.request.env.user
@@ -281,6 +330,12 @@ class TeamStaffPortal(CustomerPortal):
         patient_documents = http.request.env['sports.injury.document'].search([
             ('patient_id', '=', player.id)
         ], order='create_date desc, id desc')
+
+        # Treatment notes for the new Notes tab (TPs only see this tab,
+        # but always loading is cheap and avoids tab-conditional context).
+        treatment_notes = http.request.env['sports.treatment.note'].search([
+            ('patient_id', '=', player.id)
+        ], order='date desc, id desc')
 
         # Categories for patient document uploads
         categories = [
@@ -327,21 +382,51 @@ class TeamStaffPortal(CustomerPortal):
                 removal_team_id = sole_team_id
 
         can_request_removal = bool(is_coach and removal_team_id)
-        
+        can_direct_remove = bool(is_treatment_prof and removal_team_id)
+
+        # Precompute tab-anchor return URLs (and url-encoded variants
+        # for embedding in another URL's query string). Doing this in
+        # Python avoids QWeb's t-attf %-format collisions with literal
+        # %23/%26 sequences.
+        def _tab_url(tab):
+            base = f'/my/player?player_id={player.id}'
+            if team_context_id:
+                base += f'&team_id={team_context_id}'
+            return base + '#' + tab
+
+        contacts_tab_return = _tab_url('contacts')
+        documents_tab_return = _tab_url('documents')
+        notes_tab_return = _tab_url('notes')
+        injuries_tab_return = _tab_url('injuries')
+        contacts_tab_return_q = urllib.parse.quote(contacts_tab_return, safe='')
+
+        add_contact_url = (
+            f'/my/player/contact/add?patient_id={player.id}'
+            f'&return_url={contacts_tab_return_q}'
+        )
+
         return http.request.render(
             template='bemade_sports_clinic.portal_my_player_injuries',
             qcontext={
                 'player': player,
                 'injuries': injuries,
                 'patient_documents': patient_documents,
+                'treatment_notes': treatment_notes,
                 'categories': categories,
                 'team': team,
                 'page_name': 'my_player',
                 'is_treatment_prof': is_treatment_prof,
                 'patient_info': patient_info,
-                # Removal request context for coaches
                 'can_request_removal': can_request_removal,
+                'can_direct_remove': can_direct_remove,
                 'removal_team_id': removal_team_id,
                 'team_context_id': team_context_id,
+                # Tab-anchor URLs for in-tab actions.
+                'contacts_tab_return': contacts_tab_return,
+                'documents_tab_return': documents_tab_return,
+                'notes_tab_return': notes_tab_return,
+                'injuries_tab_return': injuries_tab_return,
+                'contacts_tab_return_q': contacts_tab_return_q,
+                'add_contact_url': add_contact_url,
             }
         )

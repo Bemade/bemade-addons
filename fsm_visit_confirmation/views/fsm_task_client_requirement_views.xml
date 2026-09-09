@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- List view for fsm.task.client.requirement -->
+    <record id="fsm_task_client_requirement_tree" model="ir.ui.view">
+        <field name="name">fsm.task.client.requirement.tree</field>
+        <field name="model">fsm.task.client.requirement</field>
+        <field name="arch" type="xml">
+            <list string="Client Requirements">
+                <field name="name"/>
+                <field name="description"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form view for fsm.task.client.requirement -->
+    <record id="fsm_task_client_requirement_form" model="ir.ui.view">
+        <field name="name">fsm.task.client.requirement.form</field>
+        <field name="model">fsm.task.client.requirement</field>
+        <field name="arch" type="xml">
+            <form string="Client Requirement">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-secondary" invisible="active == True"/>
+                    <div class="oe_title">
+                        <label for="name" string="Requirement Name"/>
+                        <h1><field name="name" placeholder="e.g., Water Shutdown Required"/></h1>
+                    </div>
+                    <group>
+                        <field name="active" invisible="1"/>
+                        <field name="description" placeholder="Additional information shown to the client when this requirement applies..."/>
+                        <field name="color" widget="color_picker"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action and menu entry (accessible via FSM Configuration) -->
+    <record id="fsm_task_client_requirement_action" model="ir.actions.act_window">
+        <field name="name">Client Requirements</field>
+        <field name="res_model">fsm.task.client.requirement</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No client requirements defined yet.
+            </p><p>
+                Client requirements are shown in visit confirmation emails.
+                Create requirements like "Water Shutdown Required" here.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu item under FSM Configuration -->
+    <menuitem
+        id="fsm_task_client_requirement_menu"
+        name="Client Requirements"
+        parent="industry_fsm.fsm_menu_settings"
+        action="fsm_task_client_requirement_action"
+        sequence="30"/>
+</odoo>

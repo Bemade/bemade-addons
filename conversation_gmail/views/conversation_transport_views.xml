@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="conversation_transport_view_form_gmail" model="ir.ui.view">
+        <field name="name">conversation.transport.view.form.gmail</field>
+        <field name="model">conversation.transport</field>
+        <field
+      name="inherit_id"
+      ref="conversation_base.conversation_transport_view_form"
+    />
+        <field name="arch" type="xml">
+            <group name="capabilities" position="after">
+                <group
+          name="gmail_oauth"
+          string="Gmail"
+          invisible="provider != 'gmail'"
+        >
+                    <field name="imap_folder" />
+                    <!-- Both blank (the common case) uses the
+                         instance-wide Client ID/Secret configured under
+                         Settings > General Settings > Emails > "Use a
+                         Gmail Server" - the right choice for a Google
+                         Workspace org sharing one OAuth app. Fill these
+                         in only to connect a personal Gmail account with
+                         its own Google Cloud OAuth client instead (task
+                         #3965, AC4): Workspace-vs-personal is a UI
+                         choice made here, not a separate provider or
+                         model. groups="base.group_system" on the Secret
+                         matches the OAuth token fields below - a
+                         credential, not readable by an ordinary user. -->
+                    <field name="client_id" />
+                    <field
+            name="client_secret"
+            password="True"
+            groups="base.group_system"
+          />
+                    <!-- google.gmail.mixin's token fields are
+                         groups="base.group_system" (built for a single
+                         admin-configured shared mail server); the
+                         connect widget is scoped to the same group so it
+                         is never shown to a user who cannot see the field
+                         it depends on. See readme: this is a known
+                         limitation against a truly per-user OAuth connect
+                         flow. -->
+                    <field
+            name="google_gmail_refresh_token"
+            invisible="1"
+            groups="base.group_system"
+          />
+                    <div groups="base.group_system">
+                        <button
+              name="open_google_gmail_uri"
+              type="object"
+              string="Connect to Gmail"
+              class="btn-primary"
+              invisible="google_gmail_refresh_token"
+            />
+                        <span invisible="not google_gmail_refresh_token">
+                            Connected.
+                        </span>
+                    </div>
+                </group>
+            </group>
+        </field>
+    </record>
+</odoo>

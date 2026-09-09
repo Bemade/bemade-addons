@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 Bemade Inc.
+     License LGPL-3 - See https://www.gnu.org/licenses/lgpl-3.0.html -->
+<odoo>
+    <record id="view_mrp_bom_rule_list" model="ir.ui.view">
+        <field name="name">mrp.bom.rule.list</field>
+        <field name="model">mrp.bom.rule</field>
+        <field name="arch" type="xml">
+            <list string="BOM Rules">
+                <field name="rule_set_id" />
+                <field name="slot_id" />
+                <field name="sequence" />
+                <field name="condition_summary" />
+                <field name="selection_mode" />
+                <field name="product_id" />
+                <field name="mapping_summary" />
+                <field name="qty_expr" />
+                <field name="product_uom_id" groups="uom.group_uom" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_mrp_bom_rule_form" model="ir.ui.view">
+        <field name="name">mrp.bom.rule.form</field>
+        <field name="model">mrp.bom.rule</field>
+        <field name="arch" type="xml">
+            <form string="BOM Rule">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="slot_id" />
+                            <field
+                  name="selection_mode"
+                  widget="radio"
+                  options="{'horizontal': true}"
+                />
+                            <field
+                  name="mapping_attribute_id"
+                  invisible="selection_mode != 'mapped'"
+                  required="selection_mode == 'mapped'"
+                  options="{'no_create': True}"
+                />
+                            <field
+                  name="product_id"
+                  invisible="selection_mode != 'fixed'"
+                  required="selection_mode == 'fixed'"
+                />
+                            <label for="qty_expr" />
+                            <div class="o_row">
+                                <field
+                  name="qty_expr"
+                  placeholder="e.g. volume * 1.2 * trains"
+                />
+                                <field
+                  name="product_uom_id"
+                  options="{'no_create': True}"
+                  groups="uom.group_uom"
+                />
+                            </div>
+                        </group>
+                        <group>
+                            <field name="rule_set_id" />
+                            <field name="sequence" />
+                        </group>
+                    </group>
+                    <separator string="Conditions" />
+                    <div class="text-muted mb-2">
+                        All conditions must hold for the rule to match. Within
+                        one condition the variant's value need only be one of
+                        those listed. A rule with no conditions matches every
+                        variant.
+                    </div>
+                    <field name="condition_ids">
+                        <list string="Conditions" editable="bottom">
+                            <field name="attribute_id" />
+                            <field
+                name="value_ids"
+                widget="many2many_tags"
+                domain="[('attribute_id', '=', attribute_id)]"
+              />
+                        </list>
+                    </field>
+                    <separator
+              string="Component Table"
+              invisible="selection_mode != 'mapped'"
+            />
+                    <div
+              class="text-muted mb-2"
+              invisible="selection_mode != 'mapped'"
+            >
+                        One row per value of the chosen attribute. A value left
+                        out of the table is an open question: its slot refuses
+                        and names it. A row ticked "supplies nothing" is an
+                        answer -- this variant includes no such component -- and
+                        satisfies the slot.
+                    </div>
+                    <field name="mapping_ids" invisible="selection_mode != 'mapped'">
+                        <list string="Component Table" editable="bottom">
+                            <field name="sequence" widget="handle" />
+                            <field name="attribute_value_id" />
+                            <field name="supplies_nothing" />
+                            <field
+                  name="product_id"
+                  invisible="supplies_nothing"
+                  required="not supplies_nothing"
+                />
+                            <field
+                  name="product_uom_id"
+                  options="{'no_create': True}"
+                  groups="uom.group_uom"
+                />
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_mrp_bom_rule_search" model="ir.ui.view">
+        <field name="name">mrp.bom.rule.search</field>
+        <field name="model">mrp.bom.rule</field>
+        <field name="arch" type="xml">
+            <search string="BOM Rules">
+                <field name="product_id" />
+                <field name="rule_set_id" />
+                <field name="slot_id" />
+                <group expand="0" string="Group By">
+                    <filter
+            name="group_by_rule_set"
+            string="Ruleset"
+            context="{'group_by': 'rule_set_id'}"
+          />
+                    <filter
+            name="group_by_slot"
+            string="Slot"
+            context="{'group_by': 'slot_id'}"
+          />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_mrp_bom_rule" model="ir.actions.act_window">
+        <field name="name">BOM Rules</field>
+        <field name="res_model">mrp.bom.rule</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_group_by_slot': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No rules yet</p>
+            <p>
+                Rules are normally written inside their ruleset, where the
+                order that decides which one wins is visible. This list is for
+                finding a rule across rulesets — for instance, every rule that
+                uses a component about to be discontinued.
+            </p>
+        </field>
+    </record>
+</odoo>

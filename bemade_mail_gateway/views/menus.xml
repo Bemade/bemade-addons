@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2026 Bemade Inc.
+    License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+
+    Menu structure (all admin-only via group_bemade_mail_gateway_admin):
+
+        Settings
+          └─ Bemade
+              └─ Mail Gateway
+                  ├─ Tokens         (list of bemade.mail_gateway.token)
+                  └─ Generate Token (opens the wizard)
+-->
+<odoo>
+    <data>
+
+        <!-- Top-level "Bemade" section under Settings (created by this
+             module; if other Bemade modules add it too, they share the
+             same xmlid via noupdate so first-loaded wins). -->
+        <menuitem id="menu_bemade_root"
+                  name="Bemade"
+                  parent="base.menu_administration"
+                  sequence="50"
+                  groups="group_bemade_mail_gateway_admin"/>
+
+        <menuitem id="menu_bemade_mail_gateway"
+                  name="Mail Gateway"
+                  parent="menu_bemade_root"
+                  sequence="10"
+                  groups="group_bemade_mail_gateway_admin"/>
+
+        <menuitem id="menu_bemade_mail_gateway_tokens"
+                  name="Tokens"
+                  parent="menu_bemade_mail_gateway"
+                  action="action_bemade_mail_gateway_token"
+                  sequence="10"/>
+
+        <menuitem id="menu_bemade_mail_gateway_generate"
+                  name="Generate Token"
+                  parent="menu_bemade_mail_gateway"
+                  action="action_token_create_wizard"
+                  sequence="20"/>
+
+    </data>
+</odoo>

@@ -1,6 +1,7 @@
-from odoo import models, fields, api
-import uuid
 import logging
+import uuid
+
+from odoo import api, fields, models
 
 _logger = logging.getLogger(__name__)
 
@@ -29,10 +30,11 @@ class RecurrenceRule(models.Model):
 
     @api.model
     def _detach_events(self, events):
-        """When events are detached from a recurrence, their CalDAV UID and recurrence-id
-        are no longer going to be valid, so we remove them from the server. They may then
-        be re-written to the server with their new IDs later, but we don't care about
-        that here."""
+        """When events are detached from a recurrence, their CalDAV UID and
+        recurrence-id are no longer going to be valid, so we remove them from
+        the server. They may then be re-written to the server with their new
+        IDs later, but we don't care about that here.
+        """
         detached_events = super()._detach_events(events)
         for event in detached_events:
             event._sync_unlink_to_caldav()

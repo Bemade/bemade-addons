@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Menu item under CRM -->
+    <menuitem id="menu_organizational_unit"
+              name="Customer Accounts"
+              action="organizational_unit_action"
+              parent="crm.crm_menu_root"
+              sequence="5"/>
+
+</odoo>

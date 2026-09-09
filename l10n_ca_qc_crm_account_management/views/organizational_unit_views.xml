@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- List: QC administrative region column -->
+    <record id="organizational_unit_view_tree_qc_region" model="ir.ui.view">
+        <field name="name">organizational.unit.tree.qc.region</field>
+        <field name="model">organizational.unit</field>
+        <field name="inherit_id" ref="crm_account_management.organizational_unit_view_tree"/>
+        <field name="arch" type="xml">
+            <field name="owner_city" position="after">
+                <field name="qc_administrative_region" optional="show"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- Form: QC administrative region in the Address group -->
+    <record id="organizational_unit_view_form_qc_region" model="ir.ui.view">
+        <field name="name">organizational.unit.form.qc.region</field>
+        <field name="model">organizational.unit</field>
+        <field name="inherit_id" ref="crm_account_management.organizational_unit_view_form"/>
+        <field name="arch" type="xml">
+            <group name="address" position="inside">
+                <field name="qc_administrative_region"/>
+            </group>
+        </field>
+    </record>
+
+    <!-- Search: QC administrative region field + group-by -->
+    <record id="organizational_unit_view_search_qc_region" model="ir.ui.view">
+        <field name="name">organizational.unit.search.qc.region</field>
+        <field name="model">organizational.unit</field>
+        <field name="inherit_id" ref="crm_account_management.organizational_unit_view_search"/>
+        <field name="arch" type="xml">
+            <field name="user_id" position="after">
+                <field name="qc_administrative_region"/>
+            </field>
+            <filter name="group_parent" position="after">
+                <filter string="QC Region" name="group_qc_region" context="{'group_by': 'qc_administrative_region'}"/>
+            </filter>
+        </field>
+    </record>
+
+</odoo>

@@ -29,8 +29,11 @@ class SportsEventBatchInvoicingWizard(models.TransientModel):
 
     def _build_event_line_description(self, ts):
         event = ts.event_id
-        date_only = event.date_start and event.date_start.date() or None
-        date_str = fields.Date.to_string(date_only) if date_only else ''
+        if event.date_start:
+            local_start = fields.Datetime.context_timestamp(self, event.date_start)
+            date_str = fields.Date.to_string(local_start.date())
+        else:
+            date_str = ''
         if event.event_type == 'clinic':
             name = event.name or ''
             return f"{name}\n{date_str}"
@@ -38,14 +41,17 @@ class SportsEventBatchInvoicingWizard(models.TransientModel):
         venue = event.venue_id.name or ''
         return f"{team}\n{date_str} @ {venue}"
 
-    def _ensure_sale_order_for_partner(self, partner):
+    def _ensure_sale_order_for_partner(self, partner, earliest_date=None):
         so = self.env['sale.order'].search([
             ('partner_id', '=', partner.id),
             ('state', '=', 'draft')
         ], order='id desc', limit=1)
         if so:
             return so
-        return self.env['sale.order'].create({'partner_id': partner.id})
+        vals = {'partner_id': partner.id}
+        if earliest_date:
+            vals['date_order'] = earliest_date
+        return self.env['sale.order'].create(vals)
 
     def action_process(self):
         self.ensure_one()
@@ -72,7 +78,8 @@ class SportsEventBatchInvoicingWizard(models.TransientModel):
         created_sos = self.env['sale.order']
         for partner_id, evs in partners.items():
             partner = self.env['res.partner'].browse(partner_id)
-            so = self._ensure_sale_order_for_partner(partner)
+            earliest_date = min((e.date_start for e in evs if e.date_start), default=None)
+            so = self._ensure_sale_order_for_partner(partner, earliest_date=earliest_date)
             lang = partner.lang or so.partner_id.lang or self.env.user.lang
             created_sos |= so
             for ev in evs:

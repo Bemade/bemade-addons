@@ -114,12 +114,15 @@ class SaleOrderLine(models.Model):
             ("order_id.state", "=", "sale"),
             ("expected_ship_date", "<", fields.Date.today()),
             ("is_delivered", "=", False),
+            ("product_id.type", "!=", "service"),
         ]
         not_late_dom = [
             ("order_id.state", "=", "sale"),
             "|",
+            "|",
             ("expected_ship_date", ">=", fields.Date.today()),
             ("is_delivered", "=", True),
+            ("product_id.type", "=", "service"),
         ]
 
         if operator == "=":
@@ -142,7 +145,7 @@ class SaleOrderLine(models.Model):
                 return late_dom
         return []
 
-    @api.depends("is_delivered", "order_id.state", "expected_ship_date")
+    @api.depends("is_delivered", "order_id.state", "expected_ship_date", "product_id")
     def _compute_is_late(self):
         today = fields.Date.today()
         for line in self:
@@ -151,4 +154,5 @@ class SaleOrderLine(models.Model):
                 and line.order_id.state == "sale"
                 and line.expected_ship_date
                 and line.expected_ship_date < today
+                and line.product_id.type != "service"
             )

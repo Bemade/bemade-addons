@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Forward Wizard Form -->
+    <record id="mail_forward_wizard_form" model="ir.ui.view">
+        <field name="name">mail.forward.wizard.form</field>
+        <field name="model">mail.forward.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Forward">
+                <group>
+                    <field name="message_ids" widget="many2many_tags" readonly="1" />
+                    <field
+            name="email_to"
+            placeholder="recipient@example.com, other@example.com"
+          />
+                    <field name="from_address_id" options="{'no_create': True}" />
+                    <field name="copy_attachments" />
+                </group>
+                <group string="Note">
+                    <field
+            name="note"
+            nolabel="1"
+            placeholder="Optional note added above the quoted original message..."
+          />
+                </group>
+                <footer>
+                    <button
+            name="action_forward"
+            string="Send"
+            type="object"
+            class="btn-primary"
+            data-hotkey="q"
+          />
+                    <button
+            string="Cancel"
+            class="btn-secondary"
+            special="cancel"
+            data-hotkey="x"
+          />
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

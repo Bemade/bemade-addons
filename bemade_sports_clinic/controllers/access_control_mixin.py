@@ -80,67 +80,69 @@ class AccessControlMixin:
     
     def _check_treatment_professional_access(self):
         """
-        Check if the current user is a treatment professional.
-        
+        Check if the current user is a treatment professional (portal or internal)
+        or a system admin.
+
         :return: True if user is a treatment professional or system admin
         """
-        return (request.env.user.has_group('bemade_sports_clinic.group_portal_treatment_professional') or 
-                request.env.user.has_group('base.group_system'))
+        user = request.env.user
+        return (user.has_group('bemade_sports_clinic.group_portal_treatment_professional') or
+                user.has_group('bemade_sports_clinic.group_sports_clinic_treatment_professional') or
+                user.has_group('base.group_system'))
     
     def _check_access_to_patient(self, patient_id):
         """
         Verify the user has access to this patient.
-        
+
         :param int patient_id: ID of the patient to check access for
         :return: The patient record if access is granted
         :raises: UserError if user doesn't have permission or patient not found
         """
         user = request.env.user
         patient = request.env['sports.patient'].browse(int(patient_id))
-        
+
         if not patient.exists():
             raise UserError(_('Patient not found.'))
-        
-        # Check if user has access through team staff relationships (original task portal logic)
+
+        # Record access is team-gated for EVERYONE, including treatment
+        # professionals: a TP may find an unteamed patient in portal search
+        # (see TeamStaffPortal._prepare_players_domain, task 640) to add them to
+        # a team, but full patient-record access requires being staff on one of
+        # the patient's teams. System admins always pass.
+        if user.has_group('base.group_system'):
+            return patient
+
         user_teams = user.partner_id.team_staff_rel_ids.mapped('team_id')
         patient_teams = patient.team_ids
-        
-        # User must be staff on at least one of the patient's teams
-        has_team_access = bool(user_teams & patient_teams)
-        
-        # Treatment professionals still need to be staff on the patient's teams
-        # They don't get blanket access to all patients
-        if not has_team_access:
+        if not (user_teams & patient_teams):
             raise UserError(_('You do not have access to this patient.'))
-            
+
         return patient
-    
+
     def _check_access_to_injury(self, injury_id):
         """
         Verify the user has access to this injury.
-        
+
         :param int injury_id: ID of the injury to check access for
         :return: The injury record if access is granted
         :raises: UserError if user doesn't have permission or injury not found
         """
         user = request.env.user
         injury = request.env['sports.patient.injury'].browse(int(injury_id))
-        
+
         if not injury.exists():
             raise UserError(_('Injury not found.'))
-            
-        # Check if user has access through team staff relationships (original task portal logic)
+
+        # Team-gated for everyone (see _check_access_to_patient, task 640).
+        # System admins always pass.
+        if user.has_group('base.group_system'):
+            return injury
+
         user_teams = user.partner_id.team_staff_rel_ids.mapped('team_id')
         patient_teams = injury.patient_id.team_ids
-        
-        # User must be staff on at least one of the patient's teams
-        has_team_access = bool(user_teams & patient_teams)
-        
-        # Treatment professionals still need to be staff on the patient's teams
-        # They don't get blanket access to all injuries
-        if not has_team_access:
+        if not (user_teams & patient_teams):
             raise UserError(_('You do not have access to this injury.'))
-                
+
         return injury
 
     def _check_access_to_event(self, event_id):

@@ -1,0 +1,28 @@
+# Copyright (C) 2024 Bemade Inc. (<https://www.bemade.org>).
+# License LGPL-3 or later (http://www.gnu.org/licenses/lgpl).
+# Translations for bemade_partner_address_ranking module.
+# Marc Durepos <marc@bemade.org>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-05-11 00:00+0000\n"
+"PO-Revision-Date: 2026-05-11 00:00+0000\n"
+"Last-Translator: Marc Durepos <marc@bemade.org>\n"
+"Language-Team: French <fr@li.org>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#. module: bemade_partner_address_ranking
+#: bemade_partner_address_ranking/views/res_partner_views.xml:0
+msgid "Favorite invoice address"
+msgstr "Adresse de facturation favorite"
+
+#. module: bemade_partner_address_ranking
+#: bemade_partner_address_ranking/views/res_partner_views.xml:0
+msgid "Favorite delivery address"
+msgstr "Adresse de livraison favorite"

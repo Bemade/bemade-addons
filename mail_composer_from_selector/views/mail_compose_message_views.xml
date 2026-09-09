@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2025 Bemade Inc.
+     License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl). -->
+<odoo>
+    <!-- Add From Address selector to mail composer -->
+    <record model="ir.ui.view" id="mail_compose_message_wizard_form_inherit">
+        <field name="name">mail.compose.message.form.inherit</field>
+        <field name="model">mail.compose.message</field>
+        <field name="inherit_id" ref="mail.email_compose_message_wizard_form"/>
+        <field name="arch" type="xml">
+            <!-- Add From Address selector before email_from field -->
+            <xpath expr="//field[@name='email_from']" position="before">
+                <field name="from_address_id"
+                       widget="selection"
+                       invisible="composition_mode != 'comment' or subtype_is_log == True"
+                       string="Send As"/>
+            </xpath>
+            <!-- Modify email_from visibility -->
+            <xpath expr="//field[@name='email_from']" position="attributes">
+                <attribute name="invisible">composition_mode != 'mass_mail' and not from_address_id</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

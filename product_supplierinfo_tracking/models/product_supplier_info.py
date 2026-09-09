@@ -35,10 +35,11 @@ class ProductSupplierInfo(models.Model):
 
     def _generate_chatter(self, vals, operation):
         if len(self) == 1 and self.product_tmpl_id:
+            name = self.product_id.name or self.product_tmpl_id.name
             msg = ""
             headmsg = (
                 f"<a href='#' data-oe-model='product.supplierinfo' data-oe-id='{self.id}'>"
-                f"Price {operation} for {self.product_id.name} : <br /></a>"
+                f"Price {operation} for {name} : <br /></a>"
             )
             if self.min_qty > 0:
                 msg += f"<li>Minimum qty : {self.min_qty}</li>"
@@ -63,7 +64,7 @@ class ProductSupplierInfo(models.Model):
 
     def write(self, vals):
         res = super(ProductSupplierInfo, self).write(vals)
-        self._generate_chatter(vals, "modify")
+        self._generate_chatter(vals, "modified")
         return res
 
     def supplierinfo_show_details(self):

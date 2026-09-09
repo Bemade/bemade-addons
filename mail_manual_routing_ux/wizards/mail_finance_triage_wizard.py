@@ -11,7 +11,7 @@ class MailFinanceTriageWizard(models.TransientModel):
     action = fields.Selection([
         ('helpdesk', 'Create Helpdesk Ticket'),
         ('forward', 'Forward to Email'),
-    ], string="Action", default='forward', required=True)
+    ], default='forward', required=True)
 
     # Helpdesk availability (overridden by mail_manual_routing_helpdesk)
     has_helpdesk = fields.Boolean(compute='_compute_has_helpdesk')
@@ -41,23 +41,23 @@ class MailFinanceTriageWizard(models.TransientModel):
         return {'type': 'ir.actions.act_window_close'}
 
     def _forward_messages(self):
-        """Forward messages to the specified email address."""
+        """Forward messages to the specified email address.
+
+        Delegates the actual send to the shared ``mail.message._do_forward()``
+        helper (task 3965) so this path gets the corrected From/Reply-To/
+        threading headers instead of the old crude, unauthenticated send.
+        ``mark_forwarded=False`` is passed because this wizard applies its
+        own "Finance" subcategory below.
+        """
         if not self.forward_email:
             return {'type': 'ir.actions.act_window_close'}
-        
+
         for message in self.message_ids:
-            mail_values = {
-                'subject': f"Fwd: {message.subject or 'No subject'}",
-                'body_html': message.body,
-                'email_to': self.forward_email,
-                'auto_delete': True,
-            }
-            mail = self.env['mail.mail'].create(mail_values)
-            mail.send()
-            
-            # Mark message as processed
-            subcategory = self.env.ref('mail_manual_routing_ux.subcategory_finance', raise_if_not_found=False)
-            if subcategory:
-                message.write({'lost_subcategory_id': subcategory.id})
-        
+            message._do_forward(self.forward_email, mark_forwarded=False)
+
+        # Mark messages as processed
+        subcategory = self.env.ref('mail_manual_routing_ux.subcategory_finance', raise_if_not_found=False)
+        if subcategory:
+            self.message_ids.write({'lost_subcategory_id': subcategory.id})
+
         return {'type': 'ir.actions.act_window_close'}

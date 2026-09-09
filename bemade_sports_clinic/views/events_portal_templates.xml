@@ -12,6 +12,15 @@
                 
                 <div class="container-fluid">
                     <!-- View Type Navigation -->
+                    <!-- Top-right view switcher: Calendar (matches the
+                         List button placement on /my/events/calendar) -->
+                    <div class="row mb-1">
+                        <div class="col-12 d-flex justify-content-end">
+                            <a href="/my/events/calendar" class="btn btn-outline-secondary btn-sm">
+                                <i class="fa fa-calendar"/> Calendar
+                            </a>
+                        </div>
+                    </div>
                     <div class="row mb-1">
                         <div class="col-12">
                             <ul class="nav nav-pills">
@@ -405,6 +414,98 @@
                         </div>
                     </div>
                 </div>
+            </t>
+        </template>
+
+        <!-- Calendar (FullCalendar month view) — task 611 -->
+        <template id="portal_events_calendar" name="Portal Events Calendar">
+            <t t-call="portal.portal_layout">
+                <t t-set="title">Events Calendar</t>
+
+                <div class="container-fluid">
+                    <div class="row mb-3">
+                        <div class="col-12 d-flex justify-content-between align-items-center">
+                            <h2 class="mb-0">Events Calendar</h2>
+                            <a href="/my/events" class="btn btn-outline-secondary btn-sm">
+                                <i class="fa fa-list"/>&amp;nbsp;List view
+                            </a>
+                        </div>
+                    </div>
+
+                    <div id="portal-events-calendar" style="min-height:600px;"/>
+
+                    <div id="portal-events-calendar-popover" class="d-none position-absolute bg-white border rounded shadow p-3" style="z-index:1080;max-width:320px;">
+                        <h5 class="mb-1" data-popover-title=""/>
+                        <div class="text-muted small mb-2" data-popover-when=""/>
+                        <div class="mb-1"><strong>Teams:</strong> <span data-popover-teams=""/></div>
+                        <div class="mb-1"><strong>Assigned:</strong> <span data-popover-assigned=""/></div>
+                        <div class="mb-1"><strong>Status:</strong> <span data-popover-state=""/></div>
+                        <a class="btn btn-primary btn-sm mt-2" data-popover-link="" href="#">Open event</a>
+                        <button type="button" class="btn-close position-absolute end-0 top-0 m-2" data-popover-close="">×</button>
+                    </div>
+                </div>
+
+                <!-- FullCalendar (Odoo bundles v6 globally under web/static/lib/fullcalendar) -->
+                <script src="/web/static/lib/fullcalendar/core/index.global.js"/>
+                <script src="/web/static/lib/fullcalendar/interaction/index.global.js"/>
+                <script src="/web/static/lib/fullcalendar/daygrid/index.global.js"/>
+                <script src="/web/static/lib/fullcalendar/timegrid/index.global.js"/>
+                <script src="/web/static/lib/fullcalendar/list/index.global.js"/>
+
+                <script type="text/javascript">
+                    document.addEventListener('DOMContentLoaded', function () {
+                        var el = document.getElementById('portal-events-calendar');
+                        if (!el || typeof FullCalendar === 'undefined') { return; }
+
+                        var popover = document.getElementById('portal-events-calendar-popover');
+                        function hidePopover() { popover.classList.add('d-none'); }
+                        popover.querySelector('[data-popover-close]').addEventListener('click', hidePopover);
+                        document.addEventListener('click', function (ev) {
+                            if (!popover.contains(ev.target) &amp;&amp; !ev.target.closest('.fc-event')) {
+                                hidePopover();
+                            }
+                        });
+
+                        var calendar = new FullCalendar.Calendar(el, {
+                            initialView: 'dayGridMonth',
+                            firstDay: 0,
+                            displayEventTime: true,
+                            eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
+                            headerToolbar: {
+                                left: 'prev,next today',
+                                center: 'title',
+                                right: ''
+                            },
+                            height: 'auto',
+                            events: function (info, success, failure) {
+                                var url = '/my/events/calendar/data?start=' + encodeURIComponent(info.startStr)
+                                          + '&amp;end=' + encodeURIComponent(info.endStr);
+                                fetch(url, { credentials: 'same-origin' })
+                                    .then(function (r) { return r.json(); })
+                                    .then(success)
+                                    .catch(failure);
+                            },
+                            eventClick: function (info) {
+                                info.jsEvent.preventDefault();
+                                var p = info.event.extendedProps || {};
+                                popover.querySelector('[data-popover-title]').textContent = info.event.title || '';
+                                var startStr = info.event.start ? info.event.start.toLocaleString() : '';
+                                var endStr = info.event.end ? ' - ' + info.event.end.toLocaleString() : '';
+                                popover.querySelector('[data-popover-when]').textContent = startStr + endStr;
+                                popover.querySelector('[data-popover-teams]').textContent = (p.teams || []).join(', ') || '—';
+                                popover.querySelector('[data-popover-assigned]').textContent = (p.assigned || []).join(', ') || '—';
+                                popover.querySelector('[data-popover-state]').textContent = p.state || '';
+                                var link = popover.querySelector('[data-popover-link]');
+                                link.href = info.event.url || '#';
+                                var rect = info.el.getBoundingClientRect();
+                                popover.style.left = (window.scrollX + rect.left) + 'px';
+                                popover.style.top = (window.scrollY + rect.bottom + 4) + 'px';
+                                popover.classList.remove('d-none');
+                            },
+                        });
+                        calendar.render();
+                    });
+                </script>
             </t>
         </template>
     </data>

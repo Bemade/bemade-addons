@@ -1,0 +1,37 @@
+name: version-bump-check
+# Enforces the module-versioning convention: any module changed in a PR must
+# bump its __manifest__.py version vs the target branch.
+# See https://github.com/bemade/pre-commit-hooks and odoo-project-guide §7.
+#
+# Why this repo in particular: it is the producer for per-addon vendoring.
+# Clients pin each addon by an <addon>/<version> tag, so a module changed
+# without a bump keeps pointing at its previous tag -- and a client vendoring
+# by version silently receives stale content for that addon beside fresh
+# content from the modules that were bumped. The mismatch then surfaces in the
+# client's CI, far from where it was introduced (task #3965).
+#
+# Runs unconditionally. It was previously opt-in behind a VERSION_BUMP_CHECK
+# repository variable, held so it would not fail the autonomous worker's
+# in-flight PRs; the worker bumps versions itself now (task #3891), so the
+# hold is retired rather than left as a switch that could silently disable the
+# guard everywhere.
+
+on:
+  pull_request:
+
+jobs:
+  version-bump-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # full history so the merge-base for the diff exists
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install the check
+        run: pip install "bemade-pre-commit-hooks @ git+https://github.com/bemade/pre-commit-hooks@v0.1.0"
+      - name: Check manifest version bumps
+        run: |
+          git fetch --quiet origin "+refs/heads/${GITHUB_BASE_REF}:refs/remotes/origin/${GITHUB_BASE_REF}"
+          bemade-check-version-bump --against "origin/${GITHUB_BASE_REF}"

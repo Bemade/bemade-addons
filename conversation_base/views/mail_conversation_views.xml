@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="mail_conversation_view_form" model="ir.ui.view">
+        <field name="name">mail.conversation.view.form</field>
+        <field name="model">mail.conversation</field>
+        <field name="arch" type="xml">
+            <form string="Conversation">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" />
+                        <h1>
+                            <field name="name" placeholder="Conversation subject..." />
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="state" />
+                            <field name="user_id" />
+                            <field name="team_id" />
+                        </group>
+                        <group>
+                            <field name="tag_ids" widget="many2many_tags" />
+                            <field name="primary_transport_id" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Linked Records" name="links">
+                            <field name="link_ids">
+                                <list editable="bottom">
+                                    <field name="res_model" />
+                                    <field name="res_id" />
+                                    <field name="reason" />
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Participants" name="participants">
+                            <field name="participant_ids">
+                                <list editable="bottom">
+                                    <field name="partner_id" />
+                                    <field name="email" />
+                                    <field name="kind" />
+                                    <field name="role" />
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Members" name="members">
+                            <field name="member_ids">
+                                <list editable="bottom">
+                                    <field name="user_id" />
+                                    <field name="is_handled" />
+                                    <field name="unread" />
+                                    <field name="snooze_until" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <record id="mail_conversation_view_list" model="ir.ui.view">
+        <field name="name">mail.conversation.view.list</field>
+        <field name="model">mail.conversation</field>
+        <field name="arch" type="xml">
+            <list string="Conversations">
+                <field name="name" />
+                <field name="state" />
+                <field name="user_id" />
+                <field name="team_id" />
+                <field name="tag_ids" widget="many2many_tags" />
+            </list>
+        </field>
+    </record>
+
+    <record id="mail_conversation_view_search" model="ir.ui.view">
+        <field name="name">mail.conversation.view.search</field>
+        <field name="model">mail.conversation</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="user_id" />
+                <field name="team_id" />
+                <field name="tag_ids" />
+                <filter
+          name="filter_open"
+          string="Open"
+          domain="[('state', '=', 'open')]"
+        />
+                <filter
+          name="filter_my"
+          string="My Conversations"
+          domain="[('user_id', '=', uid)]"
+        />
+                <group expand="0" string="Group By">
+                    <filter
+            name="groupby_state"
+            string="State"
+            context="{'group_by': 'state'}"
+          />
+                    <filter
+            name="groupby_team"
+            string="Team"
+            context="{'group_by': 'team_id'}"
+          />
+                    <filter
+            name="groupby_user"
+            string="Assignee"
+            context="{'group_by': 'user_id'}"
+          />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="mail_conversation_action" model="ir.actions.act_window">
+        <field name="name">Conversations</field>
+        <field name="res_model">mail.conversation</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_filter_open': 1}</field>
+    </record>
+
+    <menuitem id="menu_mail_conversation_root" name="Conversations" sequence="60" />
+    <menuitem
+    id="menu_mail_conversation"
+    name="Conversations"
+    parent="menu_mail_conversation_root"
+    action="mail_conversation_action"
+    sequence="10"
+  />
+</odoo>

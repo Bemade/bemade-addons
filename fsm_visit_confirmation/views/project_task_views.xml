@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_task_form_inherit_fsm_visit_confirmation" model="ir.ui.view">
+        <field name="name">project.task.form.inherit.fsm.visit.confirmation</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="industry_fsm.view_task_form2_inherit"/>
+        <field name="arch" type="xml">
+            <!-- Add client requirements after the partner phone block added by industry_fsm -->
+            <xpath expr="//page[@name='sub_tasks_page']" position="after">
+                <page name="client_requirements_page" string="Visit Requirements">
+                    <group string="Client Requirements" name="client_requirements" groups="industry_fsm.group_fsm_manager">
+                        <field name="client_requirement_ids" widget="many2many_tags" placeholder="Select client requirements..."/>
+                        <field name="client_requirements_notes" placeholder="Additional notes about requirements (duration, timing, etc.)"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -7,18 +7,16 @@
         <field name="arch" type="xml">
             <xpath expr="//app[@name='general_settings']" position="inside">
                 <block title="Mail Loop Prevention">
-                    <setting help="Prevent infinite communication loops when two mail servers auto-reply to each other">
+                    <setting help="Drop incoming emails that carry an RFC 3834 Auto-Submitted header indicating an auto-reply (e.g. out-of-office). This prevents infinite loops when two mail servers auto-reply to each other.">
                         <field name="mail_loop_prevention_enabled"/>
                         <div class="content-group" invisible="not mail_loop_prevention_enabled">
-                            <div class="row mt16">
-                                <label for="mail_loop_prevention_time_window_hours" string="Time Window" class="col-3 o_light_label"/>
-                                <field name="mail_loop_prevention_time_window_hours"/>
-                                <span>hours (1-720)</span>
-                            </div>
-                            <div class="row">
-                                <label for="mail_loop_prevention_max_identical_messages" string="Maximum Duplicates" class="col-3 o_light_label"/>
-                                <field name="mail_loop_prevention_max_identical_messages"/>
-                                <span>messages (2-100)</span>
+                            <div class="mt16">
+                                <field name="mail_loop_prevention_block_auto_generated"/>
+                                <label for="mail_loop_prevention_block_auto_generated"/>
+                                <div class="text-muted">
+                                    Also block emails marked as auto-generated.
+                                    Enable only if needed — this may block legitimate automated forwards.
+                                </div>
                             </div>
                         </div>
                     </setting>

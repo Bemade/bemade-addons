@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_conversation_inbox_capture_wizard_user,conversation.inbox.capture.wizard user,model_conversation_inbox_capture_wizard,base.group_user,1,1,1,1
+access_conversation_inbox_reassign_wizard_user,conversation.inbox.reassign.wizard user,model_conversation_inbox_reassign_wizard,base.group_user,1,1,1,1
+access_conversation_inbox_reply_wizard_user,conversation.inbox.reply.wizard user,model_conversation_inbox_reply_wizard,base.group_user,1,1,1,1

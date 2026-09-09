@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="crm_account_management.BuyingTrendsWidget">
+        <div class="o_buying_trends_widget">
+            <t t-if="state.loading">
+                <div class="text-center py-4">
+                    <i class="fa fa-spinner fa-spin fa-2x"/>
+                    <p class="mt-2 text-muted">Loading buying trends...</p>
+                </div>
+            </t>
+            <t t-else="">
+                <div class="row">
+                    <!-- Sales Trend Chart -->
+                    <div class="col-lg-7 mb-3">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <strong class="text-truncate min-w-0 me-2">Sales Trend</strong>
+                                <select class="form-select form-select-sm w-auto flex-shrink-0"
+                                        t-on-change="onPeriodChange">
+                                    <option value="month" t-att-selected="state.period === 'month'">Monthly</option>
+                                    <option value="quarter" t-att-selected="state.period === 'quarter'">Quarterly</option>
+                                    <option value="year" t-att-selected="state.period === 'year'">Yearly</option>
+                                </select>
+                            </div>
+                            <div class="card-body">
+                                <t t-if="state.salesData.length">
+                                    <div style="height: 250px;">
+                                        <canvas id="salesTrendChart"/>
+                                    </div>
+                                </t>
+                                <t t-else="">
+                                    <p class="text-muted text-center py-4">No sales data available</p>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- All Products (sortable) -->
+                    <div class="col-lg-5 mb-3">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <strong class="text-truncate min-w-0 me-2">Products Purchased</strong>
+                                <select class="form-select form-select-sm w-auto flex-shrink-0"
+                                        t-on-change="onProductPeriodChange">
+                                    <option value="12m" t-att-selected="state.productPeriod === '12m'">Last 12 Months</option>
+                                    <option value="all" t-att-selected="state.productPeriod === 'all'">All Time</option>
+                                </select>
+                            </div>
+                            <div class="card-body p-0" style="max-height: 300px; overflow-y: auto;">
+                                <t t-if="state.topProducts.length">
+                                    <table class="table table-sm table-hover mb-0">
+                                        <thead class="sticky-top bg-white">
+                                            <tr>
+                                                <th class="cursor-pointer user-select-none"
+                                                    t-on-click="() => this.onSortChange('default_code')">
+                                                    SKU
+                                                    <i t-if="state.sortBy === 'default_code'" class="fa fa-sort-alpha-asc ms-1"/>
+                                                </th>
+                                                <th class="cursor-pointer user-select-none"
+                                                    t-on-click="() => this.onSortChange('product_name')">
+                                                    Product
+                                                    <i t-if="state.sortBy === 'product_name'" class="fa fa-sort-alpha-asc ms-1"/>
+                                                </th>
+                                                <th class="text-end cursor-pointer user-select-none"
+                                                    t-on-click="() => this.onSortChange('total_qty')">
+                                                    Qty
+                                                    <i t-if="state.sortBy === 'total_qty'" class="fa fa-sort-numeric-desc ms-1"/>
+                                                </th>
+                                                <th class="text-end cursor-pointer user-select-none"
+                                                    t-on-click="() => this.onSortChange('total_amount')">
+                                                    Amount
+                                                    <i t-if="state.sortBy === 'total_amount'" class="fa fa-sort-numeric-desc ms-1"/>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="state.topProducts" t-as="product" t-key="product.product_id">
+                                                <tr class="cursor-pointer"
+                                                    t-on-click="() => this.onProductClick(product.product_id)"
+                                                    t-att-title="'View orders for ' + product.product_name">
+                                                    <td class="text-truncate text-muted" style="max-width: 100px;"
+                                                        t-att-title="product.default_code">
+                                                        <t t-esc="product.default_code"/>
+                                                    </td>
+                                                    <td class="text-truncate" style="max-width: 150px;"
+                                                        t-att-title="product.product_name">
+                                                        <t t-esc="product.product_name"/>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <t t-esc="formatNumber(product.total_qty)"/>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <t t-esc="formatCurrency(product.total_amount)"/>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </t>
+                                <t t-elif="state.productsError">
+                                    <p class="text-danger text-center py-4">
+                                        <i class="fa fa-exclamation-triangle me-1"/>
+                                        <t t-esc="state.productsError"/>
+                                    </p>
+                                </t>
+                                <t t-else="">
+                                    <p class="text-muted text-center py-4">No product data available</p>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </t>
+
+</templates>

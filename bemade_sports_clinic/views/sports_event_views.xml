@@ -21,6 +21,7 @@
                     <field name="therapist_end" widget="datetime"/>
                     <field name="therapist_duration" widget="float_time"/>
                     <field name="venue_id" context="{'default_is_venue': True}"/>
+                    <field name="treatment_professional_user_ids" column_invisible="1"/>
                     <field name="assigned_staff_ids" widget="many2many_tags"
                            domain="[('id', 'in', treatment_professional_user_ids)]"/>
                 </list>
@@ -122,11 +123,6 @@
             <field name="arch" type="xml">
                 <form string="Sports Event">
                     <header>
-                        <button name="create_management_task" type="object" 
-                                string="Create Management Task" 
-                                class="btn-primary"
-                                invisible="task_id != False"
-                                groups="base.group_user"/>
                         <button name="%(action_sports_event_recurrence_wizard)d" type="action"
                                 string="Add Recurrence" class="btn-secondary"
                                 context="{'active_id': id}"
@@ -209,6 +205,7 @@
                             
                             <page string="Staff Assignment">
                                 <group>
+                                    <field name="treatment_professional_user_ids" invisible="1"/>
                                     <label for="assigned_staff_ids" string="Assigned Staff"/>
                                     <field name="assigned_staff_ids" widget="many2many_tags" nolabel="1"
                                            placeholder="Select treatment professionals"
@@ -222,17 +219,6 @@
                                            views="[(ref('bemade_sports_clinic.sports_event_timesheet_tree'), 'list'),
                                                    (ref('bemade_sports_clinic.sports_event_timesheet_form'), 'form')]"/>
                                 </group>
-                            </page>
-                            
-                            <page string="Task Integration" groups="base.group_user">
-                                <group>
-                                    <field name="task_id" readonly="1"/>
-                                    <field name="project_id" readonly="1"/>
-                                </group>
-                                <div class="alert alert-info" role="alert" invisible="task_id != False">
-                                    <p><strong>No management task created yet.</strong></p>
-                                    <p>Click "Create Management Task" to create an internal project task for managing this event.</p>
-                                </div>
                             </page>
                         </notebook>
                     </sheet>

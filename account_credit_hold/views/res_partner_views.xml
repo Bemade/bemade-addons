@@ -31,4 +31,141 @@
                     </group>
                 </xpath></field>
         </record>
+        
+        <!-- Credit Hold Kanban View -->
+        <record id="res_partner_view_kanban_credit_hold" model="ir.ui.view">
+            <field name="name">account_credit_hold.res.partner.kanban</field>
+            <field name="model">res.partner</field>
+            <field name="arch" type="xml">
+                <kanban string="Credit Hold Customers" class="o_kanban_small_column">
+                    <field name="name"/>
+                    <field name="email"/>
+                    <field name="phone"/>
+                    <field name="on_hold"/>
+                    <field name="postpone_hold_until"/>
+                    <field name="total_due"/>
+                    <field name="followup_status"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div class="oe_kanban_card oe_kanban_global_click">
+                                <div class="o_kanban_record_top">
+                                    <div class="o_kanban_record_headings">
+                                        <strong class="o_kanban_record_title">
+                                            <field name="name"/>
+                                        </strong>
+                                        <div class="o_kanban_record_subtitle text-muted">
+                                            <field name="email"/>
+                                        </div>
+                                    </div>
+                                    <div class="o_kanban_manage_button_section">
+                                        <a class="o_kanban_manage_toggle btn btn-sm btn-default" href="#" tabindex="-1">
+                                            <i class="fa fa-ellipsis-v"/>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="o_kanban_record_body">
+                                    <div class="o_kanban_record_bottom">
+                                        <div class="oe_kanban_bottom_left">
+                                            <span t-if="record.on_hold.raw_value" class="badge badge-danger">
+                                                <i class="fa fa-lock"/> On Hold
+                                            </span>
+                                            <span t-if="record.postpone_hold_until.raw_value" class="badge badge-warning">
+                                                <i class="fa fa-clock-o"/> Postponed
+                                            </span>
+                                        </div>
+                                        <div class="oe_kanban_bottom_right">
+                                            <strong class="text-primary">
+                                                <field name="total_due" widget="monetary"/>
+                                            </strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="o_kanban_manage_view_section">
+                                    <div class="btn-group" role="group" aria-label="Manage buttons">
+                                        <button name="action_lift_credit_hold" type="object" class="btn btn-sm btn-primary" 
+                                                t-if="record.on_hold.raw_value" groups="account.group_account_manager,account.group_account_user">
+                                            <i class="fa fa-unlock"/> Lift Hold
+                                        </button>
+                                        <button name="action_credit_hold" type="object" class="btn btn-sm btn-warning" 
+                                                t-if="!record.on_hold.raw_value" groups="account.group_account_manager,account.group_account_user">
+                                            <i class="fa fa-lock"/> Place on Hold
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+        
+        <!-- Credit Hold List View -->
+        <record id="res_partner_view_tree_credit_hold" model="ir.ui.view">
+            <field name="name">account_credit_hold.res.partner.tree</field>
+            <field name="model">res.partner</field>
+            <field name="arch" type="xml">
+                <list string="Customers on Credit Hold">
+                    <field name="name"/>
+                    <field name="email"/>
+                    <field name="phone"/>
+                    <field name="followup_status"/>
+                    <field name="followup_line_id"/>
+                    <field name="postpone_hold_until"/>
+                    <field name="total_due" widget="monetary"/>
+                    <field name="unreconciled_aml_ids" widget="many2many_tags"/>
+                    <button name="action_lift_credit_hold" type="object" string="Lift Hold" icon="fa-unlock" invisible="not on_hold"/>
+                    <button name="action_credit_hold" type="object" string="Place on Hold" icon="fa-lock" invisible="on_hold"/>
+                </list>
+            </field>
+        </record>
+        
+        <!-- Credit Hold Search View -->
+        <record id="res_partner_view_search_credit_hold" model="ir.ui.view">
+            <field name="name">account_credit_hold.res.partner.search</field>
+            <field name="model">res.partner</field>
+            <field name="arch" type="xml">
+                <search string="Credit Hold Customers">
+                    <field name="name"/>
+                    <field name="email"/>
+                    <field name="followup_status"/>
+                    <filter string="On Credit Hold" name="on_hold" domain="[('on_hold', '=', True)]"/>
+                    <filter string="Hold Postponed" name="hold_postponed" domain="[('postpone_hold_until', '!=', False)]"/>
+                    <filter string="In Need of Action" name="in_need_of_action" domain="[('followup_status', '=', 'in_need_of_action')]"/>
+                    <separator/>
+                    <filter string="Overdue Invoices" name="overdue" domain="[('total_due', '>', 0)]"/>
+                    <group expand="0" string="Group By">
+                        <filter string="Followup Status" name="group_followup_status" context="{'group_by': 'followup_status'}"/>
+                        <filter string="Followup Level" name="group_followup_line" context="{'group_by': 'followup_line_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        
+        <!-- Credit Hold Action -->
+        <record id="action_res_partner_credit_hold" model="ir.actions.act_window">
+            <field name="name">Credit Hold Management</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_mode">kanban,list,form</field>
+            <field name="domain">[('customer_rank', '>', 0)]</field>
+            <field name="context">{'default_customer_rank': 1}</field>
+            <field name="view_ids" eval="[(5, 0, 0), (0, 0, {'view_mode': 'kanban', 'view_id': ref('res_partner_view_kanban_credit_hold')}), (0, 0, {'view_mode': 'list', 'view_id': ref('res_partner_view_tree_credit_hold')})]"/>
+            <field name="groups_id" eval="[(4, ref('account.group_account_manager')), (4, ref('account.group_account_user'))]"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No customers on credit hold found
+                </p>
+                <p>
+                    Customers will appear here when they have overdue invoices and have been placed on credit hold.
+                    You can manually place customers on hold or configure automatic followup levels.
+                </p>
+            </field>
+        </record>
+        
+        <!-- Menu Item -->
+        <menuitem id="menu_credit_hold_management"
+                  name="Credit Hold"
+                  parent="account.menu_finance_receivables"
+                  action="action_res_partner_credit_hold"
+                  sequence="55"
+                  groups="account.group_account_manager,account.group_account_user"/>
 </odoo>

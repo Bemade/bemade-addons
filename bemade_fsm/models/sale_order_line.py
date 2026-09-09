@@ -11,7 +11,7 @@ class SaleOrderLine(models.Model):
         comodel_name="bemade_fsm.visit",
         inverse_name="so_section_id",
         string="Visits",
-        copy=True,
+        copy=False,
     )
 
     visit_id = fields.Many2one(
@@ -79,14 +79,14 @@ class SaleOrderLine(models.Model):
                 rec.equipment_ids = rec.order_id.default_equipment_ids
         return recs
 
-    def copy_data(self, default=None):
-        if default is None:
-            default = {}
-        if "visit_ids" not in default:
-            default["visit_ids"] = [
-                (0, 0, visit.copy_data()[0]) for visit in self.visit_ids
-            ]
-        return super().copy_data(default)
+    def copy(self, default=None):
+        new_line = super().copy(default)
+        for visit in self.visit_ids:
+            visit.copy({
+                "so_section_id": new_line.id,
+                "sale_order_id": new_line.order_id.id,
+            })
+        return new_line
 
     def _timesheet_create_task(self, project):
         """Generate task for the given so line, and link it.

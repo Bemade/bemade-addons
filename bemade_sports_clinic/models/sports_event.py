@@ -140,25 +140,6 @@ class SportsEvent(models.Model):
     )
     
     # ========================================
-    # TASK INTEGRATION (Internal Management)
-    # ========================================
-    
-    task_id = fields.Many2one(
-        'project.task',
-        string='Management Task',
-        ondelete='set null',
-        groups='base.group_user',
-        help='Internal project task for managing this event'
-    )
-    
-    project_id = fields.Many2one(
-        'project.project',
-        string='Project',
-        groups='base.group_user',
-        help='Project this event belongs to'
-    )
-    
-    # ========================================
     # COMPUTED FIELDS
     # ========================================
     
@@ -427,6 +408,27 @@ class SportsEvent(models.Model):
         except Exception:
             pass
 
+        # Populate the TP user list at default-get time so the
+        # assigned_staff_ids picker domain has values to filter on for a
+        # brand-new event (the non-stored compute alone doesn't fire on a
+        # NewId record before the form's domain is evaluated).
+        if 'treatment_professional_user_ids' in fields_list and not values.get('treatment_professional_user_ids'):
+            tp_internal = self.env.ref(
+                'bemade_sports_clinic.group_sports_clinic_treatment_professional',
+                raise_if_not_found=False,
+            )
+            tp_portal = self.env.ref(
+                'bemade_sports_clinic.group_portal_treatment_professional',
+                raise_if_not_found=False,
+            )
+            group_ids = [g.id for g in (tp_internal, tp_portal) if g]
+            if group_ids:
+                tp_user_ids = self.env['res.users'].search([
+                    ('active', '=', True),
+                    ('groups_id', 'in', group_ids),
+                ]).ids
+                values['treatment_professional_user_ids'] = [(6, 0, tp_user_ids)]
+
         return values
 
     # ========================================
@@ -448,57 +450,6 @@ class SportsEvent(models.Model):
             if event.therapist_start and event.therapist_end:
                 if event.therapist_end <= event.therapist_start:
                     raise ValidationError("Therapist end time must be after start time.")
-    
-    # ========================================
-    # TASK INTEGRATION METHODS
-    # ========================================
-    
-    def create_management_task(self):
-        """Create a project task for internal management of this event"""
-        self.ensure_one()
-        if self.task_id:
-            return self.task_id
-        
-        # Find or create a project for the team
-        project = self._get_or_create_team_project()
-        
-        task_vals = {
-            'name': f"Event: {self.name}",
-            'description': self.description or '',
-            'project_id': project.id,
-            'date_deadline': self.date_end,
-            'user_ids': [(6, 0, self.assigned_staff_ids.ids)],
-            'partner_id': self.partner_id.id if self.partner_id else False,
-        }
-        
-        task = self.env['project.task'].create(task_vals)
-        self.task_id = task.id
-        self.project_id = project.id
-        
-        return task
-    
-    def _get_or_create_team_project(self):
-        """Get or create a project for the organization (one project per partner for billing)"""
-        if self.project_id:
-            return self.project_id
-
-        organization = self.partner_id
-        if not organization:
-            raise ValidationError("Event must have an organization (all teams must share the same parent organization).")
-
-        project = self.env['project.project'].search([
-            ('partner_id', '=', organization.id),
-        ], limit=1)
-
-        if not project:
-            project = self.env['project.project'].create({
-                'name': f"{organization.name} - Sports Events",
-                'partner_id': organization.id,
-                'privacy_visibility': 'portal',
-                'description': f"Event management for {organization.name} sports teams"
-            })
-
-        return project
     
     # ========================================
     # PORTAL ACCESS METHODS
@@ -540,22 +491,15 @@ class SportsEvent(models.Model):
     
     @api.model_create_multi
     def create(self, vals_list):
-        """Override create to handle task integration (batch-optimized for Odoo 18)"""
         events = super().create(vals_list)
-        
-        # Auto-create management tasks for events that need them
-        # IMPORTANT: Only internal users (base.group_user) may auto-create tasks here.
-        # Portal users will have tasks created via a controller-side sudo() after access checks.
-        is_internal = self.env.user.has_group('base.group_user')
-        if is_internal:
-            for event, vals in zip(events, vals_list):
-                if vals.get('auto_create_task', True):
-                    event.create_management_task()
-        
+        events.sudo()._sync_event_auto_staff()
         return events
-    
+
     def write(self, vals):
-        """Override write to enforce state change guardrails and sync with task"""
+        """Override write to enforce state change guardrails and keep
+        the date_* / therapist_* time pairs in sync when one side
+        moves alone (calendar drag updates only therapist_* because
+        the calendar view is bound to those fields)."""
         if 'state' in vals:
             # Only internal users may change event state directly (statusbar)
             # Exception: portal cancellation is allowed via controller with context flag.
@@ -575,18 +519,169 @@ class SportsEvent(models.Model):
                 # Portal may only cancel
                 if not self.env.user.has_group('base.group_user') and new_state != 'cancelled':
                     raise ValidationError("Only internal users can change event workflow state.")
-        result = super().write(vals)
-        
-        # Sync changes to linked task (only for users with task access)
-        user = self.env.user
-        has_task_access = user.has_group('base.group_user')
-        
-        if has_task_access:
-            for event in self:
-                if event.task_id:
-                    event._sync_to_task()
-        
-        return result
+
+        # Drag-only sync: BOTH fields of a pair shifted together (the
+        # calendar drag pattern) and the other pair wasn't touched.
+        # We deliberately skip syncing when only one field of a pair
+        # changed — that's a form edit where the user is adjusting one
+        # boundary intentionally, and they don't want the other pair
+        # auto-modified.
+        sync_t_to_d = (
+            'therapist_start' in vals and 'therapist_end' in vals
+            and not ('date_start' in vals or 'date_end' in vals)
+            and not self.env.context.get('skip_event_time_sync')
+        )
+        sync_d_to_t = (
+            'date_start' in vals and 'date_end' in vals
+            and not ('therapist_start' in vals or 'therapist_end' in vals)
+            and not self.env.context.get('skip_event_time_sync')
+        )
+        old_times = {}
+        if sync_t_to_d or sync_d_to_t:
+            old_times = {
+                e.id: {
+                    'therapist_start': e.therapist_start,
+                    'therapist_end': e.therapist_end,
+                    'date_start': e.date_start,
+                    'date_end': e.date_end,
+                }
+                for e in self
+            }
+
+        res = super().write(vals)
+
+        if sync_t_to_d:
+            for event in self.with_context(skip_event_time_sync=True):
+                old = old_times.get(event.id, {})
+                # Only shift if BOTH ends moved by the same delta — that
+                # confirms a drag rather than two unrelated edits.
+                if not (old.get('therapist_start') and old.get('therapist_end')
+                        and event.therapist_start and event.therapist_end):
+                    continue
+                delta_start = event.therapist_start - old['therapist_start']
+                delta_end = event.therapist_end - old['therapist_end']
+                if delta_start != delta_end or not delta_start:
+                    continue
+                updates = {}
+                if old.get('date_start'):
+                    updates['date_start'] = old['date_start'] + delta_start
+                if old.get('date_end'):
+                    updates['date_end'] = old['date_end'] + delta_start
+                if updates:
+                    event.write(updates)
+        elif sync_d_to_t:
+            for event in self.with_context(skip_event_time_sync=True):
+                old = old_times.get(event.id, {})
+                if not (old.get('date_start') and old.get('date_end')
+                        and event.date_start and event.date_end):
+                    continue
+                delta_start = event.date_start - old['date_start']
+                delta_end = event.date_end - old['date_end']
+                if delta_start != delta_end or not delta_start:
+                    continue
+                updates = {}
+                if old.get('therapist_start'):
+                    updates['therapist_start'] = old['therapist_start'] + delta_start
+                if old.get('therapist_end'):
+                    updates['therapist_end'] = old['therapist_end'] + delta_start
+                if updates:
+                    event.write(updates)
+
+        if {'assigned_staff_ids', 'team_ids', 'state', 'date_end', 'therapist_end'}.intersection(vals):
+            self.sudo()._sync_event_auto_staff()
+        return res
+
+    def unlink(self):
+        # Detach this event from any auto-staff records, deleting orphans.
+        Staff = self.env['sports.team.staff'].sudo()
+        affected = Staff.search([('temporary_event_ids', 'in', self.ids)])
+        affected.write({'temporary_event_ids': [(3, ev.id) for ev in self]})
+        orphan_auto = affected.filtered(
+            lambda s: s.is_auto_created and not s.temporary_event_ids
+        )
+        orphan_auto.unlink()
+        return super().unlink()
+
+    def _is_active_for_access(self):
+        """An event is "active for access" while either the event itself
+        or the therapist coverage window is still open (and the event is
+        not cancelled). This way, extending therapist coverage past the
+        event keeps the auto-grant alive for that extra time."""
+        self.ensure_one()
+        if self.state == 'cancelled':
+            return False
+        boundary = self.therapist_end or self.date_end
+        if not boundary:
+            return True
+        return boundary >= fields.Datetime.now()
+
+    def _sync_event_auto_staff(self):
+        """For each event in self, reconcile sports.team.staff records used
+        for temporary event-based access (task 539).
+
+        - For active events: ensure each (team, assigned_user) pair has a
+          staff record. If a manual record already exists, leave it alone.
+          Otherwise create an auto-staff record (silent, role=therapist)
+          and link this event in temporary_event_ids.
+        - For inactive events (cancelled or past date_end): detach this
+          event from existing auto-staff records; unlink any auto-staff
+          left with no remaining temporary events.
+        """
+        Staff = self.env['sports.team.staff'].sudo()
+        for event in self:
+            prior = Staff.search([('temporary_event_ids', 'in', event.ids)])
+            desired = set()
+            if event._is_active_for_access():
+                for team in event.team_ids:
+                    for user in event.assigned_staff_ids:
+                        if user.partner_id:
+                            desired.add((team.id, user.partner_id.id))
+            for team_id, partner_id in desired:
+                existing = Staff.search([
+                    ('team_id', '=', team_id),
+                    ('partner_id', '=', partner_id),
+                ], limit=1)
+                if existing:
+                    if existing.is_auto_created and event not in existing.temporary_event_ids:
+                        existing.write({'temporary_event_ids': [(4, event.id)]})
+                else:
+                    Staff.create({
+                        'team_id': team_id,
+                        'partner_id': partner_id,
+                        'role': 'therapist',
+                        'is_auto_created': True,
+                        'silent_notifications': True,
+                        'temporary_event_ids': [(4, event.id)],
+                    })
+            for staff in prior:
+                if (staff.team_id.id, staff.partner_id.id) not in desired:
+                    staff.write({'temporary_event_ids': [(3, event.id)]})
+                    if staff.is_auto_created and not staff.temporary_event_ids:
+                        staff.unlink()
+
+    @api.model
+    def _cron_cleanup_auto_event_staff(self):
+        """Nightly: detach past or cancelled events from auto-staff and
+        unlink orphans. Runs _sync_event_auto_staff which is idempotent.
+
+        An event is "stale" when both the event window and the
+        therapist coverage window have passed (or it's cancelled).
+        Picking up records by either boundary keeps the cleanup eager
+        without missing events whose coverage already ended even though
+        date_end hasn't.
+        """
+        now = fields.Datetime.now()
+        stale = self.search([
+            '|',
+                ('state', '=', 'cancelled'),
+                '&',
+                    ('date_end', '<', now),
+                    '|',
+                        ('therapist_end', '=', False),
+                        ('therapist_end', '<', now),
+        ])
+        if stale:
+            stale._sync_event_auto_staff()
 
     def _update_state_from_timesheets(self):
         """Update the event workflow state based on timesheet billing progress.
@@ -621,26 +716,6 @@ class SportsEvent(models.Model):
                     except Exception:
                         pass
     
-    def _sync_to_task(self):
-        """Sync event changes to linked task"""
-        if not self.task_id:
-            return
-        
-        task_vals = {
-            'name': f"Event: {self.name}",
-            'description': self.description or '',
-            'date_deadline': self.date_end,
-            'user_ids': [(6, 0, self.assigned_staff_ids.ids)],
-        }
-        
-        # Sync therapist coverage times to task start/end times
-        if self.therapist_start:
-            task_vals['date_start'] = self.therapist_start
-        if self.therapist_end:
-            task_vals['date_end'] = self.therapist_end
-        
-        self.task_id.write(task_vals)
-
     # ========================================
     # INTERNAL WORKFLOW ACTIONS
     # ========================================

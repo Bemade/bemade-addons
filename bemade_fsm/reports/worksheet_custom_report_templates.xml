@@ -559,7 +559,7 @@
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="doc">
                 <t t-set="doc" t-value="doc.root_ancestor.with_context(tz=doc.partner_id.tz)" t-if="doc.parent_id"/>
-                <t t-set="lang" t-value="(doc.work_order_contacts and doc.work_order_contacts[0].lang) or (doc.partner_id and doc.partner_id.lang) or (doc.user_id and doc.user_id.lang) or user.lang"/>
+                <t t-set="lang" t-value="(doc.work_order_contacts and doc.work_order_contacts[0].lang) or (doc.partner_id and doc.partner_id.lang) or (doc.user_ids[:1] and doc.user_ids[:1].lang) or user.lang"/>
                 <t t-call="web.external_layout">
                     <t t-call="bemade_fsm.work_order_page" t-lang="lang"/>
                 </t>
@@ -572,7 +572,7 @@
     priority="100"
   >
         <xpath expr="//t[@t-call='web.external_layout']" position="replace">
-            <t t-set="lang" t-value="(doc.work_order_contacts and doc.work_order_contacts[0].lang) or (doc.partner_id and doc.partner_id.lang) or (doc.user_id and doc.user_id.lang) or user.lang"/>
+            <t t-set="lang" t-value="(doc.work_order_contacts and doc.work_order_contacts[0].lang) or (doc.partner_id and doc.partner_id.lang) or (doc.user_ids[:1] and doc.user_ids[:1].lang) or user.lang"/>
             <t t-call="web.external_layout" t-lang="lang">
                 <t t-call="bemade_fsm.work_order_page" t-lang="lang"/>
             </t>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field
+      name="name"
+    >res.config.settings.view.form.inherit.mrp.bom.variant.rule</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="mrp.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='mrp']" position="inside">
+                <block
+          title="Generated Bills of Materials"
+          name="bom_variant_rule_setting_container"
+        >
+                    <setting
+            id="bom_rule_change_policy_setting"
+            string="When rules change"
+            help="What regeneration does to a generated bill of materials that already exists. Odoo freezes a manufacturing order's components when it is confirmed, so neither choice can change an order that is already under way; this is about how much of the history you want to keep."
+          >
+                        <field name="bom_rule_change_policy" widget="radio" />
+                        <div class="text-muted">
+                            Overwrite keeps a single bill of materials per
+                            configuration and rewrites it in place. Nothing
+                            accumulates, but the components a past quotation
+                            was costed from are lost.
+                        </div>
+                        <div class="text-muted">
+                            Create a new revision leaves the existing bill of
+                            materials untouched, builds a replacement and
+                            archives the original. Every version that was ever
+                            quoted or built from stays readable.
+                        </div>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

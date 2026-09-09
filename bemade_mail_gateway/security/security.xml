@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2026 Bemade Inc.
+    License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+-->
+<odoo>
+    <data noupdate="1">
+
+        <!-- Group: who can manage gateway tokens.
+             Members can create, rotate, revoke and view metadata of
+             every token. They never see the raw token after creation
+             (only the sha256 hash is stored). -->
+        <record id="group_bemade_mail_gateway_admin" model="res.groups">
+            <field name="name">Bemade Mail Gateway Administrator</field>
+            <field name="comment">Full management of the token endpoint used by external mail relays (odoo-mail-gateway, ETLs, etc.).</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_system'))]"/>
+        </record>
+
+    </data>
+</odoo>

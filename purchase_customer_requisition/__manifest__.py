@@ -1,6 +1,6 @@
 {
     "name": "Purchase Customer Requisition",
-    "version": "1.0",
+    "version": "1.1",
     "category": "Purchase",
     "summary": "Link customer requisition references to purchase orders",
     "description": """\

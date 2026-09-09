@@ -1,6 +1,6 @@
 from odoo.tests import TransactionCase, tagged, Form
 from odoo import Command, fields
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 
 @tagged("post_install", "-at_install")
@@ -291,4 +291,149 @@ class TestPurchaseOrder(TransactionCase):
             purchase_line.requisition_id,
             future_agreement,
             "Future agreement should not be selected",
+        )
+
+    # ------------------------------------------------------------------
+    # Task 3421: consolidate same-product lines on merge regardless of date
+    # ------------------------------------------------------------------
+    def _make_draft_po(self, product, qty, date_planned, packaging=False):
+        """Create a one-line draft PO for ``supplier``.
+
+        ``date_planned`` is written AFTER creation: on create it is a stored
+        compute (``_compute_price_unit_and_date_planned_and_name``) that derives
+        the date from the seller and would clobber a value passed in vals. A
+        direct write sticks (the compute only re-fires on product/qty/uom
+        changes, not on ``date_planned`` itself).
+        """
+        line_vals = {
+            "product_id": product.id,
+            "product_qty": qty,
+        }
+        if packaging:
+            line_vals["product_packaging_id"] = packaging.id
+        order = self.env["purchase.order"].create(
+            {
+                "partner_id": self.supplier.id,
+                "order_line": [Command.create(line_vals)],
+            }
+        )
+        order.order_line.date_planned = date_planned
+        return order
+
+    def _real_lines(self, order, product):
+        return order.order_line.filtered(
+            lambda l: l.display_type not in ("line_note", "line_section")
+            and l.product_id == product
+        )
+
+    def test_merge_consolidates_same_product_different_dates(self):
+        now = datetime(2026, 6, 12, 12, 0, 0)
+        later = now + timedelta(days=5)  # > 24h apart -> core keeps separate
+        po_a = self._make_draft_po(self.product_1, 10, now)
+        po_b = self._make_draft_po(self.product_1, 7, later)
+
+        # Precondition: two separate draft orders, each one line, dates >24h apart.
+        self.assertEqual(po_a.state, "draft")
+        self.assertEqual(po_b.state, "draft")
+        self.assertEqual(po_a.order_line.product_qty, 10)
+        self.assertEqual(po_b.order_line.product_qty, 7)
+        self.assertGreater(
+            abs((po_a.order_line.date_planned - po_b.order_line.date_planned).total_seconds()),
+            86400,
+            "Precondition: the two lines' dates must be >24h apart",
+        )
+
+        (po_a + po_b).action_merge()
+
+        survivor_order = po_a if po_a.state in ("draft", "sent") else po_b
+        lines = self._real_lines(survivor_order, self.product_1)
+        self.assertEqual(
+            len(lines), 1, "Same-product lines must consolidate into ONE line"
+        )
+        self.assertEqual(lines.product_qty, 17, "Quantities must be summed (10 + 7)")
+        self.assertEqual(
+            lines.date_planned, now, "Consolidated line must keep the EARLIEST date"
+        )
+        self.assertEqual(
+            survivor_order.date_planned, now, "Header date_planned must be the earliest"
+        )
+
+    def test_merge_preserves_move_dest_ids(self):
+        now = datetime(2026, 6, 12, 12, 0, 0)
+        later = now + timedelta(days=5)
+        po_a = self._make_draft_po(self.product_1, 10, now)
+        po_b = self._make_draft_po(self.product_1, 7, later)
+
+        # Populate move_dest_ids on each line with a distinct draft stock.move.
+        customer_loc = self.env.ref("stock.stock_location_customers")
+        stock_loc = self.env.ref("stock.stock_location_stock")
+        move_a = self.env["stock.move"].create(
+            {
+                "name": "demand A",
+                "product_id": self.product_1.id,
+                "product_uom_qty": 10,
+                "product_uom": self.product_1.uom_id.id,
+                "location_id": stock_loc.id,
+                "location_dest_id": customer_loc.id,
+            }
+        )
+        move_b = self.env["stock.move"].create(
+            {
+                "name": "demand B",
+                "product_id": self.product_1.id,
+                "product_uom_qty": 7,
+                "product_uom": self.product_1.uom_id.id,
+                "location_id": stock_loc.id,
+                "location_dest_id": customer_loc.id,
+            }
+        )
+        po_a.order_line.move_dest_ids = [Command.set([move_a.id])]
+        po_b.order_line.move_dest_ids = [Command.set([move_b.id])]
+
+        # Precondition: each line carries one distinct downstream move.
+        self.assertEqual(po_a.order_line.move_dest_ids, move_a)
+        self.assertEqual(po_b.order_line.move_dest_ids, move_b)
+        expected = po_a.order_line.move_dest_ids | po_b.order_line.move_dest_ids
+        self.assertEqual(len(expected), 2, "Precondition: two distinct downstream moves")
+
+        (po_a + po_b).action_merge()
+
+        survivor_order = po_a if po_a.state in ("draft", "sent") else po_b
+        lines = self._real_lines(survivor_order, self.product_1)
+        self.assertEqual(len(lines), 1, "Lines must consolidate into ONE line")
+        self.assertEqual(
+            lines.move_dest_ids,
+            expected,
+            "Consolidated line must keep BOTH downstream moves "
+            "(procurement chain preserved) -- fails if consolidation open-codes unlink",
+        )
+
+    def test_merge_keeps_distinct_packaging_separate(self):
+        now = datetime(2026, 6, 12, 12, 0, 0)
+        later = now + timedelta(days=5)
+        pack_a = self.env["product.packaging"].create(
+            {"name": "Box of 5", "product_id": self.product_1.id, "qty": 5}
+        )
+        pack_b = self.env["product.packaging"].create(
+            {"name": "Box of 10", "product_id": self.product_1.id, "qty": 10}
+        )
+        po_a = self._make_draft_po(self.product_1, 10, now, packaging=pack_a)
+        po_b = self._make_draft_po(self.product_1, 7, later, packaging=pack_b)
+
+        # Precondition: same product, dates >24h apart, but DIFFERENT packaging.
+        self.assertEqual(po_a.order_line.product_packaging_id, pack_a)
+        self.assertEqual(po_b.order_line.product_packaging_id, pack_b)
+        self.assertNotEqual(
+            po_a.order_line.product_packaging_id, po_b.order_line.product_packaging_id
+        )
+
+        (po_a + po_b).action_merge()
+
+        survivor_order = po_a if po_a.state in ("draft", "sent") else po_b
+        lines = self._real_lines(survivor_order, self.product_1)
+        self.assertEqual(
+            len(lines),
+            2,
+            "Lines with different packaging must stay SEPARATE "
+            "(only the date clause is relaxed)",
         )

@@ -14,8 +14,8 @@ class SaleOrder(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         """Set default preamble from company settings when creating a new sale order."""
-        record = super().create(vals_list)
-        for record in self:
-            if not record.preamble and record.company_id.default_quotation_preamble:
-                record.preamble = record.company_id.default_quotation_preamble
-        return record
+        records = super().create(vals_list)
+        for rec in records:
+            if not rec.preamble and rec.company_id.default_quotation_preamble:
+                rec.preamble = rec.company_id.default_quotation_preamble
+        return records

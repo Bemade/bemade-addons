@@ -10,23 +10,112 @@ on:
 jobs:
   test:
     runs-on: ubuntu-22.04
-    container: ghcr.io/bemade/test-odoo_arm64:latest
+    container:
+      image: registry.bemade.org:443/bemade/docker-odoo-enterprise/odoo-enterprise-ci:${{ github.base_ref }}
+      credentials:
+        username: ${{ secrets.BEMADE_REGISTRY_USER }}
+        password: ${{ secrets.BEMADE_REGISTRY_PASSWORD }}
+      options: --user root
     name: Test Repo Addons With Odoo
-    strategy:
-      fail-fast: false
     services:
       postgres:
-        image: postgres:12.0
+        image: pgvector/pgvector:pg16
         env:
           POSTGRES_USER: odoo
           POSTGRES_PASSWORD: odoo
           POSTGRES_DB: odoo
-        ports:
-          - 5432:5432
+    env:
+      PGHOST: postgres
+      PGUSER: odoo
+      PGPASSWORD: odoo
+      PGDATABASE: odoo
+      OCA_ENABLE_CHECKLOG_ODOO: "1"
     steps:
       - uses: actions/checkout@v4
         with:
-          persist-credientials: false
-      - name: Run Tests
-        run: run_tests.sh
+          persist-credentials: false
+      - name: Clone dependency repos
+        env:
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+        run: |
+          uv pip install pyyaml
+          python3 << 'EOF'
+          import yaml, subprocess, os
 
+          branch = os.environ.get('GITHUB_BASE_REF', '18.0')
+          workspace = os.environ.get('GITHUB_WORKSPACE', os.getcwd())
+
+          with open('repo_deps.yaml') as f:
+              config = yaml.safe_load(f)
+
+          for repo_url, addons in config.get('repos', {}).items():
+              clone_dir = f'/tmp/repo_{abs(hash(repo_url))}'
+              result = subprocess.run(
+                  ['git', 'clone', '--depth=1', '-b', branch, repo_url, clone_dir],
+                  capture_output=True,
+              )
+              if result.returncode != 0:
+                  print(f'Branch {branch} not found in {repo_url}, cloning default branch')
+                  subprocess.run(
+                      ['git', 'clone', '--depth=1', repo_url, clone_dir],
+                      check=True,
+                  )
+              for addon in addons:
+                  src = os.path.join(clone_dir, addon)
+                  dst = os.path.join(workspace, addon)
+                  if os.path.isdir(src):
+                      os.symlink(src, dst)
+                      print(f'Symlinked {addon}')
+                  else:
+                      print(f'WARNING: {addon} not found in {clone_dir}')
+
+          no_ci = config.get('no_ci', [])
+          with open(os.environ['GITHUB_ENV'], 'a') as f:
+              f.write(f"EXCLUDE={','.join(no_ci)}\n")
+          print(f'EXCLUDE={",".join(no_ci)}')
+          EOF
+      - name: Install addon Python dependencies
+        run: |
+          PYTHON_DEPS=$(manifestoo --select-addons-dir "${GITHUB_WORKSPACE}" --select-exclude "${EXCLUDE}" list-external-dependencies python)
+          if [ -n "${PYTHON_DEPS}" ]; then
+            uv pip install ${PYTHON_DEPS}
+          fi
+      - name: Install addon test-only Python dependencies
+        run: |
+          find "${GITHUB_WORKSPACE}" -mindepth 2 -maxdepth 2 -name test-requirements.txt -print0 | \
+            xargs -0 -r -I {} uv pip install -r {}
+      - name: Install dependencies (without tests)
+        run: |
+          ADDONS_DIR="${GITHUB_WORKSPACE}"
+          DEPS=$(manifestoo --select-addons-dir ${ADDONS_DIR} --select-exclude "${EXCLUDE}" list-depends --separator=,)
+          echo "Dependencies: ${DEPS:-base}"
+          oca_wait_for_postgres
+          unbuffer $(which odoo) \
+            -d ${PGDATABASE} \
+            -i ${DEPS:-base} \
+            --addons-path=${ADDONS_PATH},${ADDONS_DIR} \
+            --http-interface=127.0.0.1 \
+            --stop-after-init
+      - name: Run tests
+        shell: bash
+        run: |
+          ADDONS_DIR="${GITHUB_WORKSPACE}"
+          ADDONS=$(manifestoo --select-addons-dir ${ADDONS_DIR} --select-exclude "${EXCLUDE}" list --separator=,)
+          echo "Testing addons: ${ADDONS}"
+          unbuffer $(which odoo) \
+            -d ${PGDATABASE} \
+            -i ${ADDONS} \
+            --addons-path=${ADDONS_PATH},${ADDONS_DIR} \
+            --test-enable \
+            --http-interface=127.0.0.1 \
+            --stop-after-init 2>&1 | tee test-output.log
+      - name: Check for errors
+        if: always()
+        run: |
+          # Strip ANSI color codes before checking
+          sed 's/\x1b\[[0-9;]*m//g' test-output.log > test-output-clean.log
+          if grep -q "Failed to load registry" test-output-clean.log; then
+            echo "::error::Registry failed to load:"
+            grep "Failed to load registry" test-output-clean.log
+            exit 1
+          fi

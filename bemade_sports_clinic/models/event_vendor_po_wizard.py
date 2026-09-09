@@ -65,8 +65,11 @@ class SportsEventVendorPOWizard(models.TransientModel):
 
     def _build_line_description(self, ts):
         event = ts.event_id
-        date_only = event.date_start and event.date_start.date() or None
-        date_str = fields.Date.to_string(date_only) if date_only else ''
+        if event.date_start:
+            local_start = fields.Datetime.context_timestamp(self, event.date_start)
+            date_str = fields.Date.to_string(local_start.date())
+        else:
+            date_str = ''
         if event.event_type == 'clinic':
             name = (event.name or '')
             return f"{name}\n{date_str}"

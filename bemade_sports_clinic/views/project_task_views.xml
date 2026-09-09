@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<odoo>
-    <data>
-        <!-- Project Task views cleaned up - event fields moved to sports.event model -->
-        <!-- Keep this file for future project.task customizations if needed -->
-    </data>
-</odoo>

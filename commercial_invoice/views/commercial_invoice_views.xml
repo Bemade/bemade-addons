@@ -30,6 +30,13 @@
                             invisible="state == 'draft'"/>
                     <button name="action_cancel" string="Cancel" type="object"
                             invisible="state == 'cancelled'"/>
+                    <button name="action_recompute_amounts" string="Refresh Totals" type="object"
+                            invisible="line_source != 'picking'"
+                            help="Recompute invoice amount from current delivery data"/>
+                    <button name="action_select_partner_deliveries" string="Select all deliveries for this partner"
+                            type="object"
+                            invisible="line_source != 'picking' or state != 'draft' or not partner_id"
+                            help="Pre-fill the Deliveries list with all done outgoing deliveries for this consignee (you can then remove rows)"/>
                     <button name="%(action_report_commercial_invoice)d" string="Print" type="action" class="oe_highlight"/>
                     <field name="state" widget="statusbar"/>
                 </header>
@@ -49,14 +56,22 @@
                         </group>
                         <group>
                             <field name="date" readonly="state != 'draft'"/>
+                            <field name="line_source" readonly="state != 'draft'"/>
                             <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
                             <field name="currency_id" groups="base.group_multi_currency" readonly="state != 'draft'"/>
                             <field name="number_of_packages" readonly="state != 'draft'"/>
                             <field name="total_weight" readonly="state != 'draft'"/>
+                            <field name="carrier_id" invisible="line_source != 'picking'"
+                                   readonly="state != 'draft'"/>
+                            <field name="ship_date" invisible="line_source != 'picking'"
+                                   readonly="state != 'draft'"/>
+                            <field name="po_numbers" invisible="line_source != 'picking'"
+                                   readonly="1"/>
                         </group>
                     </group>
                     <notebook>
-                        <page string="Invoices" name="invoices">
+                        <page string="Invoices" name="invoices"
+                              invisible="line_source == 'picking'">
                             <field name="invoice_ids" readonly="state != 'draft'">
                                 <list>
                                     <field name="name" readonly="1"/>
@@ -67,10 +82,31 @@
                             </field>
                             <group class="oe_subtotal_footer">
                                 <field name="invoice_amount" class="oe_subtotal_footer_separator"/>
-                                <field name="packaging_cost"  widget="monetary"/>
-                                <field name="freight_cost"  widget="monetary"/>
+                                <field name="packaging_cost" widget="monetary"/>
+                                <field name="freight_cost" widget="monetary"/>
                                 <field name="insurance_cost" widget="monetary"/>
-                                <field name="other_cost"  widget="monetary"/>
+                                <field name="other_cost" widget="monetary"/>
+                                <field name="total_amount" class="oe_subtotal_footer_separator" widget="monetary"/>
+                            </group>
+                        </page>
+                        <page string="Deliveries" name="deliveries"
+                              invisible="line_source != 'picking'">
+                            <field name="picking_ids" readonly="state != 'draft'"
+                                   domain="[('picking_type_id.code', '=', 'outgoing')]">
+                                <list>
+                                    <field name="name" readonly="1"/>
+                                    <field name="partner_id" readonly="1"/>
+                                    <field name="scheduled_date" readonly="1"/>
+                                    <field name="state" readonly="1"/>
+                                    <field name="origin" readonly="1"/>
+                                </list>
+                            </field>
+                            <group class="oe_subtotal_footer">
+                                <field name="invoice_amount" class="oe_subtotal_footer_separator"/>
+                                <field name="packaging_cost" widget="monetary"/>
+                                <field name="freight_cost" widget="monetary"/>
+                                <field name="insurance_cost" widget="monetary"/>
+                                <field name="other_cost" widget="monetary"/>
                                 <field name="total_amount" class="oe_subtotal_footer_separator" widget="monetary"/>
                             </group>
                         </page>
@@ -92,11 +128,9 @@
                 <field name="invoice_ids"/>
                 <filter string="Draft" name="draft" domain="[('state','=','draft')]"/>
                 <filter string="Done" name="done" domain="[('state','=','done')]"/>
-                <group expand="0" string="Group By">
-                    <filter string="Status" name="status" context="{'group_by':'state'}"/>
-                    <filter string="Partner" name="partner" context="{'group_by':'partner_id'}"/>
-                    <filter string="Date" name="date" context="{'group_by':'date'}"/>
-                </group>
+                <filter string="Status" name="status" context="{'group_by':'state'}"/>
+                <filter string="Partner" name="partner" context="{'group_by':'partner_id'}"/>
+                <filter string="Date" name="date" context="{'group_by':'date'}"/>
             </search>
         </field>
     </record>

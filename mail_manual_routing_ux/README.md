@@ -7,6 +7,7 @@ Enhanced user experience for managing lost messages in Odoo.
 ### Subcategories
 
 Classify lost messages by type:
+
 - **Spam / Advertising** - Unsolicited commercial emails
 - **Bounce / DSN** - Delivery status notifications
 - **Auto-Reply** - Out of office, vacation replies
@@ -24,13 +25,22 @@ Classify lost messages by type:
 ### Triage Wizards
 
 1. **Invalid Address Notification**
+
    - Notify senders they contacted wrong address
    - Detects no-reply addresses automatically
    - Customizable reply template
 
 2. **Finance Triage**
+
    - Create Helpdesk ticket (if helpdesk installed)
    - Forward to finance email address
+
+3. **Forward**
+   - Real outbound "Fwd:" email sent through the configured transport
+   - Correct, non-spoofed From (an authorized team address), Reply-To (the shared inbox,
+     so replies re-enter triage) and References/In-Reply-To threading headers
+   - Distinct from Assign/Reassign, which stays a silent internal routing with no
+     outbound mail
 
 ### Search & Filters
 

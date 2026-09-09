@@ -115,6 +115,7 @@
                                         <field name="name"/>
                                         <field name="role"/>
                                         <field name="mobile" widget="phone"/>
+                                        <field name="silent_notifications" optional="hide"/>
                                         <field column_invisible="True" name="has_portal_access"/>
                                         <field column_invisible="True" name="partner_id"/>
                                         <button class="oe_highlight" groups="bemade_sports_clinic.group_sports_clinic_admin,base.group_system" icon="fa-user-plus" invisible="has_portal_access == True" name="action_grant_portal_access" title="Grant Portal Access" type="object"/>
@@ -154,6 +155,7 @@
                             <group>
                                 <field name="mobile" widget="phone"/>
                                 <field name="email" widget="email"/>
+                                <field name="silent_notifications"/>
                             </group>
                         </group>
                     </sheet>

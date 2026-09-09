@@ -6,7 +6,7 @@
                  class="col-12 col-lg-6 mb-4 o_portal_sale_reference" 
                  t-att-data-order-id="sale_order.id"
                  t-att-data-access-token="access_token">
-                <h5 class="mb-1">Your Reference</h5>
+                <h5 class="mb-1">Your Reference <span class="text-muted">(# PO)</span></h5>
                 <hr class="mt-1 mb-2"/>
                 <input type="text" 
                        class="form-control" 
