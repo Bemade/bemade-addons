@@ -92,14 +92,21 @@ class TestSecrets(InstanceConfigCase):
         self.assertNotIn("s3cr3t", str(caught.exception))
 
     def test_document_round_trips_references_not_values(self):
-        """AC-6: load then dump preserves the reference."""
+        """AC-6: load -> dump -> load preserves the reference.
+
+        Compared semantically, not textually: the round-trip contract is on
+        parsed structures, and PyYAML may legitimately quote the scalar
+        (`!secret 'mail.outgoing.primary'`). Asserting on raw text would make
+        this test fail on a formatting choice that changes nothing.
+        """
         text = "mail:\n  password: !secret mail.outgoing.primary\n"
         data = load_document(text)
         self.assertEqual(data["mail"]["password"],
                          SecretRef("mail.outgoing.primary"))
         emitted = dump_document(data)
-        self.assertIn("!secret mail.outgoing.primary", emitted)
+        self.assertIn("!secret", emitted)
         self.assertNotIn("s3cr3t", emitted)
+        self.assertEqual(load_document(emitted), data)
 
     def test_explicit_null_is_not_a_secret_reference(self):
         """AC-7: `password_hash: ~` means legitimately no value."""
