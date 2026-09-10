@@ -65,4 +65,30 @@ class MailMail(models.Model):
             ]
             entry["email_cc"] = list(existing_raw) + new_entries
 
-        return res
+        # Drop the stray "Undisclosed recipients" email (task 3422).
+        #
+        # When a Cc is set on the mail (e.g. mail_composer_cc_bcc puts the
+        # composer's manual Cc partners into mail.email_cc) but the mail has no
+        # mail.email_to, core's _prepare_outgoing_list emits an extra entry with
+        # an EMPTY To and only a Cc — the email client then renders
+        # "Undisclosed recipients" in the To field. mail_composer_cc_bcc removes
+        # that entry, but only on the inline composer send path (its pop is
+        # gated on the is_from_composer context), so the stray entry survives
+        # whenever the mail is sent from the queue / cron (a fresh mail.mail
+        # recordset where that context is gone). Strip it here, but only when
+        # every Cc-only recipient already has its own personalised To entry, so
+        # no recipient loses their delivery.
+        deliver_to = set()
+        for entry in res:
+            if entry.get("email_to"):
+                deliver_to.update(entry.get("email_to_normalized") or [])
+        kept = []
+        for entry in res:
+            # The stray entry has no To header at all; its SMTP recipients live
+            # in email_to_normalized (derived by core from mail.email_cc).
+            if not entry.get("email_to"):
+                stray_rcpts = set(entry.get("email_to_normalized") or [])
+                if stray_rcpts and stray_rcpts <= deliver_to:
+                    continue
+            kept.append(entry)
+        return kept
