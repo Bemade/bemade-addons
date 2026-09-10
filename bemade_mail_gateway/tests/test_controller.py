@@ -9,6 +9,7 @@ the token alone is what unlocks the endpoint.
 """
 
 import email.policy
+from unittest.mock import patch
 
 from odoo import SUPERUSER_ID
 from odoo.tests import HttpCase, tagged
@@ -181,6 +182,24 @@ class TestMailGatewayController(HttpCase):
             body=unroutable,
             headers={"X-Bemade-Token": raw},
         )
+        self.assertEqual(r.status_code, 422)
+        body = r.json()
+        self.assertFalse(body["ok"])
+        self.assertEqual(body["error"], "no_route")
+
+    def test_process_returning_false_is_422(self):
+        """message_process returning False (a global router such as
+        mail_manual_routing swallowed the message into its lost messages
+        instead of raising) must be reported as 422 no_route, not 200: the
+        LMTP sidecar must know the delivery did not land on a real thread."""
+        _, raw = self.Token.action_generate("ctl-false-result")
+        MailThread = type(self.env["mail.thread"])
+        with patch.object(MailThread, "message_process", return_value=False):
+            r = self._post(
+                "/bemade/mail-gateway/process",
+                body=SAMPLE_RAW,
+                headers={"X-Bemade-Token": raw},
+            )
         self.assertEqual(r.status_code, 422)
         body = r.json()
         self.assertFalse(body["ok"])

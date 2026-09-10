@@ -202,6 +202,23 @@ class MailGatewayController(http.Controller):
                 status=500,
             )
 
+        # message_process returns False when no route was found but a module
+        # (e.g. mail_manual_routing) silently swallowed the message instead of
+        # raising ValueError. Treat it the same as the ValueError no-route path
+        # so the LMTP sidecar knows the delivery did not land on a real thread
+        # (18.0 contract, PR #80).
+        if not result:
+            _logger.info(
+                "mail_gateway_no_route token=%s message_id=%s ip=%s",
+                log_ctx["token_label"],
+                log_ctx["message_id"],
+                log_ctx["ip"],
+            )
+            return _json_response(
+                {"ok": False, "error": "no_route", "detail": "message_process returned no result"},
+                status=422,
+            )
+
         _logger.info(
             "mail_gateway_delivered token=%s message_id=%s result=%s ip=%s",
             log_ctx["token_label"],

@@ -2,7 +2,7 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 {
     "name": "Bemade Mail Gateway Endpoint",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.0.1",
     "category": "Tools",
     "summary": (
         "Token-authenticated HTTP endpoint to push raw mail into Odoo "
