@@ -1,6 +1,6 @@
 {
     "name": "Instance Configuration as Code",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.0.1",
     "summary": "Read and write an instance's configuration as a readable YAML "
                "file, idempotently and symmetrically",
     "description": """
@@ -101,7 +101,7 @@ silently doing half the work.
     "license": "LGPL-3",
     "category": "Technical",
     "depends": ["base"],
-    "external_dependencies": {"python": ["yaml"]},
+    "external_dependencies": {"python": ["pyyaml"]},
     "data": [],
     "installable": True,
     "application": False,
