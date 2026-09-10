@@ -1,0 +1,36 @@
+# Which records constitute an instance's configuration.
+#
+# This file is the curated part. Field lists are NOT declared here -- they are
+# inferred from the model's _fields (see tools/descriptors.py). A descriptor
+# names only the exceptions, so adding a model costs about five lines and no
+# Python.
+#
+#   key      natural key: the field(s) identifying a record across databases.
+#            Never a database id, which means nothing elsewhere.
+#   order    application order; lower first. A many2one must point at a model
+#            with a LOWER order, or the target will not exist yet.
+#   include  fields inference drops that this model needs anyway (e.g. binary).
+#   exclude  fields inference keeps that are not configuration.
+#   secret   fields whose value never enters the document.
+
+res.company:
+  key: name
+  order: 20
+  include: [logo]
+
+ir.mail_server:
+  key: name
+  order: 50
+  secret: [smtp_pass]
+
+fetchmail.server:
+  key: name
+  order: 50
+  secret: [password]
+
+res.users:
+  key: login
+  order: 60
+  # `password` is a computed field that always reads back empty; the hash is
+  # handled separately and deliberately, never through field inference.
+  exclude: [password]
