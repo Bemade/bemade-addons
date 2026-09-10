@@ -9,6 +9,10 @@
             <xpath expr="//list" position="attributes">
                 <attribute name="editable"/>
             </xpath>
+            <xpath expr="//field[@name='qty_to_order']" position="after">
+                <field name="cost_supplier" optional="show"/>
+                <field name="cost_subtotal" optional="show" sum="Total"/>
+            </xpath>
         </field>
     </record>
 
