@@ -62,6 +62,7 @@
         position="after"
       >
                 <field name="description" string="Description/Comments" />
+                <field name="template_id" string="From Template" optional="show" />
             </xpath>
             <field name="user_ids" position="after">
                 <field name="propagate_assignment" />
