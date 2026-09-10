@@ -161,13 +161,58 @@ and silently does not work.
 A `password_hash` that is legitimately absent is written as `~`, distinct from a missing
 secret: the user is created without a password and must go through a reset.
 
-## Features and the auto-install problem
+## Modules: planning, not installing
 
-`features: <name>: off` may require an explicit **uninstall**, not merely an omission.
-`web_unsplash`, `snailmail` and `snailmail_account` all declare `auto_install: True`
-with dependencies satisfied by any instance, so they install themselves. The loader
-uninstalls them and verifies afterwards, because a later module-list update can
-resurrect them.
+Module state is the one domain the loader cannot simply apply. Odoo refuses
+`button_immediate_install` / `button_immediate_uninstall` in exactly the two
+situations that matter here (`base/models/ir_module.py:599`):
+
+```python
+if not self.env.registry.ready or self.env.registry._init:
+    raise UserError('... cannot be called on init or non loaded registries. '
+                    'Please use button_install instead.')
+if modules.module.current_test:
+    raise RuntimeError("Module operations inside tests are not transactional "
+                       "and thus forbidden.")
+```
+
+Provisioning runs while the registry is being built, and the suite runs inside tests.
+So the handler does what the error message says: `button_install` / `button_uninstall`
+move `ir.module.module.state` to `to install` / `to remove` — a transactional write,
+legal during init and in tests — and the work happens on the **next registry update**
+(a restart, an `odoo -u`, or the operator's init step). The report says so, because
+the caller has to know the apply is not finished in this transaction.
+
+A handler may complete in-process when it is legal to do so; `can_apply_immediately()`
+mirrors Odoo's own two guards rather than guessing at them.
+
+### Auto-install modules
+
+`features: <name>: off` requires an explicit **uninstall**, not merely an omission:
+`web_unsplash`, `snailmail` and `snailmail_account` declare `auto_install: True` with
+dependencies any instance satisfies, so they install themselves.
+
+They are less persistent than that suggests. `button_install`
+(`ir_module.py:419`) pulls in an auto-install module only when one of its required
+dependencies is in state `to install` — being installed **in the current operation**:
+
+```python
+states = {dep.state for dep in module.dependencies_id if dep.auto_install_required}
+return states <= install_states and 'to install' in states and ...
+```
+
+Dependencies that are merely `installed`, or `to upgrade` during an `-u all`, do not
+qualify. So an uninstalled auto-install module stays uninstalled through ordinary
+upgrades. The only window is a **fresh install of one of its dependencies**. The
+handler therefore re-asserts on every apply, but is not fighting a losing battle.
+
+### What `read` emits
+
+Deliberately-installed modules — those nothing else present depends on — plus any
+auto-install module that is **absent**, since nothing but a deliberate removal explains
+that and a rebuild would otherwise silently restore it. Emitting all ~125 installed
+modules would make the document unreadable and couple it to Odoo's dependency graph, so
+that installing one app rewrites the file.
 
 ## Handlers
 

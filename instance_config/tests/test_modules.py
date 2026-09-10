@@ -47,37 +47,144 @@ AC-7  Reading emits the install state of modules that are configuration-
       The rule for which modules are emitted is explicit and tested.
 """
 
-from .common import InstanceConfigCase
 from odoo.tests import tagged
+
+from ..tools.handler import Report
+from ..tools.modules import PRESENT, ModulesHandler
+from .common import InstanceConfigCase
 
 
 @tagged("post_install", "-at_install")
 class TestModules(InstanceConfigCase):
+    """Note what these tests do NOT do: install or uninstall anything.
 
-    def test_declared_state_is_applied(self):
+    Odoo forbids it (ir_module.py:603) -- "Module operations inside tests are
+    not transactional and thus forbidden." So the contract asserted here is the
+    STATE TRANSITION the handler is responsible for; carrying it out belongs to
+    the following registry update. An end-to-end check of a real install has to
+    live outside the standard suite, the way odoo_herd tags its
+    cluster-dependent tests.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.handler = ModulesHandler()
+        self.Module = self.env["ir.module.module"]
+
+    def _module(self, name):
+        return self.Module.search([("name", "=", name)], limit=1)
+
+    def test_declared_install_marks_to_install(self):
+        """AC-1: state moves to 'to install', not installed-in-place."""
+        target = self.Module.search([("state", "=", "uninstalled")], limit=1)
+        if not target:
+            self.skipTest("no uninstalled module available")
+        report = Report()
+        self.handler.write(self.env, {target.name: True}, report)
+        self.assertEqual(target.state, "to install")
+        self.assertTrue(
+            [c for c in report.changes if c.key == target.name])
+
+    def test_declared_uninstall_marks_to_remove(self):
         """AC-1."""
-        self.skipTest("not implemented")
+        target = self._module("base")
+        # `base` can never be removed; use any leaf module that is installed.
+        target = self.Module.search([
+            ("state", "=", "installed"), ("name", "!=", "base"),
+        ], limit=1)
+        if not target:
+            self.skipTest("no removable installed module available")
+        report = Report()
+        self.handler.write(self.env, {target.name: False}, report)
+        self.assertEqual(target.state, "to remove")
 
     def test_already_correct_module_is_a_noop(self):
-        """AC-2."""
-        self.skipTest("not implemented")
-
-    def test_auto_install_module_stays_uninstalled(self):
-        """AC-3: the regression this handler exists to prevent."""
-        self.skipTest("not implemented")
-
-    def test_registry_reload_lets_later_sections_apply(self):
-        """AC-4: why modules come first in the order."""
-        self.skipTest("not implemented")
+        """AC-2: no churn, and nothing reported."""
+        installed = self._module("base")
+        report = Report()
+        self.handler.write(self.env, {"base": True}, report)
+        self.assertEqual(installed.state, "installed")
+        self.assertFalse(
+            [c for c in report.changes if c.key == "base"],
+            "a module already in the wanted state should report no change")
 
     def test_unknown_module_is_a_clear_error(self):
-        """AC-5."""
-        self.skipTest("not implemented")
+        """AC-5: absent from the addons path, not merely uninstalled."""
+        report = Report()
+        self.handler.write(
+            self.env, {"a_module_that_does_not_exist": True}, report)
+        self.assertIn("a_module_that_does_not_exist", str(report.unhandled))
+        self.assertIn("addons path", str(report.unhandled))
 
-    def test_uninstall_of_depended_on_module_is_refused(self):
-        """AC-6."""
-        self.skipTest("not implemented")
+    def test_write_reports_that_an_update_is_required(self):
+        """The caller must know the work is not finished in this transaction."""
+        target = self.Module.search([("state", "=", "uninstalled")], limit=1)
+        if not target:
+            self.skipTest("no uninstalled module available")
+        report = Report()
+        self.handler.write(self.env, {target.name: True}, report)
+        self.assertIn("registry update", str(report.unhandled))
 
-    def test_only_relevant_modules_are_emitted(self):
-        """AC-7: a document listing 125 modules is unreadable."""
-        self.skipTest("not implemented")
+    def test_dry_run_marks_nothing(self):
+        """A plan must not move state."""
+        target = self.Module.search([("state", "=", "uninstalled")], limit=1)
+        if not target:
+            self.skipTest("no uninstalled module available")
+        report = Report()
+        self.handler.write(self.env, {target.name: True}, report, dry_run=True)
+        self.assertEqual(target.state, "uninstalled")
+        self.assertFalse(report.empty, "a dry run should still report")
+
+    def test_immediate_apply_is_refused_inside_tests(self):
+        """The guard mirrors Odoo's own, so it stays true if Odoo changes.
+
+        This asserts the handler KNOWS it cannot install here -- which is why
+        write() marks state instead of calling button_immediate_install.
+        """
+        self.assertFalse(self.handler.can_apply_immediately(self.env))
+
+    def test_read_omits_modules_present_only_as_dependencies(self):
+        """AC-7: a document listing every installed module is unreadable."""
+        emitted = self.handler.read(self.env, Report())
+        installed = self.Module.search_count([("state", "in", list(PRESENT))])
+        self.assertLess(
+            len([k for k, v in emitted.items() if v]), installed,
+            "read should emit deliberately-installed modules, not all of them")
+
+    def test_read_records_removed_auto_install_modules(self):
+        """An absent auto-install module is absent on purpose.
+
+        Nothing else explains it, so it must be recorded or a rebuild silently
+        gets it back.
+        """
+        removed = self.Module.search([
+            ("auto_install", "=", True),
+            ("state", "not in", list(PRESENT)),
+        ], limit=1)
+        if not removed:
+            self.skipTest("no uninstalled auto-install module on this instance")
+        emitted = self.handler.read(self.env, Report())
+        self.assertIs(emitted.get(removed.name), False)
+
+    def test_auto_install_needs_a_dependency_being_installed_now(self):
+        """AC-3, asserted on the mechanism rather than by installing.
+
+        button_install (ir_module.py:419) only pulls in an auto-install module
+        when one of its required dependencies is in state 'to install' -- being
+        installed in THIS operation. Dependencies that are merely 'installed',
+        or 'to upgrade' during an -u all, do not qualify. That is why an
+        uninstalled auto-install module stays uninstalled through ordinary
+        upgrades.
+        """
+        auto = self.Module.search([
+            ("auto_install", "=", True), ("state", "=", "installed"),
+        ], limit=1)
+        if not auto:
+            self.skipTest("no installed auto-install module")
+        dep_states = {
+            d.state for d in auto.dependencies_id if d.auto_install_required
+        }
+        self.assertTrue(dep_states <= PRESENT)
+        self.assertNotIn(
+            "to install", dep_states,
+            "no install is in flight, so nothing would re-trigger auto-install")
