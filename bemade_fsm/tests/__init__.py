@@ -6,6 +6,7 @@ from . import test_fsm_visit
 from . import test_fsm_visit_task_tree
 from . import test_fsm_visit_task_tree_tour
 from . import test_task
+from . import test_task_inline_template
 from . import test_task_report
 from . import test_settings
 from . import test_equipment
