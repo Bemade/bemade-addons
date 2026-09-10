@@ -32,7 +32,7 @@ AC-9  Resolution is lazy -- a reference in a section not being applied need
 from odoo.exceptions import UserError
 from odoo.tests import tagged
 
-from ..models.secrets import (
+from ..tools.secrets import (
     SecretRef, SecretSource, dump_document, load_document,
 )
 from .common import InstanceConfigCase
