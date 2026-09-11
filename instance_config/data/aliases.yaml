@@ -1,0 +1,43 @@
+# Readable names for the document, mapped onto the canonical form the
+# handlers understand. Optional in both directions: a document may use either
+# form, and anything without an alias round-trips under its canonical name.
+# Nothing is ever un-exportable merely because nobody curated a name for it.
+
+# Top-level section names. Dotted keys nest: `mail.outgoing` is the list under
+# `mail:` -> `outgoing:`.
+sections:
+  companies: res.company
+  users: res.users
+  mail.outgoing: ir.mail_server
+  mail.incoming: fetchmail.server
+
+# Field names, per canonical section.
+fields:
+  res.company:
+    country: country_id
+    state: state_id
+    currency: currency_id
+    registry: company_registry
+    intercompany_bills: intercompany_generate_bills_refund
+  ir.mail_server:
+    host: smtp_host
+    port: smtp_port
+    encryption: smtp_encryption
+    authentication: smtp_authentication
+    user: smtp_user
+    password: smtp_pass
+  fetchmail.server:
+    type: server_type
+    ssl: is_ssl
+  res.users:
+    companies: company_ids
+    default_company: company_id
+    groups: group_ids
+
+# `features:` is sugar over `settings:`. A readable name -> the settings field.
+features:
+  analytic_accounting: group_analytic_accounting
+  budgets: module_account_budget
+  documents: module_documents
+  unsplash_images: module_web_unsplash
+  snailmail: module_snailmail_account

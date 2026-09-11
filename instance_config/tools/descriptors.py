@@ -15,6 +15,8 @@ import yaml
 
 from odoo import _
 from odoo.exceptions import UserError
+import base64
+
 from odoo.tools import file_open
 
 from odoo.fields import Command
@@ -177,7 +179,9 @@ class DescriptorRegistry:
         """
         problems = []
         for descriptor in self.by_model.values():
-            if descriptor.model not in env:
+            if descriptor.model not in env or descriptor.readonly:
+                # Read-only descriptors are reference-only: never written, so
+                # never ordered. They exist to give pointed-at records a key.
                 continue
             model = env[descriptor.model]
             for name in descriptor.infer_fields(env):
@@ -293,6 +297,12 @@ class RecordHandler(Handler):
                 "resolved, and there is no existing value to keep.",
                 model=self.descriptor.model, field=name, path=value.path,
             ))
+        if field.type == "binary" and isinstance(value, str) and "/" in value:
+            # A module-relative path: `my_module/static/img/logo.png`. Read at
+            # apply time, so a document can carry a file by reference instead
+            # of a base64 blob nobody can review.
+            with file_open(value, "rb") as fh:
+                return base64.b64encode(fh.read())
         if field.type == "many2many":
             if not value:
                 return [Command.clear()]

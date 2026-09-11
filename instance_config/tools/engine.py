@@ -11,6 +11,7 @@ and the transaction.
 from odoo import _
 from odoo.exceptions import UserError
 
+from .aliases import to_canonical, to_readable
 from .descriptors import DescriptorRegistry, RecordHandler, load_descriptors
 from .handler import Report, handlers as registered_handlers
 from .secrets import SecretRef, SecretSource
@@ -35,19 +36,28 @@ def all_handlers(env, descriptors=None):
     registry.validate(env)
     found = [cls() for cls in registered_handlers()]
     for model, descriptor in registry.by_model.items():
-        if model in env:
+        if model in env and not descriptor.readonly:
+            # Reference-only descriptors (countries, currencies, groups) give
+            # pointed-at records a natural key; they are not sections of the
+            # document, so no handler reads or writes them.
             found.append(RecordHandler(descriptor, registry))
     return sorted(found, key=lambda h: h.order)
 
 
-def read(env, descriptors=None):
-    """Snapshot ``env`` into a document. Returns ``(document, report)``."""
+def read(env, descriptors=None, readable=False):
+    """Snapshot ``env`` into a document. Returns ``(document, report)``.
+
+    ``readable=True`` applies the alias layer, so the export is the form a
+    person would write. Either form applies identically.
+    """
     report = Report()
     document = {"version": SCHEMA_VERSION}
     for handler in all_handlers(env, descriptors):
         data = handler.read(env, report)
         if data:
             document[handler.domain] = data
+    if readable:
+        document = to_readable(document)
     return document, report
 
 
@@ -61,6 +71,7 @@ def write(env, document, dry_run=False, descriptors=None):
     leaves the instance as it was.
     """
     _check_version(document)
+    document = to_canonical(document)      # readable and canonical both accepted
     source = SecretSource.from_spec((document.get("secrets") or {}).get("source"))
     report = Report()
     known = {h.domain: h for h in all_handlers(env, descriptors)}
@@ -81,7 +92,13 @@ def write(env, document, dry_run=False, descriptors=None):
                 # Secrets resolve lazily, per section actually being applied,
                 # so a partial document never demands credentials it will not
                 # use.
-                handler.write(env, _resolve(data, source, domain), report, dry_run)
+                #
+                # A dry run does the work for real and then rolls the
+                # savepoint back. Handlers are NOT told it is a dry run: a
+                # later section must be able to resolve records an earlier
+                # one creates, which a skip-the-write dry run cannot offer.
+                # The report is identical to a real apply, by construction.
+                handler.write(env, _resolve(data, source, domain), report)
             if dry_run:
                 raise _DryRun()
     except _DryRun:
