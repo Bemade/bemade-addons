@@ -8,6 +8,8 @@ to all of them -- ordering, secret resolution, the dry run, the change report,
 and the transaction.
 """
 
+import os
+
 from odoo import _
 from odoo.exceptions import UserError
 
@@ -17,6 +19,11 @@ from .handler import Report, handlers as registered_handlers
 from .secrets import SecretRef, SecretSource
 
 SCHEMA_VERSION = 1
+
+#: Environment variable overriding the document's ``secrets.source``. Lets a
+#: deployment (or a test) say where the secrets are without editing the
+#: committed document, which describes the instance, not the machine.
+SECRETS_ENV = "INSTANCE_CONFIG_SECRETS"
 
 #: Top-level keys that are not handler domains.
 META_KEYS = frozenset({"version", "instance", "secrets"})
@@ -72,7 +79,9 @@ def write(env, document, dry_run=False, descriptors=None):
     """
     _check_version(document)
     document = to_canonical(document)      # readable and canonical both accepted
-    source = SecretSource.from_spec((document.get("secrets") or {}).get("source"))
+    source = SecretSource.from_spec(
+        os.environ.get(SECRETS_ENV)
+        or (document.get("secrets") or {}).get("source"))
     report = Report()
     known = {h.domain: h for h in all_handlers(env, descriptors)}
 

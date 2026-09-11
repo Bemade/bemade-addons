@@ -120,6 +120,19 @@ class TestSecrets(InstanceConfigCase):
         self.assertIsNone(data["users"][0]["password_hash"])
         self.assertNotIsInstance(data["users"][0]["password_hash"], SecretRef)
 
+    def test_env_override_of_secrets_source(self):
+        """INSTANCE_CONFIG_SECRETS wins over the document: the document
+        describes the instance, the environment describes the machine."""
+        from ..tools import engine
+        spec = self.secrets_file({"mail": {"outgoing": {"x": "from-file"}}})
+        doc = {"version": 1, "secrets": {"source": "file:/nonexistent.yaml"},
+               "ir.mail_server": [{"name": "env-src", "smtp_host": "h.example.test",
+                                   "smtp_pass": SecretRef("mail.outgoing.x")}]}
+        with self.patched_environ(**{engine.SECRETS_ENV: spec}):
+            engine.write(self.env, doc)
+        server = self.env["ir.mail_server"].search([("name", "=", "env-src")])
+        self.assertEqual(server.smtp_pass, "from-file")
+
     def test_resolution_is_lazy(self):
         """AC-9: loading a document resolves nothing on its own."""
         spec = self.secrets_file({})
