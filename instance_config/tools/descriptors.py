@@ -43,6 +43,32 @@ def load_descriptors(path="instance_config/data/descriptors.yaml"):
         return yaml.safe_load(fh) or {}
 
 
+def _write_password_hash(env, user, value, report):
+    """Store a pre-computed hash so the user's existing password keeps working.
+
+    res.users.password is a compute that reads back empty and an inverse that
+    HASHES whatever it is given -- so handing it a hash would hash the hash.
+    The column has to be written directly. A null means "legitimately no
+    password": the user is created without one and must go through a reset,
+    which is reported rather than papered over.
+    """
+    if not user:
+        return
+    if value is None:
+        report.skip("res.users", f"{user.login}.password_hash",
+                    "no-password-on-record")
+        return
+    env.cr.execute(
+        "UPDATE res_users SET password = %s WHERE id = %s", (value, user.id))
+    user.invalidate_recordset(["password"])
+
+
+#: (model, field) -> writer, for fields the ORM cannot write correctly.
+SPECIAL_FIELDS = {
+    ("res.users", "password_hash"): _write_password_hash,
+}
+
+
 class Descriptor:
     """One model's configuration description."""
 
@@ -51,6 +77,8 @@ class Descriptor:
         self.model = model
         self.key = spec["key"]
         self.order = spec.get("order", 100)
+        #: referenced by other models, never written by the loader
+        self.readonly = bool(spec.get("readonly"))
         self.include = set(spec.get("include") or ())
         self.exclude = set(spec.get("exclude") or ())
         self.secret = set(spec.get("secret") or ())
@@ -106,6 +134,27 @@ class Descriptor:
                 continue
             keep.append(name)
         return keep
+
+
+XMLID = "xmlid"
+
+
+def key_of(env, record, key):
+    """The natural key of ``record`` under ``key`` (a field name, or XMLID)."""
+    if key == XMLID:
+        data = env["ir.model.data"].sudo().search([
+            ("model", "=", record._name), ("res_id", "=", record.id),
+        ], limit=1, order="id")
+        return f"{data.module}.{data.name}" if data else None
+    return record[key]
+
+
+def find_by_key(env, model_name, key, value):
+    """Look a record up by natural key; archived records included."""
+    if key == XMLID:
+        return env.ref(value, raise_if_not_found=False) or env[model_name]
+    return env[model_name].with_context(active_test=False).search(
+        [(key, "=", value)], limit=1)
 
 
 class DescriptorRegistry:
@@ -169,7 +218,7 @@ class RecordHandler(Handler):
     # -- helpers ---------------------------------------------------------
 
     def _natural_key(self, record):
-        return record[self.registry.get(record._name).key]
+        return key_of(record.env, record, self.registry.get(record._name).key)
 
     def _emit_value(self, env, record, name, report):
         field = record._fields[name]
@@ -191,7 +240,7 @@ class RecordHandler(Handler):
                     field=name, model=field.comodel_name,
                 ))
                 return None
-            return value[target.key]
+            return key_of(env, value, target.key)
         if field.type in ("many2many",):
             target = self.registry.get(field.comodel_name)
             if target is None:
@@ -200,7 +249,8 @@ class RecordHandler(Handler):
                     field=name, model=field.comodel_name,
                 ))
                 return None
-            return sorted(v[target.key] for v in value)
+            keys = [key_of(env, v, target.key) for v in value]
+            return sorted(k for k in keys if k)
         return value
 
     # -- reading ---------------------------------------------------------
@@ -211,6 +261,11 @@ class RecordHandler(Handler):
         out = []
         for record in model.with_context(active_test=False).search([]):
             entry = {}
+            if self.descriptor.key == XMLID:
+                identity = key_of(env, record, XMLID)
+                if not identity:
+                    continue            # no external id: not a shipped record
+                entry[XMLID] = identity
             for name in names:
                 value = self._emit_value(env, record, name, report)
                 if value is None:
@@ -242,10 +297,14 @@ class RecordHandler(Handler):
             if not value:
                 return [Command.clear()]
             target = self.registry.get(field.comodel_name)
-            records = env[field.comodel_name].with_context(active_test=False).search(
-                [(target.key, "in", list(value))])
-            found = {r[target.key] for r in records}
-            missing = set(value) - found
+            records = env[field.comodel_name]
+            missing = []
+            for item in value:
+                found = find_by_key(env, field.comodel_name, target.key, item)
+                if found:
+                    records |= found
+                else:
+                    missing.append(item)
             if missing:
                 raise UserError(_(
                     "%(model)s.%(field)s refers to %(target)s %(missing)r, "
@@ -258,10 +317,9 @@ class RecordHandler(Handler):
             if not value:
                 return False
             target = self.registry.get(field.comodel_name)
-            # active_test=False: configuration legitimately references
-            # archived records (res.users.main_user_id -> __system__).
-            found = env[field.comodel_name].with_context(active_test=False).search(
-                [(target.key, "=", value)], limit=1)
+            # Archived records are legitimate targets
+            # (res.users.main_user_id -> __system__); find_by_key includes them.
+            found = find_by_key(env, field.comodel_name, target.key, value)
             if not found:
                 raise UserError(_(
                     "%(model)s.%(field)s refers to %(target)s %(value)r, "
@@ -281,7 +339,7 @@ class RecordHandler(Handler):
         )
 
     def write(self, env, data, report, dry_run=False):
-        if not data:
+        if not data or self.descriptor.readonly:
             return
         model = env[self.descriptor.model]
         key = self.descriptor.key
@@ -297,11 +355,18 @@ class RecordHandler(Handler):
                     model=self.descriptor.model, key=key,
                 ))
             seen.add(identifier)
-            existing = model.with_context(active_test=False).search(
-                [(key, "=", identifier)], limit=1)
+            existing = find_by_key(env, self.descriptor.model, key, identifier)
+            specials = []
 
             vals = {}
             for name, value in entry.items():
+                if name == key and key == XMLID:
+                    continue
+                if (self.descriptor.model, name) in SPECIAL_FIELDS:
+                    # Cannot be written through the ORM; applied once the
+                    # record exists (it may be created just below).
+                    specials.append((name, value))
+                    continue
                 if self._is_self_reference(model, name) and value:
                     # Deferred: the record it points at may not exist yet.
                     deferred.append((identifier, name, value))
@@ -319,21 +384,26 @@ class RecordHandler(Handler):
                     continue
                 vals[name] = resolved
 
-            if existing and not vals:
+            if existing and not vals and not specials:
                 continue                        # already correct -- no churn
-            before = "existing" if existing else None
-            report.change(self.domain, identifier, before, sorted(vals))
+            if vals or not existing:
+                before = "existing" if existing else None
+                report.change(self.domain, identifier, before, sorted(vals))
             if dry_run:
                 continue
             if existing:
-                existing.write(vals)
+                if vals:
+                    existing.write(vals)
+                record = existing
             else:
-                model.create(vals)
+                record = model.create(vals)
+            for name, value in specials:
+                SPECIAL_FIELDS[(self.descriptor.model, name)](
+                    env, record, value, report)
 
         # Second pass: self-references, now that every record exists.
         for identifier, name, value in deferred:
-            record = model.with_context(active_test=False).search(
-                [(key, "=", identifier)], limit=1)
+            record = find_by_key(env, self.descriptor.model, key, identifier)
             if not record:
                 continue
             resolved = self._resolve_value(env, name, value, model, report)
@@ -346,13 +416,13 @@ class RecordHandler(Handler):
         # Records present here but absent from the document are REPORTED.
         # Deleting configuration nobody declared is the wrong default: a
         # partial document would quietly destroy the rest of the instance.
-        extra = model.with_context(active_test=False).search(
-            [(key, "not in", sorted(seen))])
-        for record in extra:
-            report.gap(self.domain, _(
-                "%(model)s %(key)r exists on this instance but is not in the "
-                "document; left untouched.",
-                model=self.descriptor.model, key=record[key]))
+        for record in model.with_context(active_test=False).search([]):
+            identity = key_of(env, record, key)
+            if identity and identity not in seen:
+                report.gap(self.domain, _(
+                    "%(model)s %(key)r exists on this instance but is not in "
+                    "the document; left untouched.",
+                    model=self.descriptor.model, key=identity))
 
 
 def _same(current, wanted, field):

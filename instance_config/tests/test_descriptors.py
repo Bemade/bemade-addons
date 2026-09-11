@@ -250,6 +250,71 @@ class TestDescriptors(InstanceConfigCase):
         self.assertTrue(keeper.exists(), "must not delete undeclared records")
         self.assertIn("keep-me", str(report.unhandled))
 
+    def test_groups_emit_as_xmlids(self):
+        """res.groups keyed by external id: `base.group_system`, not a name."""
+        handler = RecordHandler(self.registry.get("res.users"), self.registry)
+        emitted = handler.read(self.env, Report())
+        admin = next(e for e in emitted if e["login"] == "admin")
+        self.assertIn("base.group_system", admin["group_ids"])
+        for ref in admin["group_ids"]:
+            self.assertIn(".", ref, "group references must be xmlids")
+
+    def test_groups_resolve_from_xmlids_on_write(self):
+        handler = RecordHandler(self.registry.get("res.users"), self.registry)
+        handler.write(self.env, [{
+            "login": "xmlid-test", "name": "Xmlid Test",
+            "group_ids": ["base.group_user", "base.group_system"],
+        }], Report())
+        user = self.env["res.users"].search([("login", "=", "xmlid-test")])
+        self.assertIn(self.env.ref("base.group_system"), user.group_ids)
+
+    def test_readonly_descriptor_is_never_written(self):
+        """Groups belong to the modules that define them."""
+        handler = RecordHandler(self.registry.get("res.groups"), self.registry)
+        before = self.env["res.groups"].search_count([])
+        handler.write(self.env, [{"xmlid": "base.group_nope"}], Report())
+        self.assertEqual(self.env["res.groups"].search_count([]), before)
+
+    def test_password_hash_keeps_existing_password_working(self):
+        """AC-2 of user provisioning: the ORIGINAL password authenticates."""
+        Users = self.env["res.users"]
+        source = Users.create({
+            "login": "hash-src", "name": "Hash Source", "password": "s3cret!"})
+        self.env.cr.execute(
+            "SELECT password FROM res_users WHERE id = %s", (source.id,))
+        (stored_hash,) = self.env.cr.fetchone()
+        self.assertTrue(stored_hash)
+
+        handler = RecordHandler(self.registry.get("res.users"), self.registry)
+        handler.write(self.env, [{
+            "login": "hash-dst", "name": "Hash Target",
+            "password_hash": stored_hash,
+        }], Report())
+        target = Users.search([("login", "=", "hash-dst")])
+        self.env.cr.execute(
+            "SELECT password FROM res_users WHERE id = %s", (target.id,))
+        (written,) = self.env.cr.fetchone()
+        self.assertEqual(written, stored_hash)
+        # And it is a valid credential, not merely the same string.
+        self.assertTrue(Users._crypt_context().verify("s3cret!", written))
+
+    def test_null_password_hash_creates_passwordless_user(self):
+        """AC-3 of user provisioning: no crash, reported."""
+        handler = RecordHandler(self.registry.get("res.users"), self.registry)
+        report = Report()
+        handler.write(self.env, [{
+            "login": "no-hash", "name": "No Hash", "password_hash": None,
+        }], report)
+        user = self.env["res.users"].search([("login", "=", "no-hash")])
+        self.assertTrue(user)
+        self.env.cr.execute(
+            "SELECT password FROM res_users WHERE id = %s", (user.id,))
+        (stored,) = self.env.cr.fetchone()
+        self.assertFalse(stored)
+        self.assertIn(
+            ("res.users", "no-hash.password_hash", "no-password-on-record"),
+            report.skipped)
+
     def test_descriptor_only_model_round_trips(self):
         """AC-9: adding a model needs no Python."""
         registry = DescriptorRegistry({

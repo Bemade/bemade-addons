@@ -5,13 +5,23 @@
 # names only the exceptions, so adding a model costs about five lines and no
 # Python.
 #
-#   key      natural key: the field(s) identifying a record across databases.
-#            Never a database id, which means nothing elsewhere.
+#   key      natural key: the field identifying a record across databases.
+#            Never a database id, which means nothing elsewhere. The special
+#            value `xmlid` keys on the record's external id (module.name),
+#            which is the right identity for records modules ship, like groups.
 #   order    application order; lower first. A many2one must point at a model
 #            with a LOWER order, or the target will not exist yet.
 #   include  fields inference drops that this model needs anyway (e.g. binary).
 #   exclude  fields inference keeps that are not configuration.
 #   secret   fields whose value never enters the document.
+
+res.groups:
+  # Referenced, never written: groups belong to the modules that define them.
+  # Keyed by xmlid so a user's rights read as `base.group_system`, the name
+  # every developer already knows.
+  key: xmlid
+  order: 15
+  readonly: true
 
 res.company:
   key: name
