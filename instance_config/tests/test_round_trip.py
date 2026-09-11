@@ -137,6 +137,44 @@ class TestRoundTrip(InstanceConfigCase):
         self.assertFalse(report.empty, "dry run must still report the change")
         self.assertEqual(server.smtp_host, "before.example.test")
 
+    def test_dry_run_leaves_no_trace_in_the_cache(self):
+        """A dry run must not change what the NEXT read sees.
+
+        The savepoint rollback clears the ORM record cache (cr.clear()) but
+        not the registry caches. Implied groups derive from
+        res.groups' ormcache('groups'): the apply clears it mid-run, later
+        reads repopulate it with the post-write graph, and the rollback leaves
+        that in place. Two consecutive dry runs of the same divergent document
+        must report the same changes -- the second used to report nothing,
+        because the stale cache said the implied group was already there.
+
+        Uses group_multi_currency, which base_setup provides, so the test runs
+        on the minimal database and does not skip its way to green.
+        """
+        settings = self.env["res.config.settings"]
+        self.assertIn("group_multi_currency", settings._fields)
+        settings.create({"group_multi_currency": False}).execute()
+        implied = self.env.ref("base.group_multi_currency")
+        base_user = self.env.ref("base.group_user")
+        # The users section matters: writing group_ids AFTER the settings
+        # write reads the group graph, which repopulates the registry cache
+        # with the post-write state. Without it the stale cache is never
+        # built and the bug does not show.
+        document = {"version": 1,
+                    "settings": {"group_multi_currency": True},
+                    "ir.mail_server": [{"name": "rt-cache",
+                                        "smtp_host": "h.example.test"}],
+                    "res.users": [{"login": "rt-cache-user", "name": "RT",
+                                   "group_ids": ["base.group_user"]}]}
+        first = engine.write(self.env, document, dry_run=True)
+        second = engine.write(self.env, document, dry_run=True)
+        self.assertFalse(first.empty)
+        self.assertEqual(
+            [c.key for c in first.changes], [c.key for c in second.changes])
+        self.assertNotIn(implied, base_user.all_implied_ids)
+        self.assertFalse(
+            self.env["ir.mail_server"].search([("name", "=", "rt-cache")]))
+
     def test_failed_write_is_atomic(self):
         """AC-9: a failure partway leaves everything as it was."""
         server = self.env["ir.mail_server"].create({

@@ -114,11 +114,42 @@ def write(env, document, dry_run=False, descriptors=None):
             for handler in known.values():
                 if hasattr(handler, "apply_deferred"):
                     handler.apply_deferred(env, report)
+            # Push every pending ORM write to the database now, so that the
+            # rollback below discards ALL of it and nothing is left dirty in
+            # the cache to be flushed later by accident.
+            env.flush_all()
             if dry_run:
                 raise _DryRun()
     except _DryRun:
-        pass
+        _discard_cache(env)
+    except Exception:
+        _discard_cache(env)
+        raise
     return report
+
+
+def _discard_cache(env):
+    """Forget what a rolled-back apply wrote.
+
+    ``Savepoint.rollback()`` is a bare ``ROLLBACK TO SAVEPOINT``; it does not
+    touch the ORM cache or the registry caches. Without this, a dry run leaves
+    the environment remembering the implied groups it "added" and the values
+    it "set", and the next read reports the instance as already configured.
+    That was caught by a dry run being followed by a second one: the second
+    reported nothing, because the cache said there was nothing to do.
+
+    The rollback itself (a flushing savepoint) already clears the ORM record
+    cache via cr.clear(); what it leaves alone are the REGISTRY caches, and
+    they are not one cache: implied groups live in the one named 'groups',
+    access rules in others. ``registry.clear_cache()`` with no argument clears
+    only 'default', which is exactly the trap -- it is clear_all_caches() that
+    forgets the group graph the apply built.
+
+    ``flush=False`` because everything was flushed before the rollback -- a
+    flush here would re-apply the discarded writes.
+    """
+    env.invalidate_all(flush=False)
+    env.registry.clear_all_caches()
 
 
 def _check_version(document):
