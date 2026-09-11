@@ -185,22 +185,47 @@ class SaleOrder(models.Model):
         non_fsm_all = AND([base, [('project_id.is_fsm', '=', False)]])
         return ['|'] + fsm_parent + non_fsm_all
 
-    def action_view_task(self):
+    def action_view_project_ids(self):
+        """Constrain the "Tasks" smart button to this order's tasks.
+
+        Odoo 19.0 replaced sale.order.action_view_task() by
+        action_view_project_ids(): for an order with a single project it opens
+        that project's task action with only a removable search facet on the
+        sale order, so the user lands on every task of the project (for FSM
+        orders: the whole Field Service project) as soon as the facet is
+        dropped or does not apply. Restore the 18.0 contract: a hard domain
+        limited to the tasks of this order — top-level visit tasks only for
+        FSM orders, every task otherwise (see _tasks_ids_domain).
+        """
         self.ensure_one()
-        action = super().action_view_task()
-        # Only constrain to visit tasks for FSM orders; preserve default behavior otherwise
-        if self.is_fsm:
-            top_level_domain = self._tasks_ids_domain()
-            existing_domain = action.get('domain')
-            if existing_domain:
-                try:
-                    parsed = ast.literal_eval(existing_domain) if isinstance(existing_domain, str) else existing_domain
-                except Exception:
-                    parsed = existing_domain
-                if isinstance(parsed, (list, tuple)):
-                    action['domain'] = AND([parsed, top_level_domain])
-                else:
-                    action['domain'] = top_level_domain
+        action = super().action_view_project_ids()
+        res_model = action.get("res_model")
+        if res_model and res_model != "project.task":
+            # Several projects: the native action lists projects, keep it.
+            return action
+        domain = self._tasks_ids_domain()
+        if "has_template_ancestor" in self.env["project.task"]._fields:
+            domain = AND([domain, [("has_template_ancestor", "=", False)]])
+        action["domain"] = domain
+        return action
+        if action.get("res_model") is None and "project.task" not in str(action.get("xml_id", "")) and "task" not in str(action.get("xml_id", "")):
+            return action
+        own_tasks = self._tasks_ids_domain()
+        existing = action.get("domain")
+        if existing:
+            try:
+                parsed = ast.literal_eval(existing) if isinstance(existing, str) else existing
+            except Exception:
+                parsed = None
+            if isinstance(parsed, (list, tuple)):
+                # Native domain references active_id: resolve it before merging.
+                parsed = [
+                    (t[0], t[1], self.project_ids.id) if isinstance(t, tuple) and len(t) == 3 and t[2] == "active_id" else t
+                    for t in parsed
+                ]
+                action["domain"] = AND([list(parsed), own_tasks])
             else:
-                action['domain'] = top_level_domain
+                action["domain"] = own_tasks
+        else:
+            action["domain"] = own_tasks
         return action
