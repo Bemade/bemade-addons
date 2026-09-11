@@ -19,6 +19,7 @@ fields:
     currency: currency_id
     registry: company_registry
     intercompany_bills: intercompany_generate_bills_refund
+    intercompany_purchase_journal: intercompany_purchase_journal_id
   ir.mail_server:
     host: smtp_host
     port: smtp_port
@@ -29,6 +30,8 @@ fields:
   fetchmail.server:
     type: server_type
     ssl: is_ssl
+  account.journal:
+    company: company_id
   res.users:
     companies: company_ids
     default_company: company_id

@@ -6,6 +6,10 @@
 # Python.
 #
 #   key      natural key: the field identifying a record across databases.
+#   scope    field that narrows the key. A journal code is unique only within
+#            a company, so `scope: company_id`: references to it are resolved
+#            under the referring record's company, and entries in its own
+#            section carry `company` to say which one they belong to.
 #            Never a database id, which means nothing elsewhere. The special
 #            value `xmlid` keys on the record's external id (module.name),
 #            which is the right identity for records modules ship, like groups.
@@ -45,6 +49,14 @@ res.company:
   key: name
   order: 20
   include: [logo]
+
+account.journal:
+  # Present only when `account` is installed (descriptors for absent models
+  # are ignored). Referenced by the company (inter-company purchase journal)
+  # and by its own section; never keyed by name, which is translated.
+  key: code
+  scope: company_id
+  order: 30
 
 ir.mail_server:
   key: name
