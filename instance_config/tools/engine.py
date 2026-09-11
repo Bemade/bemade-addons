@@ -108,6 +108,12 @@ def write(env, document, dry_run=False, descriptors=None):
                 # one creates, which a skip-the-write dry run cannot offer.
                 # The report is identical to a real apply, by construction.
                 handler.write(env, _resolve(data, source, domain), report)
+            # Forward references -- a company's default inter-company user,
+            # applied before users exist -- are written now that every
+            # section has run.
+            for handler in known.values():
+                if hasattr(handler, "apply_deferred"):
+                    handler.apply_deferred(env, report)
             if dry_run:
                 raise _DryRun()
     except _DryRun:

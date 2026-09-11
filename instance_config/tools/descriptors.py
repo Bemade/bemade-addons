@@ -197,15 +197,10 @@ class DescriptorRegistry:
                 target = self.get(field.comodel_name)
                 if target is None:
                     continue        # reported at read time, per-value
-                if target.order >= descriptor.order:
-                    problems.append(_(
-                        "%(model)s.%(field)s points at %(target)s, which is "
-                        "applied at order %(t)s -- not before %(model)s at "
-                        "order %(o)s.",
-                        model=descriptor.model, field=name,
-                        target=field.comodel_name,
-                        t=target.order, o=descriptor.order,
-                    ))
+                # A forward reference (res.company.intercompany_user_id ->
+                # res.users, applied later) is deferred to the end of the
+                # whole apply, once every section has run. See
+                # RecordHandler.write / apply_deferred. Nothing to check.
         if problems:
             raise UserError("\n".join(problems))
 
@@ -265,11 +260,13 @@ class RecordHandler(Handler):
         out = []
         for record in model.with_context(active_test=False).search([]):
             entry = {}
+            identity = key_of(env, record, XMLID)
             if self.descriptor.key == XMLID:
-                identity = key_of(env, record, XMLID)
                 if not identity:
                     continue            # no external id: not a shipped record
                 entry[XMLID] = identity
+            elif identity:
+                entry[XMLID] = identity     # so a re-apply matches by identity
             for name in names:
                 value = self._emit_value(env, record, name, report)
                 if value is None:
@@ -348,6 +345,16 @@ class RecordHandler(Handler):
             and field.comodel_name == self.descriptor.model
         )
 
+    def _is_forward_reference(self, model, name):
+        """A reference to a model applied AFTER this one."""
+        field = model._fields.get(name)
+        if field is None or field.type not in ("many2one", "many2many"):
+            return False
+        if field.comodel_name == self.descriptor.model:
+            return False
+        target = self.registry.get(field.comodel_name)
+        return target is not None and target.order >= self.descriptor.order
+
     def write(self, env, data, report, dry_run=False):
         if not data or self.descriptor.readonly:
             return
@@ -355,6 +362,7 @@ class RecordHandler(Handler):
         key = self.descriptor.key
         seen = set()
         deferred = []
+        self.forward = []       # collected for the engine's final pass
 
         for entry in data:
             identifier = entry.get(key)
@@ -365,12 +373,21 @@ class RecordHandler(Handler):
                     model=self.descriptor.model, key=key,
                 ))
             seen.add(identifier)
-            existing = find_by_key(env, self.descriptor.model, key, identifier)
+            # An entry may name the record it IS by external id, whatever the
+            # descriptor's key. That is how a document says "this company is
+            # base.main_company, and its name is ..." -- renaming the record a
+            # fresh database already has instead of creating a second one.
+            if entry.get(XMLID) and key != XMLID:
+                existing = find_by_key(env, self.descriptor.model, XMLID, entry[XMLID])
+                if existing:
+                    seen.add(key_of(env, existing, key))
+            else:
+                existing = find_by_key(env, self.descriptor.model, key, identifier)
             specials = []
 
             vals = {}
             for name, value in entry.items():
-                if name == key and key == XMLID:
+                if name == XMLID:
                     continue
                 if (self.descriptor.model, name) in SPECIAL_FIELDS:
                     # Cannot be written through the ORM; applied once the
@@ -380,6 +397,10 @@ class RecordHandler(Handler):
                 if self._is_self_reference(model, name) and value:
                     # Deferred: the record it points at may not exist yet.
                     deferred.append((identifier, name, value))
+                    continue
+                if self._is_forward_reference(model, name) and value:
+                    # Deferred further: its target model has not been applied.
+                    self.forward.append((identifier, name, value))
                     continue
                 if name not in model._fields:
                     report.gap(self.domain, _(
@@ -412,7 +433,30 @@ class RecordHandler(Handler):
                     env, record, value, report)
 
         # Second pass: self-references, now that every record exists.
-        for identifier, name, value in deferred:
+        self._apply_deferred(env, deferred, report, dry_run)
+
+        # Records present here but absent from the document are REPORTED.
+
+        # Deleting configuration nobody declared is the wrong default: a
+        # partial document would quietly destroy the rest of the instance.
+        for record in model.with_context(active_test=False).search([]):
+            identity = key_of(env, record, key)
+            if key_of(env, record, XMLID):
+                # Shipped by a module (admin, __system__, the public user):
+                # not configuration drift, and not worth a warning per apply.
+                continue
+            if identity and identity not in seen:
+                report.gap(self.domain, _(
+                    "%(model)s %(key)r exists on this instance but is not in "
+                    "the document; left untouched.",
+                    model=self.descriptor.model, key=identity))
+
+
+    def _apply_deferred(self, env, items, report, dry_run=False):
+        """Write (identifier, field, value) triples whose targets now exist."""
+        model = env[self.descriptor.model]
+        key = self.descriptor.key
+        for identifier, name, value in items:
             record = find_by_key(env, self.descriptor.model, key, identifier)
             if not record:
                 continue
@@ -423,16 +467,10 @@ class RecordHandler(Handler):
             if not dry_run:
                 record.write({name: resolved})
 
-        # Records present here but absent from the document are REPORTED.
-        # Deleting configuration nobody declared is the wrong default: a
-        # partial document would quietly destroy the rest of the instance.
-        for record in model.with_context(active_test=False).search([]):
-            identity = key_of(env, record, key)
-            if identity and identity not in seen:
-                report.gap(self.domain, _(
-                    "%(model)s %(key)r exists on this instance but is not in "
-                    "the document; left untouched.",
-                    model=self.descriptor.model, key=identity))
+    def apply_deferred(self, env, report, dry_run=False):
+        """Engine hook: forward references, after every section has run."""
+        self._apply_deferred(env, getattr(self, "forward", []), report, dry_run)
+        self.forward = []
 
 
 def _same(current, wanted, field):

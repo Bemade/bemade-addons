@@ -91,15 +91,22 @@ class TestDescriptors(InstanceConfigCase):
         descriptor = self.registry.get("res.company")
         self.assertIn("parent_id", descriptor.infer_fields(self.env))
 
-    def test_bad_ordering_is_caught_at_load_time(self):
-        """AC-5: a many2one target applied after its referrer is refused."""
-        bad = DescriptorRegistry({
+    def test_forward_reference_is_deferred_not_refused(self):
+        """AC-5, revised: a reference to a later-applied model is deferred to
+        the end of the apply rather than being a configuration error.
+
+        res.company.intercompany_user_id -> res.users while res.users ->
+        res.company is a genuine cycle; no ordering satisfies both. The
+        forward side is written once every section has run.
+        """
+        registry = DescriptorRegistry({
             "res.users": {"key": "login", "order": 10},
             "res.company": {"key": "name", "order": 99},
         })
-        with self.assertRaises(UserError) as caught:
-            bad.validate(self.env)
-        self.assertIn("res.company", str(caught.exception))
+        registry.validate(self.env)          # must not raise
+        handler = RecordHandler(registry.get("res.users"), registry)
+        self.assertTrue(
+            handler._is_forward_reference(self.env["res.users"], "company_id"))
 
     def test_field_inference_excludes_audit_and_computed(self):
         """AC-1."""
@@ -174,6 +181,8 @@ class TestDescriptors(InstanceConfigCase):
         emitted = self.company_handler.read(self.env, report)
         entry = next(e for e in emitted if e["name"] == self.env.company.name)
         for name, value in entry.items():
+            if name == "xmlid":
+                continue                    # identity, not a field
             field = self.env["res.company"]._fields[name]
             if field.type == "many2one" and value:
                 self.assertNotIsInstance(

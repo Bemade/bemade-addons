@@ -38,6 +38,5 @@ fields:
 features:
   analytic_accounting: group_analytic_accounting
   budgets: module_account_budget
-  documents: module_documents
   unsplash_images: module_web_unsplash
   snailmail: module_snailmail_account
