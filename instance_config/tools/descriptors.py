@@ -81,6 +81,11 @@ class Descriptor:
         #: field whose value narrows the key: journals are keyed by `code`,
         #: unique only within a company, so `scope: company_id`.
         self.scope = spec.get("scope")
+        #: a second field to try when the key finds nothing. Journal codes
+        #: depend on the language an instance was initialised in (BILL in an
+        #: English database, FACTU in a French one), so a document says
+        #: `purchase` and is resolved by type where the code does not match.
+        self.fallback_key = spec.get("fallback_key")
         self.order = spec.get("order", 100)
         #: referenced by other models, never written by the loader
         self.readonly = bool(spec.get("readonly"))
@@ -158,18 +163,26 @@ def key_of(env, record, key):
     return record[key]
 
 
-def find_by_key(env, model_name, key, value, scope=None):
+def find_by_key(env, model_name, key, value, scope=None, fallback_key=None):
     """Look a record up by natural key; archived records included.
 
     ``scope`` is an optional ``(field, id)`` narrowing the search -- the
-    company a journal code belongs to.
+    company a journal code belongs to. ``fallback_key`` is tried when the key
+    finds nothing.
     """
     if key == XMLID:
         return env.ref(value, raise_if_not_found=False) or env[model_name]
-    domain = [(key, "=", value)]
-    if scope:
-        domain.append((scope[0], "=", scope[1]))
-    return env[model_name].with_context(active_test=False).search(domain, limit=1)
+    model = env[model_name].with_context(active_test=False)
+    for field in (key, fallback_key):
+        if not field:
+            continue
+        domain = [(field, "=", value)]
+        if scope:
+            domain.append((scope[0], "=", scope[1]))
+        found = model.search(domain, limit=1)
+        if found:
+            return found
+    return model.browse()
 
 
 class DescriptorRegistry:
@@ -354,7 +367,8 @@ class RecordHandler(Handler):
             records = env[field.comodel_name]
             missing = []
             for item in value:
-                found = find_by_key(env, field.comodel_name, target.key, item, scope)
+                found = find_by_key(env, field.comodel_name, target.key, item, scope,
+                                    target.fallback_key)
                 if found:
                     records |= found
                 else:
@@ -374,7 +388,8 @@ class RecordHandler(Handler):
             scope = self._scope_for(env, model, field, entry, existing)
             # Archived records are legitimate targets
             # (res.users.main_user_id -> __system__); find_by_key includes them.
-            found = find_by_key(env, field.comodel_name, target.key, value, scope)
+            found = find_by_key(env, field.comodel_name, target.key, value, scope,
+                                target.fallback_key)
             if not found:
                 raise UserError(_(
                     "%(model)s.%(field)s refers to %(target)s %(value)r, "

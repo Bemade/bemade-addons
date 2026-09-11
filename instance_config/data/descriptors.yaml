@@ -56,6 +56,10 @@ account.journal:
   # and by its own section; never keyed by name, which is translated.
   key: code
   scope: company_id
+  # Codes depend on the language the instance was initialised in (BILL in
+  # English, FACTU in French), so a reference may name the TYPE instead:
+  # `purchase` resolves to the company's purchase journal in any language.
+  fallback_key: type
   order: 30
 
 ir.mail_server:
