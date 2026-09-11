@@ -580,3 +580,24 @@ class TestSalesOrder(BemadeFSMBaseTest):
             sorted(initial_subtask_names),
             "Subtask names should be maintained after reconfirmation",
         )
+
+    def test_tasks_smart_button_limited_to_order_tasks(self):
+        """The "Tasks" smart button of an FSM order opens only that order's
+        top-level tasks (19.0 replaced action_view_task by
+        action_view_project_ids with a mere search facet)."""
+        partner = self._generate_partner()
+        template = self._generate_task_template(names=["Root", "Child"], structure=[1])
+        product = self._generate_product(task_template=template)
+        so = self._generate_sale_order(partner=partner)
+        self._generate_sale_order_line(so, product=product)
+        so.action_confirm()
+        other_so = self._generate_sale_order(partner=partner)
+        self._generate_sale_order_line(other_so, product=product)
+        other_so.action_confirm()
+        action = so.action_view_project_ids()
+        self.assertEqual(action.get("res_model"), "project.task")
+        found = self.env["project.task"].search(action["domain"])
+        self.assertTrue(found)
+        self.assertTrue(all(t.sale_order_id == so for t in found), found.mapped("name"))
+        self.assertFalse(any(t.parent_id for t in found), "subtasks stay hidden")
+        self.assertFalse(found & other_so.tasks_ids, "the other order's tasks are excluded")
