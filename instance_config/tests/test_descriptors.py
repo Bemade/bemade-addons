@@ -379,6 +379,22 @@ class TestDescriptors(InstanceConfigCase):
         qc = State.search([("country_id", "=", ca.id), ("code", "=", "QC")])
         self.assertNotEqual(qc.name, "Clash Renamed")
 
+    def test_fallback_key_resolves_when_the_key_does_not(self):
+        """A reference may name a language-independent field when the key is
+        language-dependent. Tested on res.country: key `code`, fallback
+        `name` -- "Canada" resolves where "XX" would not."""
+        registry = DescriptorRegistry({
+            "res.country": {"key": "code", "fallback_key": "name",
+                            "order": 1, "readonly": True},
+            "res.partner": {"key": "name", "order": 50,
+                            "exclude": ["user_ids", "commercial_partner_id"]},
+        })
+        handler = RecordHandler(registry.get("res.partner"), registry)
+        handler.write(self.env, [{"name": "Fallback Test",
+                                  "country_id": "Canada"}], Report())
+        partner = self.env["res.partner"].search([("name", "=", "Fallback Test")])
+        self.assertEqual(partner.country_id, self.env.ref("base.ca"))
+
     def test_undescribed_target_gap_is_reported_once_per_field(self):
         """A model with many rows must not bury the report."""
         report = Report()
