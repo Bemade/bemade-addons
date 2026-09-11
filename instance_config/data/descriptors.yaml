@@ -1,0 +1,64 @@
+# Which records constitute an instance's configuration.
+#
+# This file is the curated part. Field lists are NOT declared here -- they are
+# inferred from the model's _fields (see tools/descriptors.py). A descriptor
+# names only the exceptions, so adding a model costs about five lines and no
+# Python.
+#
+#   key      natural key: the field identifying a record across databases.
+#            Never a database id, which means nothing elsewhere. The special
+#            value `xmlid` keys on the record's external id (module.name),
+#            which is the right identity for records modules ship, like groups.
+#   order    application order; lower first. A many2one must point at a model
+#            with a LOWER order, or the target will not exist yet.
+#   include  fields inference drops that this model needs anyway (e.g. binary).
+#   exclude  fields inference keeps that are not configuration.
+#   secret   fields whose value never enters the document.
+
+# Reference data: pointed at, never written.
+res.country:
+  key: code
+  order: 1
+  readonly: true
+
+res.country.state:
+  # `code` is unique only within a country (QC exists in more than one), so
+  # the external id is the unambiguous identity: base.state_ca_qc.
+  key: xmlid
+  order: 1
+  readonly: true
+
+res.currency:
+  key: name
+  order: 1
+  readonly: true
+
+res.groups:
+  # Referenced, never written: groups belong to the modules that define them.
+  # Keyed by xmlid so a user's rights read as `base.group_system`, the name
+  # every developer already knows.
+  key: xmlid
+  order: 15
+  readonly: true
+
+res.company:
+  key: name
+  order: 20
+  include: [logo]
+
+ir.mail_server:
+  key: name
+  order: 50
+  secret: [smtp_pass]
+
+fetchmail.server:
+  key: name
+  order: 50
+  secret: [password]
+
+res.users:
+  key: login
+  order: 60
+  # `password` is a computed field that always reads back empty; the hash is
+  # handled separately and deliberately, never through field inference.
+  exclude: [password]
