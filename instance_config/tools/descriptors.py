@@ -78,6 +78,9 @@ class Descriptor:
         self.registry = registry
         self.model = model
         self.key = spec["key"]
+        #: field whose value narrows the key: journals are keyed by `code`,
+        #: unique only within a company, so `scope: company_id`.
+        self.scope = spec.get("scope")
         self.order = spec.get("order", 100)
         #: referenced by other models, never written by the loader
         self.readonly = bool(spec.get("readonly"))
@@ -151,12 +154,18 @@ def key_of(env, record, key):
     return record[key]
 
 
-def find_by_key(env, model_name, key, value):
-    """Look a record up by natural key; archived records included."""
+def find_by_key(env, model_name, key, value, scope=None):
+    """Look a record up by natural key; archived records included.
+
+    ``scope`` is an optional ``(field, id)`` narrowing the search -- the
+    company a journal code belongs to.
+    """
     if key == XMLID:
         return env.ref(value, raise_if_not_found=False) or env[model_name]
-    return env[model_name].with_context(active_test=False).search(
-        [(key, "=", value)], limit=1)
+    domain = [(key, "=", value)]
+    if scope:
+        domain.append((scope[0], "=", scope[1]))
+    return env[model_name].with_context(active_test=False).search(domain, limit=1)
 
 
 class DescriptorRegistry:
@@ -219,6 +228,14 @@ class RecordHandler(Handler):
     def _natural_key(self, record):
         return key_of(record.env, record, self.registry.get(record._name).key)
 
+    def _gap_once(self, report, field, message):
+        seen = getattr(self, "_gaps_reported", None)
+        if seen is None:
+            seen = self._gaps_reported = set()
+        if field not in seen:
+            seen.add(field)
+            report.gap(self.domain, message)
+
     def _emit_value(self, env, record, name, report):
         field = record._fields[name]
         value = record[name]
@@ -232,8 +249,10 @@ class RecordHandler(Handler):
             target = self.registry.get(field.comodel_name)
             if target is None:
                 # Emitting a raw id would silently bind this document to one
-                # database. Refuse, and make the gap visible.
-                report.gap(self.domain, _(
+                # database. Refuse, and make the gap visible -- once per
+                # field, not once per record, or a model with a hundred rows
+                # buries the report.
+                self._gap_once(report, name, _(
                     "%(field)s references %(model)s, which has no descriptor; "
                     "cannot express it as a natural key.",
                     field=name, model=field.comodel_name,
@@ -243,7 +262,7 @@ class RecordHandler(Handler):
         if field.type in ("many2many",):
             target = self.registry.get(field.comodel_name)
             if target is None:
-                report.gap(self.domain, _(
+                self._gap_once(report, name, _(
                     "%(field)s references %(model)s, which has no descriptor.",
                     field=name, model=field.comodel_name,
                 ))
@@ -277,7 +296,30 @@ class RecordHandler(Handler):
 
     # -- writing ---------------------------------------------------------
 
-    def _resolve_value(self, env, name, value, model, report, existing=None):
+    def _scope_for(self, env, model, field, entry, existing):
+        """The (field, id) scope to resolve ``field``'s target under, if any.
+
+        The target's scope field (company_id) is read off the referring record:
+        a company scopes to itself; anything else uses its own company_id,
+        from the entry being written or the existing record.
+        """
+        target = self.registry.get(field.comodel_name)
+        if target is None or not target.scope:
+            return None
+        if model._name == "res.company":
+            return (target.scope, existing.id) if existing else None
+        if target.scope in model._fields:
+            value = entry.get(target.scope) if entry else None
+            if isinstance(value, str):
+                scope_model = model._fields[target.scope].comodel_name
+                scope_desc = self.registry.get(scope_model)
+                found = find_by_key(env, scope_model, scope_desc.key, value) if scope_desc else None
+                return (target.scope, found.id) if found else None
+            if existing and existing[target.scope]:
+                return (target.scope, existing[target.scope].id)
+        return None
+
+    def _resolve_value(self, env, name, value, model, report, existing=None, entry=None):
         field = model._fields[name]
         if isinstance(value, SecretRef):
             # The engine resolves what it can. A reference reaching here is
@@ -304,10 +346,11 @@ class RecordHandler(Handler):
             if not value:
                 return [Command.clear()]
             target = self.registry.get(field.comodel_name)
+            scope = self._scope_for(env, model, field, entry, existing)
             records = env[field.comodel_name]
             missing = []
             for item in value:
-                found = find_by_key(env, field.comodel_name, target.key, item)
+                found = find_by_key(env, field.comodel_name, target.key, item, scope)
                 if found:
                     records |= found
                 else:
@@ -324,9 +367,10 @@ class RecordHandler(Handler):
             if not value:
                 return False
             target = self.registry.get(field.comodel_name)
+            scope = self._scope_for(env, model, field, entry, existing)
             # Archived records are legitimate targets
             # (res.users.main_user_id -> __system__); find_by_key includes them.
-            found = find_by_key(env, field.comodel_name, target.key, value)
+            found = find_by_key(env, field.comodel_name, target.key, value, scope)
             if not found:
                 raise UserError(_(
                     "%(model)s.%(field)s refers to %(target)s %(value)r, "
@@ -382,7 +426,14 @@ class RecordHandler(Handler):
                 if existing:
                     seen.add(key_of(env, existing, key))
             else:
-                existing = find_by_key(env, self.descriptor.model, key, identifier)
+                scope = None
+                if self.descriptor.scope and entry.get(self.descriptor.scope):
+                    scope_field = model._fields[self.descriptor.scope]
+                    scope_desc = self.registry.get(scope_field.comodel_name)
+                    holder = find_by_key(env, scope_field.comodel_name,
+                                         scope_desc.key, entry[self.descriptor.scope])
+                    scope = (self.descriptor.scope, holder.id) if holder else None
+                existing = find_by_key(env, self.descriptor.model, key, identifier, scope)
             specials = []
 
             vals = {}
@@ -408,7 +459,7 @@ class RecordHandler(Handler):
                         field=name, model=self.descriptor.model))
                     continue
                 resolved = self._resolve_value(
-                    env, name, value, model, report, existing)
+                    env, name, value, model, report, existing, entry)
                 if resolved is None:
                     continue
                 if existing and _same(existing[name], resolved, model._fields[name]):
@@ -460,7 +511,7 @@ class RecordHandler(Handler):
             record = find_by_key(env, self.descriptor.model, key, identifier)
             if not record:
                 continue
-            resolved = self._resolve_value(env, name, value, model, report)
+            resolved = self._resolve_value(env, name, value, model, report, record)
             if _same(record[name], resolved, model._fields[name]):
                 continue
             report.change(self.domain, identifier, record[name], resolved)

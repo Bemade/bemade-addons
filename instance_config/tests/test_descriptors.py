@@ -324,6 +324,68 @@ class TestDescriptors(InstanceConfigCase):
             ("res.users", "no-hash.password_hash", "no-password-on-record"),
             report.skipped)
 
+    def test_scoped_key_resolves_under_the_referring_records_scope(self):
+        """A key unique only within a scope resolves against the right one.
+
+        res.country.state codes repeat across countries; a partner in Canada
+        with `state_id: QC` must get Canada's QC, whatever else uses the code.
+        This is the mechanism journals need: `code` is unique only within a
+        company, and a company's inter-company purchase journal is "BILL" on
+        THAT company.
+        """
+        State = self.env["res.country.state"]
+        ca = self.env.ref("base.ca")
+        # Find a state code that exists in more than one country, or make one.
+        qc = State.search([("country_id", "=", ca.id), ("code", "=", "QC")], limit=1)
+        other_country = self.env["res.country"].search(
+            [("id", "!=", ca.id), ("state_ids", "!=", False)], limit=1)
+        clash = State.create({"name": "Clash", "code": "QC",
+                              "country_id": other_country.id})
+        self.assertEqual(
+            State.search_count([("code", "=", "QC")]), 2, "need a collision")
+
+        registry = DescriptorRegistry({
+            "res.country": {"key": "code", "order": 1, "readonly": True},
+            "res.country.state": {"key": "code", "scope": "country_id",
+                                  "order": 2, "readonly": True},
+            "res.partner": {"key": "name", "order": 50,
+                            "exclude": ["user_ids", "commercial_partner_id"]},
+        })
+        handler = RecordHandler(registry.get("res.partner"), registry)
+        handler.write(self.env, [{"name": "Scoped Test", "country_id": "CA",
+                                  "state_id": "QC"}], Report())
+        partner = self.env["res.partner"].search([("name", "=", "Scoped Test")])
+        self.assertEqual(partner.state_id, qc)
+        self.assertNotEqual(partner.state_id, clash)
+
+    def test_scoped_section_entry_matches_within_its_scope(self):
+        """An entry of a scoped model names its scope and updates the right
+        record, not the first one sharing the code."""
+        State = self.env["res.country.state"]
+        ca = self.env.ref("base.ca")
+        other_country = self.env["res.country"].search(
+            [("id", "!=", ca.id), ("state_ids", "!=", False)], limit=1)
+        clash = State.create({"name": "Clash", "code": "QC",
+                              "country_id": other_country.id})
+        registry = DescriptorRegistry({
+            "res.country": {"key": "code", "order": 1, "readonly": True},
+            "res.country.state": {"key": "code", "scope": "country_id", "order": 2},
+        })
+        handler = RecordHandler(registry.get("res.country.state"), registry)
+        report = Report()
+        handler.write(self.env, [{"code": "QC", "country_id": other_country.code,
+                                  "name": "Clash Renamed"}], report)
+        self.assertEqual(clash.name, "Clash Renamed")
+        qc = State.search([("country_id", "=", ca.id), ("code", "=", "QC")])
+        self.assertNotEqual(qc.name, "Clash Renamed")
+
+    def test_undescribed_target_gap_is_reported_once_per_field(self):
+        """A model with many rows must not bury the report."""
+        report = Report()
+        self.company_handler.read(self.env, report)
+        fields_reported = [g[1] for g in report.unhandled]
+        self.assertEqual(len(fields_reported), len(set(fields_reported)))
+
     def test_descriptor_only_model_round_trips(self):
         """AC-9: adding a model needs no Python."""
         registry = DescriptorRegistry({
