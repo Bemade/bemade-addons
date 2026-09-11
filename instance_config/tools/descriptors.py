@@ -123,7 +123,11 @@ class Descriptor:
                 rule = None
             elif not field.store:
                 rule = RULE_COMPUTED
-            elif field.compute and not field.inverse and not field.related:
+            elif field.compute and field.readonly and not field.inverse and not field.related:
+                # A compute is dropped only when it cannot be written to.
+                # A stored compute declared readonly=False -- account.journal
+                # `code`, precomputed from the name -- takes a written value
+                # and keeps it, and IS configuration.
                 rule = RULE_COMPUTED
             elif field.type == "binary" and name not in self.include:
                 rule = RULE_BINARY
