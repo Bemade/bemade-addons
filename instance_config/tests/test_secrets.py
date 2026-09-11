@@ -13,9 +13,15 @@ resolved at load time against the source named by ``secrets.source``.
 AC-1  ``file:<path>`` resolves a dotted path against a mounted YAML file.
 AC-2  ``env:PREFIX_`` resolves against environment variables, dots uppercased
       to underscores.
-AC-3  An UNRESOLVABLE reference is a hard error naming the path. Never a
-      silent blank: a blank password produces an instance that looks
-      configured and does not work.
+AC-3  An UNRESOLVABLE reference is a hard error naming the path -- when there
+      is nothing to fall back on. Never a silent blank: a blank password
+      produces an instance that looks configured and does not work.
+
+      Refinement, from the round-trip suite: if the record already EXISTS and
+      already HOLDS a value, an unresolvable reference keeps that value and is
+      reported as skipped. Re-applying an instance's own configuration must not
+      demand a secrets file for credentials already in place. A fresh record,
+      or an empty field, is the fatal case.
 AC-4  A missing secrets SOURCE, when the document contains a reference, is a
       hard error -- not mistaken for "no secrets needed".
 AC-5  A resolved secret never reaches a log or an exception message.

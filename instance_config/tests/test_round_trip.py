@@ -53,43 +53,136 @@ AC-8  Dry run produces the same change report as a real write and writes
 
 AC-9  A write that fails partway leaves the instance unchanged -- the whole
       apply is one transaction.
+
+      LIMITATION, stated rather than discovered later: atomicity cannot span
+      the MODULE boundary. Module changes are marked in this transaction but
+      carried out by the next registry update (Odoo forbids in-process
+      install during init and inside tests -- see tools/modules.py), so they
+      cannot be rolled back here. Module state is a separate, re-runnable
+      phase; everything else is one savepoint.
+
+AC-10 A fresh-database round trip (read A -> write to empty B -> read B) is
+      the real proof and cannot run inside the standard suite: it needs a
+      second database and real module installs. It lives outside, tagged
+      -standard, the way odoo_herd tags its cluster-dependent tests. What CAN
+      be asserted here is stability on one instance: read -> write back ->
+      read produces the same document and an empty change report.
 """
 
-from .common import InstanceConfigCase
+from odoo.exceptions import UserError
 from odoo.tests import tagged
+
+from ..tools import engine
+from ..tools.secrets import SecretRef
+from .common import InstanceConfigCase
 
 
 @tagged("post_install", "-at_install")
 class TestRoundTrip(InstanceConfigCase):
 
     def test_read_produces_valid_document(self):
-        """AC-1."""
-        self.skipTest("not implemented")
+        """AC-1: versioned, and every section belongs to a handler."""
+        document, _report = engine.read(self.env)
+        self.assertEqual(document["version"], engine.SCHEMA_VERSION)
+        domains = {h.domain for h in engine.all_handlers(self.env)}
+        for key in document:
+            if key not in engine.META_KEYS:
+                self.assertIn(key, domains)
 
     def test_read_write_read_is_stable(self):
-        """AC-2: the invariant."""
-        self.skipTest("not implemented")
+        """AC-2 / AC-10: on one instance, read -> write back -> read is fixed."""
+        first, _r = engine.read(self.env)
+        engine.write(self.env, first)
+        second, _r = engine.read(self.env)
+        self.assertEqual(first, second)
 
     def test_write_of_matching_document_is_a_noop(self):
-        """AC-3: empty change report, no writes."""
-        self.skipTest("not implemented")
-
-    def test_second_write_reports_no_changes(self):
-        """AC-4: idempotence asserted on the report, not on not-raising."""
-        self.skipTest("not implemented")
+        """AC-3 / AC-4: re-applying an instance's own config changes nothing."""
+        document, _r = engine.read(self.env)
+        report = engine.write(self.env, document)
+        self.assertTrue(
+            report.empty,
+            "re-applying an instance's own configuration reported changes: %s"
+            % report.changes,
+        )
 
     def test_secrets_round_trip_as_references(self):
-        """AC-5: resolved values appear nowhere in the document."""
-        self.skipTest("not implemented")
+        """AC-5: the resolved value appears nowhere in the document."""
+        self.env["ir.mail_server"].create({
+            "name": "rt-secret", "smtp_host": "smtp.example.test",
+            "smtp_pass": "hunter2",
+        })
+        document, _r = engine.read(self.env)
+        entry = next(
+            e for e in document["ir.mail_server"] if e["name"] == "rt-secret")
+        self.assertIsInstance(entry["smtp_pass"], SecretRef)
+        self.assertNotIn("hunter2", repr(document))
 
-    def test_unhandled_domains_are_reported(self):
-        """AC-7: gaps are visible, never silent."""
-        self.skipTest("not implemented")
+    def test_unhandled_section_is_reported(self):
+        """AC-7: a gap is visible, never a silent skip."""
+        document, _r = engine.read(self.env)
+        document["some.model.nobody.handles"] = [{"name": "x"}]
+        report = engine.write(self.env, document)
+        self.assertIn("some.model.nobody.handles", str(report.unhandled))
 
     def test_dry_run_reports_without_writing(self):
         """AC-8."""
-        self.skipTest("not implemented")
+        server = self.env["ir.mail_server"].create({
+            "name": "rt-dry", "smtp_host": "before.example.test"})
+        document, _r = engine.read(self.env)
+        entry = next(
+            e for e in document["ir.mail_server"] if e["name"] == "rt-dry")
+        entry["smtp_host"] = "after.example.test"
+        report = engine.write(self.env, document, dry_run=True)
+        self.assertFalse(report.empty, "dry run must still report the change")
+        self.assertEqual(server.smtp_host, "before.example.test")
 
     def test_failed_write_is_atomic(self):
-        """AC-9."""
-        self.skipTest("not implemented")
+        """AC-9: a failure partway leaves everything as it was."""
+        server = self.env["ir.mail_server"].create({
+            "name": "rt-atomic", "smtp_host": "before.example.test"})
+        document, _r = engine.read(self.env)
+        entry = next(
+            e for e in document["ir.mail_server"] if e["name"] == "rt-atomic")
+        entry["smtp_host"] = "after.example.test"
+        # A user entry with no natural key is refused by the users handler,
+        # which runs AFTER mail servers -- so the mail change must roll back.
+        document["res.users"] = [{"name": "no-login"}]
+        with self.assertRaises(UserError):
+            engine.write(self.env, document)
+        self.assertEqual(server.smtp_host, "before.example.test")
+
+    def test_unresolvable_secret_on_fresh_record_is_fatal(self):
+        """AC-4 of secrets, at engine level.
+
+        No source and no existing value to keep -> hard error, and the
+        savepoint means nothing else from the document landed either.
+        """
+        document, _r = engine.read(self.env)
+        document.pop("secrets", None)
+        document["ir.mail_server"] = [{
+            "name": "rt-nosrc", "smtp_host": "x.example.test",
+            "smtp_pass": SecretRef("mail.nosrc"),
+        }]
+        with self.assertRaises(UserError):
+            engine.write(self.env, document)
+        self.assertFalse(
+            self.env["ir.mail_server"].search([("name", "=", "rt-nosrc")]))
+
+    def test_unresolvable_secret_on_existing_record_keeps_its_value(self):
+        """Re-applying an instance's own config must not demand a secrets file
+        for credentials that are already in place."""
+        server = self.env["ir.mail_server"].create({
+            "name": "rt-keep", "smtp_host": "smtp.example.test",
+            "smtp_pass": "already-there",
+        })
+        document, _r = engine.read(self.env)
+        report = engine.write(self.env, document)      # no secrets.source
+        self.assertEqual(server.smtp_pass, "already-there")
+        self.assertIn(
+            "rt-keep.smtp_pass",
+            [k for _d, k, _rule in report.skipped])
+
+    def test_wrong_version_is_refused(self):
+        with self.assertRaises(UserError):
+            engine.write(self.env, {"version": 99})

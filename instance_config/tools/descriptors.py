@@ -17,8 +17,12 @@ from odoo import _
 from odoo.exceptions import UserError
 from odoo.tools import file_open
 
+from odoo.fields import Command
+
 from .handler import Handler
 from .secrets import SecretRef
+
+RULE_SECRET_KEPT = "secret-unresolved-existing-value-kept"
 
 #: Never configuration, on any model.
 AUDIT_FIELDS = frozenset({
@@ -76,12 +80,18 @@ class Descriptor:
                 rule = RULE_AUDIT
             elif name in self.exclude:
                 rule = RULE_EXCLUDED
+            elif field.type == "one2many":
+                rule = RULE_INVERSE_O2M
+            elif field.inherited or (field.related and not field.readonly):
+                # Delegated (res.users -> res.partner) and writable related
+                # fields are not stored on this model but ARE configuration
+                # and ARE writable through it. Keep them, ahead of the store
+                # check that would otherwise drop them.
+                rule = None
             elif not field.store:
                 rule = RULE_COMPUTED
             elif field.compute and not field.inverse and not field.related:
                 rule = RULE_COMPUTED
-            elif field.type == "one2many":
-                rule = RULE_INVERSE_O2M
             elif field.type == "binary" and name not in self.include:
                 rule = RULE_BINARY
             elif field.type == "many2many" and self._other_side_carries(field):
@@ -165,6 +175,8 @@ class RecordHandler(Handler):
         field = record._fields[name]
         value = record[name]
         if name in self.descriptor.secret:
+            if not value:
+                return False
             return SecretRef(f"{self.descriptor.model}.{self._natural_key(record)}.{name}")
         if field.type == "many2one":
             if not value:
@@ -209,15 +221,46 @@ class RecordHandler(Handler):
 
     # -- writing ---------------------------------------------------------
 
-    def _resolve_value(self, env, name, value, model, report):
+    def _resolve_value(self, env, name, value, model, report, existing=None):
         field = model._fields[name]
         if isinstance(value, SecretRef):
-            return None             # resolved by the engine, not here
+            # The engine resolves what it can. A reference reaching here is
+            # one it could not resolve. If the record already holds a value,
+            # keep it -- re-applying an instance's own configuration must not
+            # demand a secrets file for credentials that are already in place.
+            # If it holds nothing, this is the silent-blank case: refuse.
+            if existing and existing[name]:
+                report.skip(self.domain, f"{existing[self.descriptor.key]}.{name}",
+                            RULE_SECRET_KEPT)
+                return None
+            raise UserError(_(
+                "%(model)s.%(field)s needs secret %(path)s, which could not be "
+                "resolved, and there is no existing value to keep.",
+                model=self.descriptor.model, field=name, path=value.path,
+            ))
+        if field.type == "many2many":
+            if not value:
+                return [Command.clear()]
+            target = self.registry.get(field.comodel_name)
+            records = env[field.comodel_name].with_context(active_test=False).search(
+                [(target.key, "in", list(value))])
+            found = {r[target.key] for r in records}
+            missing = set(value) - found
+            if missing:
+                raise UserError(_(
+                    "%(model)s.%(field)s refers to %(target)s %(missing)r, "
+                    "which do not exist.",
+                    model=self.descriptor.model, field=name,
+                    target=field.comodel_name, missing=sorted(missing),
+                ))
+            return [Command.set(records.ids)]
         if field.type == "many2one":
             if not value:
                 return False
             target = self.registry.get(field.comodel_name)
-            found = env[field.comodel_name].search(
+            # active_test=False: configuration legitimately references
+            # archived records (res.users.main_user_id -> __system__).
+            found = env[field.comodel_name].with_context(active_test=False).search(
                 [(target.key, "=", value)], limit=1)
             if not found:
                 raise UserError(_(
@@ -268,7 +311,8 @@ class RecordHandler(Handler):
                         "field %(field)s does not exist on %(model)s",
                         field=name, model=self.descriptor.model))
                     continue
-                resolved = self._resolve_value(env, name, value, model, report)
+                resolved = self._resolve_value(
+                    env, name, value, model, report, existing)
                 if resolved is None:
                     continue
                 if existing and _same(existing[name], resolved, model._fields[name]):
@@ -316,7 +360,12 @@ def _same(current, wanted, field):
     if field.type == "many2one":
         return (current.id or False) == (wanted or False)
     if field.type == "many2many":
-        return sorted(current.ids) == sorted(wanted or [])
+        # `wanted` is a Command list; compare against the ids it would set.
+        wanted_ids = []
+        for cmd in wanted or []:
+            if cmd[0] == Command.SET:
+                wanted_ids = list(cmd[2])
+        return sorted(current.ids) == sorted(wanted_ids)
     if current is None or current is False:
         return wanted in (None, False, "")
     return current == wanted
